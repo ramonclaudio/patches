@@ -14,24 +14,41 @@ Fixes for package bugs that haven't landed upstream yet.
 
 ## Usage
 
-Copy the patch into your project's `patches/` dir.
+Copy the patch into your project's `patches/` dir. File naming differs by package manager.
 
-**Bun**
+### Bun
+
+Patches use `%2F` scope encoding and `@` version separator.
 
 ```jsonc
 // package.json
 {
   "patchedDependencies": {
-    "@convex-dev/better-auth@0.10.10": "patches/@convex-dev+better-auth+0.10.10.patch"
+    "@expo/ui@56.0.0-canary-20260212-4f61309": "patches/@expo%2Fui@56.0.0-canary-20260212-4f61309.patch"
   }
 }
 ```
 
-**npm / pnpm** ([patch-package](https://github.com/ds300/patch-package))
+Bun applies patches automatically on install.
 
-```bash
-npx patch-package
+### npm / pnpm
+
+Patches use `+` separators. Requires [patch-package](https://github.com/ds300/patch-package) as a dev dep with a `postinstall` script.
+
+```jsonc
+// package.json
+{
+  "scripts": {
+    "postinstall": "patch-package"
+  },
+  "devDependencies": {
+    "patch-package": "^8.0.1"
+  }
+}
 ```
+
+> [!IMPORTANT]
+> Bun and patch-package use different file naming conventions. A patch named `@scope%2Fpkg@version.patch` (Bun) won't work with patch-package. Rename it to `@scope+pkg+version.patch` for npm/pnpm, or vice versa.
 
 ## Structure
 
