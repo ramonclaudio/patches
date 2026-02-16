@@ -3,7 +3,7 @@
 Fixes for package bugs that haven't landed upstream yet.
 
 > [!NOTE]
-> These patches track open upstream PRs. Once a PR merges and you update the package, remove the corresponding patch.
+> These patches track open upstream PRs. Once a PR merges and you update the dep, drop the patch.
 
 ## Patches
 
@@ -14,11 +14,11 @@ Fixes for package bugs that haven't landed upstream yet.
 
 ## Usage
 
-Copy the patch into your project's `patches/` dir. Each package manager uses a different naming convention and config format -- you'll need to rename the file if switching between them.
+Copy the patch into your project's `patches/` dir. Naming differs by package manager -- rename to match yours.
 
 ### Bun
 
-Bun has native patching. File names use `%2F` scope encoding and `@` as the version separator. Patches apply automatically on `bun install`.
+Native patching. Applied on `bun install`.
 
 ```jsonc
 // package.json
@@ -31,7 +31,7 @@ Bun has native patching. File names use `%2F` scope encoding and `@` as the vers
 
 ### npm
 
-npm does not have native patching. Requires [patch-package](https://github.com/ds300/patch-package) as a dev dep with a `postinstall` script. File names use `+` as the separator.
+No native patching. Uses [patch-package](https://github.com/ds300/patch-package) with a `postinstall` script.
 
 ```jsonc
 // package.json
@@ -47,7 +47,7 @@ npm does not have native patching. Requires [patch-package](https://github.com/d
 
 ### pnpm
 
-pnpm has native patching via [`pnpm patch`](https://pnpm.io/cli/patch). Config lives under the `pnpm` key in package.json.
+Native patching via [`pnpm patch`](https://pnpm.io/cli/patch). Config goes in the `pnpm` key.
 
 ```jsonc
 // package.json
@@ -61,7 +61,7 @@ pnpm has native patching via [`pnpm patch`](https://pnpm.io/cli/patch). Config l
 ```
 
 > [!IMPORTANT]
-> Each tool uses a different file naming convention for scoped packages:
+> Scoped package file naming differs per tool:
 >
 > | Tool | Example filename |
 > | :--- | :--- |
@@ -69,7 +69,7 @@ pnpm has native patching via [`pnpm patch`](https://pnpm.io/cli/patch). Config l
 > | npm (patch-package) | `@scope+pkg+version.patch` |
 > | pnpm | `@scope__pkg@version.patch` |
 >
-> Rename the file to match your package manager before adding it.
+> Rename to match your package manager.
 
 ## Structure
 
