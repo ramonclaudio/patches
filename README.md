@@ -7,22 +7,22 @@ Fixes for package bugs waiting on upstream merges.
 
 ## Active
 
-| Package | Version | Fix | PR |
-| :--- | :--- | :--- | :--- |
-| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Missing `capsule` + `ellipse` shapes in `clipShape`/`mask`, broken `foregroundStyle` hierarchical handling | [expo/expo#43158](https://github.com/expo/expo/pull/43158) |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Cookie expiry string comparison, null session cache, wrong `isAuthenticated` check | [get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218) |
+| Package | Version | Format | Fix | PR |
+| :--- | :--- | :--- | :--- | :--- |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun | Missing `capsule` + `ellipse` shapes in `clipShape`/`mask`, broken `foregroundStyle` hierarchical handling | [expo/expo#43158](https://github.com/expo/expo/pull/43158) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | patch-package | Cookie expiry string comparison, null session cache, wrong `isAuthenticated` check | [get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218) |
 
 ## Resolved
 
 Kept for reference. Update the dep instead.
 
-| Package | Was | Fix | Fixed in |
-| :--- | :--- | :--- | :--- |
-| [`convex`](packages/convex/) | `1.31.3` | `WebSocketManager` crashes where `window` exists but `addEventListener` doesn't | [`1.31.4`](https://github.com/get-convex/convex-backend/pull/44935) |
+| Package | Was | Format | Fix | Fixed in |
+| :--- | :--- | :--- | :--- | :--- |
+| [`convex`](packages/convex/) | `1.31.3` | patch-package | `WebSocketManager` crashes where `window` exists but `addEventListener` doesn't | [`1.31.4`](https://github.com/get-convex/convex-backend/pull/44935) |
 
 ## Usage
 
-Copy the patch into your project's `patches/` dir. Rename to match your PM.
+Copy the patch into your project's `patches/` dir.
 
 ### Bun
 
@@ -69,13 +69,17 @@ No native patching. Uses [patch-package](https://github.com/ds300/patch-package)
 ```
 
 > [!IMPORTANT]
-> Scoped package naming differs per tool:
+> Patches aren't drop-in across package managers. Two things differ:
+>
+> **Filename** — each tool uses a different separator for scoped packages:
 >
 > | Tool | Format |
 > | :--- | :--- |
 > | Bun | `@scope%2Fpkg@version.patch` |
 > | npm (patch-package) | `@scope+pkg+version.patch` |
 > | pnpm | `@scope__pkg@version.patch` |
+>
+> **Diff paths** — Bun and pnpm use paths relative to the package root. patch-package prefixes paths with `node_modules/@scope/pkg/`. You may need to strip or add that prefix depending on which tool generated the patch vs. which tool you're using.
 
 ## Structure
 
