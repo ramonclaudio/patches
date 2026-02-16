@@ -79,7 +79,15 @@ No native patching. Uses [patch-package](https://github.com/ds300/patch-package)
 > | npm (patch-package) | `@scope+pkg+version.patch` |
 > | pnpm | `@scope__pkg@version.patch` |
 >
-> **Diff paths** — Bun and pnpm use paths relative to the package root. patch-package prefixes paths with `node_modules/@scope/pkg/`. You may need to strip or add that prefix depending on which tool generated the patch vs. which tool you're using.
+> **Diff paths** — Bun and pnpm use paths relative to the package root. patch-package prefixes paths with `node_modules/@scope/pkg/`. To convert:
+>
+> ```bash
+> # patch-package → Bun/pnpm (strip the node_modules prefix)
+> sed 's|node_modules/@scope/pkg/||g' old.patch > new.patch
+>
+> # Bun/pnpm → patch-package (add the node_modules prefix)
+> sed 's|a/|a/node_modules/@scope/pkg/|g; s|b/|b/node_modules/@scope/pkg/|g' old.patch > new.patch
+> ```
 
 ## Structure
 
@@ -92,7 +100,7 @@ packages/
 
 ## Contributing
 
-PRs welcome. Include the patch, what it fixes, and the package version.
+Include the patch, what it fixes, and the package version.
 
 ## License
 
