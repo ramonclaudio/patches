@@ -11,7 +11,7 @@ Fixes for package bugs waiting on upstream merges.
 | :--- | :--- | :--- | :--- | :--- |
 | [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun | Missing `capsule` + `ellipse` shapes in `clipShape`/`mask`, broken `foregroundStyle` hierarchical handling | [expo/expo#43158](https://github.com/expo/expo/pull/43158) |
 | [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | patch-package | Cookie expiry string comparison, null session cache, wrong `isAuthenticated` check | [get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218) |
-| [`@tobilu/qmd`](packages/@tobilu/qmd/) | `1.0.6` | patch-package | `typescript` in `peerDependencies` instead of `devDependencies`, missing `tsc` in `prepare` script | [tobi/qmd#197](https://github.com/tobi/qmd/pull/197) |
+| [`@tobilu/qmd`](packages/@tobilu/qmd/) | `1.0.6` | patch-package, Bun | `typescript` in `peerDependencies` instead of `devDependencies`, missing `tsc` in `prepare` script | [tobi/qmd#197](https://github.com/tobi/qmd/pull/197) |
 
 ## Resolved
 
