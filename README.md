@@ -24,7 +24,7 @@ Kept for reference. Update the dep instead.
 
 Copy the patch into your project's `patches/` dir.
 
-### Bun
+### Bun (1.2+)
 
 Applied on `bun install`.
 
@@ -53,19 +53,14 @@ No native patching. Uses [patch-package](https://github.com/ds300/patch-package)
 }
 ```
 
-### pnpm
+### pnpm (10.7+)
 
-[`pnpm patch`](https://pnpm.io/cli/patch). Config goes in the `pnpm` key.
+[`pnpm patch`](https://pnpm.io/cli/patch). Config goes in `pnpm-workspace.yaml`.
 
-```jsonc
-// package.json
-{
-  "pnpm": {
-    "patchedDependencies": {
-      "@convex-dev/better-auth@0.10.10": "patches/@convex-dev__better-auth@0.10.10.patch"
-    }
-  }
-}
+```yaml
+# pnpm-workspace.yaml
+patchedDependencies:
+  "@convex-dev/better-auth@0.10.10": "patches/@convex-dev__better-auth@0.10.10.patch"
 ```
 
 > [!IMPORTANT]
@@ -86,7 +81,11 @@ No native patching. Uses [patch-package](https://github.com/ds300/patch-package)
 > sed 's|node_modules/@scope/pkg/||g' old.patch > new.patch
 >
 > # Bun/pnpm → patch-package (add the node_modules prefix)
-> sed 's|a/|a/node_modules/@scope/pkg/|g; s|b/|b/node_modules/@scope/pkg/|g' old.patch > new.patch
+> sed -e '/^diff --git /s|a/|a/node_modules/@scope/pkg/|' \
+>     -e '/^diff --git /s|b/|b/node_modules/@scope/pkg/|' \
+>     -e 's|^--- a/|--- a/node_modules/@scope/pkg/|' \
+>     -e 's|^+++ b/|+++ b/node_modules/@scope/pkg/|' \
+>     old.patch > new.patch
 > ```
 
 ## Structure
