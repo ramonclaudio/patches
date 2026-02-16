@@ -14,11 +14,11 @@ Fixes for package bugs that haven't landed upstream yet.
 
 ## Usage
 
-Copy the patch into your project's `patches/` dir. File naming differs by package manager.
+Copy the patch into your project's `patches/` dir. Each package manager uses a different naming convention and config format -- you'll need to rename the file if switching between them.
 
 ### Bun
 
-Patches use `%2F` scope encoding and `@` version separator.
+Bun has native patching. File names use `%2F` scope encoding and `@` as the version separator. Patches apply automatically on `bun install`.
 
 ```jsonc
 // package.json
@@ -29,11 +29,9 @@ Patches use `%2F` scope encoding and `@` version separator.
 }
 ```
 
-Bun applies patches automatically on install.
+### npm
 
-### npm / pnpm
-
-Patches use `+` separators. Requires [patch-package](https://github.com/ds300/patch-package) as a dev dep with a `postinstall` script.
+npm does not have native patching. Requires [patch-package](https://github.com/ds300/patch-package) as a dev dep with a `postinstall` script. File names use `+` as the separator.
 
 ```jsonc
 // package.json
@@ -47,8 +45,31 @@ Patches use `+` separators. Requires [patch-package](https://github.com/ds300/pa
 }
 ```
 
+### pnpm
+
+pnpm has native patching via [`pnpm patch`](https://pnpm.io/cli/patch). Config lives under the `pnpm` key in package.json.
+
+```jsonc
+// package.json
+{
+  "pnpm": {
+    "patchedDependencies": {
+      "@convex-dev/better-auth@0.10.10": "patches/@convex-dev__better-auth@0.10.10.patch"
+    }
+  }
+}
+```
+
 > [!IMPORTANT]
-> Bun and patch-package use different file naming conventions. A patch named `@scope%2Fpkg@version.patch` (Bun) won't work with patch-package. Rename it to `@scope+pkg+version.patch` for npm/pnpm, or vice versa.
+> Each tool uses a different file naming convention for scoped packages:
+>
+> | Tool | Example filename |
+> | :--- | :--- |
+> | Bun | `@scope%2Fpkg@version.patch` |
+> | npm (patch-package) | `@scope+pkg+version.patch` |
+> | pnpm | `@scope__pkg@version.patch` |
+>
+> Rename the file to match your package manager before adding it.
 
 ## Structure
 
