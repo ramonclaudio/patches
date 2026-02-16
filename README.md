@@ -1,25 +1,32 @@
 # patches
 
-Fixes for package bugs that haven't landed upstream yet.
+Fixes for package bugs waiting on upstream merges.
 
 > [!NOTE]
-> These patches track open upstream PRs. Once a PR merges and you update the dep, drop the patch.
+> Once an upstream PR lands and you bump the dep, drop the patch.
 
-## Patches
+## Active
 
-| Package | Version | What it fixes |
-| :--- | :--- | :--- |
-| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Missing `capsule` + `ellipse` shapes in `clipShape`/`mask`, broken `foregroundStyle` hierarchical handling <br> PR: [expo/expo#43158](https://github.com/expo/expo/pull/43158) |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Cookie expiry comparison bug, null session cache, wrong `isAuthenticated` check <br> PR: [get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218) |
-| ~~[`convex`](packages/convex/)~~ | ~~`1.31.3`~~ | ~~`WebSocketManager` crashes in environments where `window` exists but `addEventListener` doesn't (React Native)~~ <br> ~~PR: [get-convex/convex-backend#44935](https://github.com/get-convex/convex-backend/pull/44935)~~ — **Fixed in `1.31.4`** |
+| Package | Version | Fix | PR |
+| :--- | :--- | :--- | :--- |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Missing `capsule` + `ellipse` shapes in `clipShape`/`mask`, broken `foregroundStyle` hierarchical handling | [expo/expo#43158](https://github.com/expo/expo/pull/43158) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Cookie expiry string comparison, null session cache, wrong `isAuthenticated` check | [get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218) |
+
+## Resolved
+
+Kept for reference. Update the dep instead.
+
+| Package | Was | Fix | Fixed in |
+| :--- | :--- | :--- | :--- |
+| [`convex`](packages/convex/) | `1.31.3` | `WebSocketManager` crashes where `window` exists but `addEventListener` doesn't | [`1.31.4`](https://github.com/get-convex/convex-backend/pull/44935) |
 
 ## Usage
 
-Copy the patch into your project's `patches/` dir. Naming differs by package manager -- rename to match yours.
+Copy the patch into your project's `patches/` dir. Rename to match your PM.
 
 ### Bun
 
-Native patching. Applied on `bun install`.
+Applied on `bun install`.
 
 ```jsonc
 // package.json
@@ -32,7 +39,7 @@ Native patching. Applied on `bun install`.
 
 ### npm
 
-No native patching. Uses [patch-package](https://github.com/ds300/patch-package) with a `postinstall` script.
+No native patching. Uses [patch-package](https://github.com/ds300/patch-package) via `postinstall`.
 
 ```jsonc
 // package.json
@@ -48,7 +55,7 @@ No native patching. Uses [patch-package](https://github.com/ds300/patch-package)
 
 ### pnpm
 
-Native patching via [`pnpm patch`](https://pnpm.io/cli/patch). Config goes in the `pnpm` key.
+[`pnpm patch`](https://pnpm.io/cli/patch). Config goes in the `pnpm` key.
 
 ```jsonc
 // package.json
@@ -62,15 +69,13 @@ Native patching via [`pnpm patch`](https://pnpm.io/cli/patch). Config goes in th
 ```
 
 > [!IMPORTANT]
-> Scoped package file naming differs per tool:
+> Scoped package naming differs per tool:
 >
-> | Tool | Example filename |
+> | Tool | Format |
 > | :--- | :--- |
 > | Bun | `@scope%2Fpkg@version.patch` |
 > | npm (patch-package) | `@scope+pkg+version.patch` |
 > | pnpm | `@scope__pkg@version.patch` |
->
-> Rename to match your package manager.
 
 ## Structure
 
@@ -83,7 +88,7 @@ packages/
 
 ## Contributing
 
-PRs welcome. Include the patch file, what it fixes, and the package version.
+PRs welcome. Include the patch, what it fixes, and the package version.
 
 ## License
 
