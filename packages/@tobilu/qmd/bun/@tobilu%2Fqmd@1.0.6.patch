@@ -1,5 +1,5 @@
 diff --git a/package.json b/package.json
-index f312709..1b98b0c 100644
+index f3127099b6cd2fb2ec64d0135aaf53c8a2fd2f0d..78141d0798c8a10d55a2c9458ca70424cbca6e18 100644
 --- a/package.json
 +++ b/package.json
 @@ -13,7 +13,7 @@
@@ -11,16 +11,14 @@ index f312709..1b98b0c 100644
      "build": "tsc -p tsconfig.build.json",
      "test": "vitest run --reporter=verbose test/",
      "qmd": "tsx src/qmd.ts",
-@@ -55,11 +55,9 @@
+@@ -55,9 +55,7 @@
    "devDependencies": {
      "@types/better-sqlite3": "^7.6.0",
      "tsx": "^4.0.0",
-+    "typescript": "^5.9.3",
-     "vitest": "^3.0.0"
-   },
--  "peerDependencies": {
--    "typescript": "^5.9.3"
+-    "vitest": "^3.0.0"
 -  },
-   "engines": {
-     "node": ">=22.0.0"
+-  "peerDependencies": {
++    "vitest": "^3.0.0",
+     "typescript": "^5.9.3"
    },
+   "engines": {
