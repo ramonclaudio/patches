@@ -1,12 +1,21 @@
 # patches
 
-Patch files for packages and dependencies. Drop-in fixes for bugs, missing features, and type errors that haven't been merged upstream yet.
+Fixes for package bugs that haven't landed upstream yet.
+
+## Patches
+
+| Package | Version | What it fixes |
+|---------|---------|---------------|
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Missing `capsule` + `ellipse` shapes in `clipShape`/`mask`, broken `foregroundStyle` hierarchical handling |
+| | | PR: [expo/expo#43158](https://github.com/expo/expo/pull/43158) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Cookie expiry comparison bug, null session cache, wrong `isAuthenticated` check |
+| | | PR: [get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218) |
 
 ## Usage
 
-Copy the patch file into your project's `patches/` directory and apply it with your package manager's patch mechanism:
+Copy the patch into your project's `patches/` dir.
 
-**Bun** (automatic — uses `patch:` protocol in `package.json`):
+**Bun**
 
 ```jsonc
 // package.json
@@ -17,18 +26,11 @@ Copy the patch file into your project's `patches/` directory and apply it with y
 }
 ```
 
-**npm / pnpm** (via [patch-package](https://github.com/ds300/patch-package)):
+**npm / pnpm** ([patch-package](https://github.com/ds300/patch-package))
 
 ```bash
-npx patch-package # auto-applies patches from patches/ on install
+npx patch-package
 ```
-
-## Patches
-
-| Package | Version | Description |
-|---------|---------|-------------|
-| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Add `capsule` and `ellipse` to `clipShape` and `mask` shape types, fix `foregroundStyle` hierarchical handling |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Fix cookie expiry comparison, null session cache handling, and `isAuthenticated` check |
 
 ## Structure
 
@@ -41,11 +43,7 @@ packages/
 
 ## Contributing
 
-Found a bug in a dependency? PRs welcome. Include:
-
-1. The patch file
-2. A brief description of what it fixes
-3. The affected package version
+PRs welcome. Include the patch file, what it fixes, and the package version.
 
 ## License
 
