@@ -1,7 +1,7 @@
-diff --git a/package.json b/package.json
+diff --git a/node_modules/@tobilu/qmd/package.json b/node_modules/@tobilu/qmd/package.json
 index f312709..1b98b0c 100644
---- a/package.json
-+++ b/package.json
+--- a/node_modules/@tobilu/qmd/package.json
++++ b/node_modules/@tobilu/qmd/package.json
 @@ -13,7 +13,7 @@
      "CHANGELOG.md"
    ],

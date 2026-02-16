@@ -95,8 +95,15 @@ patchedDependencies:
 packages/
   @<scope>/
     <package>/
-      <patch-file>.patch
+      bun/
+        <patch-file>.patch
+      npm/
+        <patch-file>.patch
+      pnpm/
+        <patch-file>.patch
 ```
+
+Each subdirectory contains the patch in that package manager's format. Not every package has patches for every manager.
 
 ## Contributing
 
