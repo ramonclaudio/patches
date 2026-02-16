@@ -11,6 +11,7 @@ Fixes for package bugs that haven't landed upstream yet.
 | :--- | :--- | :--- |
 | [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Missing `capsule` + `ellipse` shapes in `clipShape`/`mask`, broken `foregroundStyle` hierarchical handling <br> PR: [expo/expo#43158](https://github.com/expo/expo/pull/43158) |
 | [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Cookie expiry comparison bug, null session cache, wrong `isAuthenticated` check <br> PR: [get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218) |
+| ~~[`convex`](packages/convex/)~~ | ~~`1.31.3`~~ | ~~`WebSocketManager` crashes in environments where `window` exists but `addEventListener` doesn't (React Native)~~ <br> ~~PR: [get-convex/convex-backend#44935](https://github.com/get-convex/convex-backend/pull/44935)~~ — **Fixed in `1.31.4`** |
 
 ## Usage
 
