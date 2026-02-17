@@ -1,7 +1,16 @@
 diff --git a/dist/plugins/cross-domain/client.js b/dist/plugins/cross-domain/client.js
-index ae0c621..b2d0788 100644
+index ae0c621..f702b32 100644
 --- a/dist/plugins/cross-domain/client.js
 +++ b/dist/plugins/cross-domain/client.js
+@@ -26,7 +26,7 @@ export function getSetCookie(header, prevCookie) {
+                 : null;
+         toSetCookie[key] = {
+             value: cookie["value"],
+-            expires,
++            expires: expires ? expires.toISOString() : null,
+         };
+     });
+     if (prevCookie) {
 @@ -52,7 +52,7 @@ export function getCookie(cookie) {
          // noop
      }
@@ -11,7 +20,23 @@ index ae0c621..b2d0788 100644
              return acc;
          }
          return `${acc}; ${key}=${value.value}`;
-@@ -140,6 +140,9 @@ export const crossDomainClient = (opts = {}) => {
+@@ -113,7 +113,14 @@ export const crossDomainClient = (opts = {}) => {
+                  */
+                 getSessionData: () => {
+                     const sessionData = storage?.getItem(localCacheName);
+-                    return sessionData ? JSON.parse(sessionData) : null;
++                    if (!sessionData) return null;
++                    try {
++                        const parsed = JSON.parse(sessionData);
++                        if (parsed && typeof parsed === "object" && Object.keys(parsed).length === 0) return null;
++                        return parsed;
++                    } catch {
++                        return null;
++                    }
+                 },
+             };
+         },
+@@ -140,6 +147,9 @@ export const crossDomainClient = (opts = {}) => {
                              !opts?.disableCache) {
                              const data = context.data;
                              storage.setItem(localCacheName, JSON.stringify(data));
@@ -21,15 +46,6 @@ index ae0c621..b2d0788 100644
                          }
                      },
                  },
-@@ -165,7 +168,7 @@ export const crossDomainClient = (opts = {}) => {
-                             error: null,
-                             isPending: false,
-                         });
--                        storage.setItem(localCacheName, "{}");
-+                        storage.setItem(localCacheName, "null");
-                     }
-                     return {
-                         url,
 diff --git a/dist/react/index.js b/dist/react/index.js
 index eb292f6..235eef4 100644
 --- a/dist/react/index.js
