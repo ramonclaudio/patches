@@ -10,7 +10,8 @@ Fixes for package bugs waiting on upstream merges.
 | Package | Version | Format | Fix | PR |
 | :--- | :--- | :--- | :--- | :--- |
 | [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun | Missing `capsule` + `ellipse` shapes in `clipShape`/`mask`, broken `foregroundStyle` hierarchical handling | [expo/expo#43158](https://github.com/expo/expo/pull/43158) |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | patch-package | Cookie expiry string comparison, null session cache, wrong `isAuthenticated` check | [get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | patch-package, Bun | Cookie expiry string comparison, null session cache, wrong `isAuthenticated` check | [get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Bun, patch-package | Pinned `better-auth` peer dep `1.4.9` blocks newer 1.4.x versions | [get-convex/better-auth#245](https://github.com/get-convex/better-auth/pull/245) |
 | [`@tobilu/qmd`](packages/@tobilu/qmd/) | `1.0.6` | patch-package, Bun | `typescript` in `peerDependencies` instead of `devDependencies`, missing `tsc` in `prepare` script | [tobi/qmd#197](https://github.com/tobi/qmd/pull/197) |
 | [`bun`](packages/oven-sh/bun/) | `1.3.9` | Bun | `includePrerelease` semantics for peer dep semver validation | [oven-sh/bun#27085](https://github.com/oven-sh/bun/pull/27085) |
 | [`bun`](packages/oven-sh/bun/) | `1.3.9` | Bun | Invalid YAML sequence in `update-root-certs` workflow `labels` field | [oven-sh/bun#27086](https://github.com/oven-sh/bun/pull/27086) |
