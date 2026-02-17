@@ -1,0 +1,14 @@
+diff --git a/.github/workflows/update-root-certs.yml b/.github/workflows/update-root-certs.yml
+index c3bf4b4879b..fb15bcf1c82 100644
+--- a/.github/workflows/update-root-certs.yml
++++ b/.github/workflows/update-root-certs.yml
+@@ -77,6 +77,6 @@ jobs:
+           branch: certs/update-root-certs
+           base: main
+           delete-branch: true
+-          labels:
+-            - "automation"
+-            - "root-certs"
++          labels: |
++            automation
++            root-certs

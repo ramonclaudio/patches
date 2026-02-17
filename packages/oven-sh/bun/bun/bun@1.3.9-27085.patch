@@ -1,0 +1,57 @@
+diff --git a/src/install/PackageManager/PackageManagerEnqueue.zig b/src/install/PackageManager/PackageManagerEnqueue.zig
+index 9df5508e741..ec536fe9640 100644
+--- a/src/install/PackageManager/PackageManagerEnqueue.zig
++++ b/src/install/PackageManager/PackageManagerEnqueue.zig
+@@ -1848,7 +1848,7 @@ fn getOrPutResolvedPackage(
+ fn resolutionSatisfiesDependency(this: *PackageManager, resolution: Resolution, dependency: Dependency.Version) bool {
+     const buf = this.lockfile.buffers.string_bytes.items;
+     if (resolution.tag == .npm and dependency.tag == .npm) {
+-        return dependency.value.npm.version.satisfies(resolution.value.npm.version, buf, buf);
++        return dependency.value.npm.version.satisfiesIncludePrerelease(resolution.value.npm.version, buf, buf);
+     }
+ 
+     if (resolution.tag == .git and dependency.tag == .git) {
+diff --git a/src/semver/SemverQuery.zig b/src/semver/SemverQuery.zig
+index 056cf119174..5ae0736c130 100644
+--- a/src/semver/SemverQuery.zig
++++ b/src/semver/SemverQuery.zig
+@@ -100,6 +100,20 @@ pub const List = struct {
+         );
+     }
+ 
++    pub fn satisfiesIncludePrerelease(list: *const List, version: Version, list_buf: string, version_buf: string) bool {
++        var pre_matched = false;
++        return list.head.satisfiesPre(
++            version,
++            list_buf,
++            version_buf,
++            &pre_matched,
++        ) or (list.next orelse return false).satisfiesIncludePrerelease(
++            version,
++            list_buf,
++            version_buf,
++        );
++    }
++
+     pub fn eql(lhs: *const List, rhs: *const List) bool {
+         if (!lhs.head.eql(&rhs.head)) return false;
+ 
+@@ -299,6 +313,18 @@ pub const Group = struct {
+         else
+             group.head.satisfies(version, group_buf, version_buf);
+     }
++
++    pub inline fn satisfiesIncludePrerelease(
++        group: *const Group,
++        version: Version,
++        group_buf: string,
++        version_buf: string,
++    ) bool {
++        return if (version.tag.hasPre())
++            group.head.satisfiesIncludePrerelease(version, group_buf, version_buf)
++        else
++            group.head.satisfies(version, group_buf, version_buf);
++    }
+ };
+ 
+ pub fn eql(lhs: *const Query, rhs: *const Query) bool {
