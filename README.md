@@ -9,12 +9,12 @@ Fixes for package bugs waiting on upstream merges.
 
 | Package | Version | Format | Fix | PR |
 | :--- | :--- | :--- | :--- | :--- |
-| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun | Missing `capsule` + `ellipse` shapes in `clipShape`/`mask`, broken `foregroundStyle` hierarchical handling | [expo/expo#43158](https://github.com/expo/expo/pull/43158) |
-| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun | Add per-axis `scaleEffect({ x, y })` to view modifiers — enables inverted list layout for bottom-anchored chat-style scrolling | [expo/expo#43228](https://github.com/expo/expo/pull/43228) |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | npm (patch-package), Bun | Cookie expiry string comparison, null session cache, wrong `isAuthenticated` check | [get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218) |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Bun, npm (patch-package) | Pinned `better-auth` peer dep `1.4.9` blocks newer 1.4.x versions | [get-convex/better-auth#245](https://github.com/get-convex/better-auth/pull/245) |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | Missing `capsule` + `ellipse` shapes in `clipShape`/`mask`, broken `foregroundStyle` hierarchical handling | [expo/expo#43158](https://github.com/expo/expo/pull/43158) |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | Add per-axis `scaleEffect({ x, y })` to view modifiers — enables inverted list layout for bottom-anchored chat-style scrolling | [expo/expo#43228](https://github.com/expo/expo/pull/43228) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Bun, npm (patch-package), pnpm | Cookie expiry string comparison, null session cache, wrong `isAuthenticated` check | [get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Bun, npm (patch-package), pnpm | Pinned `better-auth` peer dep `1.4.9` blocks newer 1.4.x versions | [get-convex/better-auth#245](https://github.com/get-convex/better-auth/pull/245) |
 | [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.11` | Bun, npm (patch-package), pnpm | Deduplicate concurrent `fetchAccessToken` calls — adds `pendingTokenRef` to share one in-flight `/token` request | [get-convex/better-auth#267](https://github.com/get-convex/better-auth/pull/267) |
-| [`@tobilu/qmd`](packages/@tobilu/qmd/) | `1.0.6` | npm (patch-package), Bun | `typescript` in `peerDependencies` instead of `devDependencies`, missing `tsc` in `prepare` script | [tobi/qmd#197](https://github.com/tobi/qmd/pull/197) |
+| [`@tobilu/qmd`](packages/@tobilu/qmd/) | `1.0.6` | Bun, npm (patch-package), pnpm | `typescript` in `peerDependencies` instead of `devDependencies`, missing `tsc` in `prepare` script | [tobi/qmd#197](https://github.com/tobi/qmd/pull/197) |
 | [`@shopify/mini-oxygen`](packages/@shopify/mini-oxygen/) | `4.0.0` | Bun, npm (patch-package), pnpm | [Shopify/hydrogen#3263](https://github.com/Shopify/hydrogen/issues/3263) — Vite 7 breaks `mini-oxygen` with `ReferenceError: __vite_ssr_exportName__ is not defined`, adds missing 6th SSR key, handles `getBuiltins()`, fixes `fetchModule` importer bug, removes deprecated `root` option, updates `vite` peer dep to `^7.0.0` | [Shopify/hydrogen#3493](https://github.com/Shopify/hydrogen/pull/3493) |
 | [`@shopify/hydrogen`](packages/@shopify/hydrogen/) | `2026.1.0` | Bun, npm (patch-package), pnpm | Update `vite` peer dep from `^5.1.0 \|\| ^6.2.1` to `^7.0.0` | [Shopify/hydrogen#3493](https://github.com/Shopify/hydrogen/pull/3493) |
 | [`@shopify/hydrogen-react`](packages/@shopify/hydrogen-react/) | `2026.1.0` | Bun, npm (patch-package), pnpm | Widen `vite` peer dep to `^5.1.0 \|\| ^6.2.1 \|\| ^7.0.0` | [Shopify/hydrogen#3493](https://github.com/Shopify/hydrogen/pull/3493) |
@@ -28,7 +28,7 @@ Kept for reference. Bump the dep instead.
 
 | Package | Was | Format | Fix | Fixed in |
 | :--- | :--- | :--- | :--- | :--- |
-| [`convex`](packages/convex/) | `1.31.3` | npm (patch-package) | `WebSocketManager` crashes where `window` exists but `addEventListener` doesn't | [`1.31.4`](https://github.com/get-convex/convex-backend/pull/44935) |
+| [`convex`](packages/convex/) | `1.31.3` | Bun, npm (patch-package), pnpm | `WebSocketManager` crashes where `window` exists but `addEventListener` doesn't | [`1.31.4`](https://github.com/get-convex/convex-backend/pull/44935) |
 | `bun` | pre-`1.3.0` | — | `decompress` option missing from `fetch()` TypeScript types | [`1.3.0`](https://github.com/oven-sh/bun/pull/21855) |
 
 ## Filed
