@@ -1,0 +1,92 @@
+diff --git a/dist/vite/server-middleware.js b/dist/vite/server-middleware.js
+index 892882a..b12479f 100644
+--- a/dist/vite/server-middleware.js
++++ b/dist/vite/server-middleware.js
+@@ -44,7 +44,6 @@ function startMiniOxygenRuntime({
+         },
+         bindings: {
+           ...env,
+-          __VITE_ROOT: viteDevServer.config.root,
+           __VITE_RUNTIME_EXECUTE_URL: workerEntryFile,
+           __VITE_FETCH_MODULE_PATHNAME: FETCH_MODULE_PATHNAME,
+           __VITE_WARMUP_PATHNAME: WARMUP_PATHNAME
+diff --git a/dist/vite/worker-entry.js b/dist/vite/worker-entry.js
+index 99e0836..bfac966 100644
+--- a/dist/vite/worker-entry.js
++++ b/dist/vite/worker-entry.js
+@@ -713,6 +713,7 @@ var ssrImportKey = "__vite_ssr_import__";
+ var ssrDynamicImportKey = "__vite_ssr_dynamic_import__";
+ var ssrExportAllKey = "__vite_ssr_exportAll__";
+ var ssrImportMetaKey = "__vite_ssr_import_meta__";
++var ssrExportNameKey = "__vite_ssr_exportName__";
+ var noop = () => {
+ };
+ var silentConsole = {
+@@ -1369,17 +1370,23 @@ function fetchEntryModule(publicUrl, env) {
+   if (!runtime) {
+     runtime = new ModuleRunner(
+       {
+-        root: env.__VITE_ROOT,
+         sourcemapInterceptor: "prepareStackTrace",
+         transport: {
+           invoke: async (data) => {
+             if (data.type === "custom") {
+               const customData = data.data;
+-              const url = new URL(env.__VITE_FETCH_MODULE_PATHNAME, publicUrl);
+-              url.searchParams.set("id", customData.data[0]);
+-              if (customData.data)
+-                url.searchParams.set("importer", customData.name);
+-              return fetch(url).then((res) => ({ result: res.json() }));
++              if (customData.name === "getBuiltins") {
++                return Promise.resolve({ result: [] });
++              }
++              if (customData.name === "fetchModule") {
++                const url = new URL(env.__VITE_FETCH_MODULE_PATHNAME, publicUrl);
++                const [id, importer] = customData.data;
++                url.searchParams.set("id", id);
++                if (importer) {
++                  url.searchParams.set("importer", importer);
++                }
++                return fetch(url).then((res) => ({ result: res.json() }));
++              }
+             }
+             return Promise.resolve({
+               error: `Error - invoke: ${JSON.stringify(data)}`
+@@ -1409,13 +1416,20 @@ function fetchEntryModule(publicUrl, env) {
+             // 'use strict' is implied in ESM so we enable it here. Also, we
+             // add an extra block scope (`{}`) to allow redeclaring variables
+             // with the same name as the parameters.
+-            `'use strict';async (${Object.keys(context).join(
+-              ","
+-            )})=>{{${code}
++            // IMPORTANT: Parameter order must match Vite's esmEvaluator to
++            // ensure compatibility with the transformed SSR code in Vite 7+
++            `'use strict';async (${ssrModuleExportsKey},${ssrImportMetaKey},${ssrImportKey},${ssrDynamicImportKey},${ssrExportAllKey},${ssrExportNameKey})=>{{${code}
+ }}`,
+             module.id
+           );
+-          await initModule(...Object.values(context));
++          await initModule(
++            context[ssrModuleExportsKey],
++            context[ssrImportMetaKey],
++            context[ssrImportKey],
++            context[ssrDynamicImportKey],
++            context[ssrExportAllKey],
++            context[ssrExportNameKey]
++          );
+           Object.freeze(context[ssrModuleExportsKey]);
+         }
+       }
+diff --git a/package.json b/package.json
+index 82a42cc..766833c 100644
+--- a/package.json
++++ b/package.json
+@@ -74,7 +74,7 @@
+     "vitest": "^3.2.4"
+   },
+   "peerDependencies": {
+-    "vite": "^6.2.1"
++    "vite": "^7.0.0"
+   },
+   "peerDependenciesMeta": {
+     "vite": {
