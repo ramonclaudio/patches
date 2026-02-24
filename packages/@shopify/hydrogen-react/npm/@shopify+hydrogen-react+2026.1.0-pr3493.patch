@@ -1,0 +1,13 @@
+diff --git a/node_modules/@shopify/hydrogen-react/package.json b/node_modules/@shopify/hydrogen-react/package.json
+index 4d35f9c..ac171f2 100644
+--- a/node_modules/@shopify/hydrogen-react/package.json
++++ b/node_modules/@shopify/hydrogen-react/package.json
+@@ -170,7 +170,7 @@
+   "peerDependencies": {
+     "react": "^18.3.1 || ~19.0.3 || ~19.1.4 || ^19.2.3",
+     "react-dom": "^18.3.1 || ~19.0.3 || ~19.1.4 || ^19.2.3",
+-    "vite": "^5.1.0 || ^6.2.1"
++    "vite": "^5.1.0 || ^6.2.1 || ^7.0.0"
+   },
+   "dependencies": {
+     "@google/model-viewer": "^4.0.0",

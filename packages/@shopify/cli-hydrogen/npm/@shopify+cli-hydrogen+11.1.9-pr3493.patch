@@ -1,0 +1,13 @@
+diff --git a/node_modules/@shopify/cli-hydrogen/package.json b/node_modules/@shopify/cli-hydrogen/package.json
+index c919122..9701f7f 100644
+--- a/node_modules/@shopify/cli-hydrogen/package.json
++++ b/node_modules/@shopify/cli-hydrogen/package.json
+@@ -64,7 +64,7 @@
+     "@shopify/hydrogen-codegen": "^0.3.3",
+     "@shopify/mini-oxygen": "^4.0.0",
+     "graphql-config": "^5.0.3",
+-    "vite": "^5.1.0 || ^6.2.0"
++    "vite": "^7.0.0"
+   },
+   "peerDependenciesMeta": {
+     "@graphql-codegen/cli": {
