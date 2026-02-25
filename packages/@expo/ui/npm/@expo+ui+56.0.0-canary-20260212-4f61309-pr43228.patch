@@ -1,0 +1,101 @@
+diff --git a/node_modules/@expo/ui/build/swift-ui/List/index.d.ts b/node_modules/@expo/ui/build/swift-ui/List/index.d.ts
+index 02e9345c00c33fbf12222919440f5d3d7e357ac9..6ba901db942a94e5bfce2665de7253b6303950d4 100644
+--- a/node_modules/@expo/ui/build/swift-ui/List/index.d.ts
++++ b/node_modules/@expo/ui/build/swift-ui/List/index.d.ts
+@@ -5,6 +5,10 @@ export interface ListProps extends CommonViewModifierProps {
+      * The children elements to be rendered inside the list.
+      */
+     children: React.ReactNode;
++    /**
++     * Reverses the list and anchors content to the bottom for chat-style interfaces.
++     */
++    inverted?: boolean;
+     /**
+      * The currently selected item tags.
+      */
+diff --git a/node_modules/@expo/ui/build/swift-ui/List/index.d.ts.map b/node_modules/@expo/ui/build/swift-ui/List/index.d.ts.map
+index f8c123aebc67e164c19df01363860f13422b9e4d..bf26da76e5bb7d673ce8936f5ba5394183a56f06 100644
+--- a/node_modules/@expo/ui/build/swift-ui/List/index.d.ts.map
++++ b/node_modules/@expo/ui/build/swift-ui/List/index.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/swift-ui/List/index.tsx"],"names":[],"mappings":"AAEA,OAAO,EAAE,WAAW,EAAE,KAAK,gBAAgB,EAAE,MAAM,eAAe,CAAC;AAGnE,OAAO,EAAE,KAAK,uBAAuB,EAAE,MAAM,UAAU,CAAC;AAiBxD,MAAM,WAAW,SAAU,SAAQ,uBAAuB;IACxD;;OAEG;IACH,QAAQ,EAAE,KAAK,CAAC,SAAS,CAAC;IAE1B;;OAEG;IACH,SAAS,CAAC,EAAE,CAAC,MAAM,GAAG,MAAM,CAAC,EAAE,CAAC;IAEhC;;;OAGG;IACH,iBAAiB,CAAC,EAAE,CAAC,SAAS,EAAE,CAAC,MAAM,GAAG,MAAM,CAAC,EAAE,KAAK,IAAI,CAAC;CAC9D;AAYD;;GAEG;AACH,wBAAgB,IAAI,CAAC,KAAK,EAAE,SAAS,+BAGpC;yBAHe,IAAI;;;AAOpB,OAAO,EAAE,WAAW,EAAE,gBAAgB,EAAE,CAAC"}
+\ No newline at end of file
++{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/swift-ui/List/index.tsx"],"names":[],"mappings":"AAGA,OAAO,EAAE,WAAW,EAAE,KAAK,gBAAgB,EAAE,MAAM,eAAe,CAAC;AAKnE,OAAO,EAAE,KAAK,uBAAuB,EAAE,MAAM,UAAU,CAAC;AAsBxD,MAAM,WAAW,SAAU,SAAQ,uBAAuB;IACxD;;OAEG;IACH,QAAQ,EAAE,KAAK,CAAC,SAAS,CAAC;IAE1B;;OAEG;IACH,QAAQ,CAAC,EAAE,OAAO,CAAC;IAEnB;;OAEG;IACH,SAAS,CAAC,EAAE,CAAC,MAAM,GAAG,MAAM,CAAC,EAAE,CAAC;IAEhC;;;OAGG;IACH,iBAAiB,CAAC,EAAE,CAAC,SAAS,EAAE,CAAC,MAAM,GAAG,MAAM,CAAC,EAAE,KAAK,IAAI,CAAC;CAC9D;AAYD;;GAEG;AACH,wBAAgB,IAAI,CAAC,KAAK,EAAE,SAAS,+BAqBpC;yBArBe,IAAI;;;AAyBpB,OAAO,EAAE,WAAW,EAAE,gBAAgB,EAAE,CAAC"}
+\ No newline at end of file
+diff --git a/node_modules/@expo/ui/src/swift-ui/List/index.tsx b/node_modules/@expo/ui/src/swift-ui/List/index.tsx
+index 73c2193bc0c826794db992333b08b0adf34eb371..c5045f9c33b57a5f9aac7616c6ee9da46b1ec24a 100644
+--- a/node_modules/@expo/ui/src/swift-ui/List/index.tsx
++++ b/node_modules/@expo/ui/src/swift-ui/List/index.tsx
+@@ -1,7 +1,10 @@
+ import { requireNativeView } from 'expo';
++import { Children, isValidElement } from 'react';
+ 
+ import { ListForEach, type ListForEachProps } from './ListForEach';
+ import { type ViewEvent } from '../../types';
++import { Group } from '../Group';
++import { rotationEffect } from '../modifiers';
+ import { createViewModifierEventListener } from '../modifiers/utils';
+ import { type CommonViewModifierProps } from '../types';
+ 
+@@ -10,7 +13,12 @@ const ListNativeView: React.ComponentType<NativeListProps> = requireNativeView<N
+   'ListView'
+ );
+ 
+-function transformListProps(props: Omit<ListProps, 'children'>): Omit<NativeListProps, 'children'> {
++const rotation180 = rotationEffect(180);
++const childModifiers = [rotation180];
++
++function transformListProps(
++  props: Omit<ListProps, 'children' | 'inverted'>
++): Omit<NativeListProps, 'children'> {
+   const { modifiers, ...restProps } = props;
+   return {
+     modifiers,
+@@ -26,6 +34,11 @@ export interface ListProps extends CommonViewModifierProps {
+    */
+   children: React.ReactNode;
+ 
++  /**
++   * Reverses the list and anchors content to the bottom for chat-style interfaces.
++   */
++  inverted?: boolean;
++
+   /**
+    * The currently selected item tags.
+    */
+@@ -43,7 +56,7 @@ export interface ListProps extends CommonViewModifierProps {
+  */
+ type SelectItemEvent = ViewEvent<'onSelectionChange', { selection: (string | number)[] }>;
+ 
+-type NativeListProps = Omit<ListProps, 'onSelectionChange'> &
++type NativeListProps = Omit<ListProps, 'onSelectionChange' | 'inverted'> &
+   SelectItemEvent & {
+     children: React.ReactNode;
+   };
+@@ -52,7 +65,25 @@ type NativeListProps = Omit<ListProps, 'onSelectionChange'> &
+  * A list component that renders its children using a native SwiftUI `List`.
+  */
+ export function List(props: ListProps) {
+-  const { children, ...nativeProps } = props;
++  const { children, inverted, ...nativeProps } = props;
++
++  if (inverted) {
++    const invertedModifiers = [...(nativeProps.modifiers ?? []), rotation180];
++    const reversed = Children.toArray(children)
++      .reverse()
++      .map((child, index) => (
++        <Group key={isValidElement(child) ? child.key : index} modifiers={childModifiers}>
++          {child}
++        </Group>
++      ));
++
++    return (
++      <ListNativeView {...transformListProps({ ...nativeProps, modifiers: invertedModifiers })}>
++        {reversed}
++      </ListNativeView>
++    );
++  }
++
+   return <ListNativeView {...transformListProps(nativeProps)}>{children}</ListNativeView>;
+ }
+ 
