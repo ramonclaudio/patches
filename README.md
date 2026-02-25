@@ -1,6 +1,10 @@
 # patches
 
-[Talk is cheap, send patches.](https://x.com/FFmpeg/status/1762805900035686805)
+Patches for open upstream PRs. Drop them when the release ships.
+
+> Talk is cheap, send patches.
+>
+> [@FFmpeg](https://x.com/FFmpeg/status/1762805900035686805)
 
 > [!NOTE]
 > Patches move Open → Merged → Released as PRs land and versions ship. Once released, bump the dep and drop the patch.
