@@ -13,6 +13,7 @@ Fixes for package bugs waiting on upstream merges.
 | [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun | Add `inverted` prop to `List` for bottom-anchored chat-style scrolling | [expo/expo#43228](https://github.com/expo/expo/pull/43228) |
 | [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | patch-package, Bun | Cookie expiry string comparison, null session cache, wrong `isAuthenticated` check | [get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218) |
 | [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Bun, patch-package | Pinned `better-auth` peer dep `1.4.9` blocks newer 1.4.x versions | [get-convex/better-auth#245](https://github.com/get-convex/better-auth/pull/245) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.11` | Bun, npm (patch-package), pnpm | Deduplicate concurrent `fetchAccessToken` calls — adds `pendingTokenRef` to share one in-flight `/token` request | [get-convex/better-auth#267](https://github.com/get-convex/better-auth/pull/267) |
 | [`@tobilu/qmd`](packages/@tobilu/qmd/) | `1.0.6` | patch-package, Bun | `typescript` in `peerDependencies` instead of `devDependencies`, missing `tsc` in `prepare` script | [tobi/qmd#197](https://github.com/tobi/qmd/pull/197) |
 | [`@shopify/mini-oxygen`](packages/@shopify/mini-oxygen/) | `4.0.0` | Bun, patch-package, pnpm | Vite 7 breaks `mini-oxygen` with `ReferenceError: __vite_ssr_exportName__ is not defined` — adds missing 6th SSR key, handles `getBuiltins()`, fixes `fetchModule` importer bug, removes deprecated `root` option, updates `vite` peer dep to `^7.0.0` | [Shopify/hydrogen#3493](https://github.com/Shopify/hydrogen/pull/3493) |
 | [`@shopify/hydrogen`](packages/@shopify/hydrogen/) | `2026.1.0` | Bun, patch-package, pnpm | Update `vite` peer dep from `^5.1.0 \|\| ^6.2.1` to `^7.0.0` | [Shopify/hydrogen#3493](https://github.com/Shopify/hydrogen/pull/3493) |
@@ -28,6 +29,16 @@ Kept for reference. Bump the dep instead.
 | Package | Was | Format | Fix | Fixed in |
 | :--- | :--- | :--- | :--- | :--- |
 | [`convex`](packages/convex/) | `1.31.3` | patch-package | `WebSocketManager` crashes where `window` exists but `addEventListener` doesn't | [`1.31.4`](https://github.com/get-convex/convex-backend/pull/44935) |
+
+## Filed
+
+Upstream bugs I reported that were fixed without needing a patch.
+
+| Issue | Package | Fix |
+| :--- | :--- | :--- |
+| [panva/jose#752](https://github.com/panva/jose/issues/752) | `jose` | `process.getBuiltinModule` misuse breaks Edge Runtime / Next.js middleware — fixed in [`v6.0.4`](https://github.com/panva/jose/releases/tag/v6.0.4) |
+| [anthropics/claude-code#18181](https://github.com/anthropics/claude-code/issues/18181) | `claude` | Manual update doesn't fix symlink when `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` is set — fixed upstream |
+| [TanStack/db#17](https://github.com/TanStack/db/pull/17) | `@tanstack/db` | Incorrect example todo app path in README — docs only, no npm change |
 
 ## Usage
 
