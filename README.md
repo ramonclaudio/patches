@@ -28,7 +28,7 @@ Kept for reference. Bump the dep instead.
 
 | Package | Was | Format | Fix | Fixed in |
 | :--- | :--- | :--- | :--- | :--- |
-| [`convex`](packages/convex/) | `1.31.3` | patch-package | `WebSocketManager` crashes where `window` exists but `addEventListener` doesn't | [`1.31.4`](https://github.com/get-convex/convex-backend/pull/44935) |
+| [`convex`](packages/convex/) | `1.31.3` | Bun, npm (patch-package), pnpm | `WebSocketManager` crashes where `window` exists but `addEventListener` doesn't | 1.31.4 — [get-convex/convex-backend#44935](https://github.com/get-convex/convex-backend/pull/44935) |
 
 ## Filed
 
