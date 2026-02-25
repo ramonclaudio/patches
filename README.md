@@ -28,7 +28,8 @@ Kept for reference. Bump the dep instead.
 
 | Package | Was | Format | Fix | Fixed in |
 | :--- | :--- | :--- | :--- | :--- |
-| [`convex`](packages/convex/) | `1.31.3` | Bun, npm (patch-package), pnpm | `WebSocketManager` crashes where `window` exists but `addEventListener` doesn't | 1.31.4 — [get-convex/convex-backend#44935](https://github.com/get-convex/convex-backend/pull/44935) |
+| [`convex`](packages/convex/) | `1.31.3` | Bun, npm (patch-package), pnpm | `WebSocketManager` crashes where `window` exists but `addEventListener` doesn't | `1.31.4` [get-convex/convex-backend#44935](https://github.com/get-convex/convex-backend/pull/44935) |
+| [`bun`](packages/oven-sh/bun/) | `1.2.20` | Bun | `decompress` option missing from `fetch()` TypeScript types | `1.2.21` [oven-sh/bun#21855](https://github.com/oven-sh/bun/pull/21855) |
 
 ## Filed
 
@@ -36,9 +37,9 @@ Upstream bugs I reported that were fixed without needing a patch.
 
 | Issue | Package | Fix |
 | :--- | :--- | :--- |
-| [panva/jose#752](https://github.com/panva/jose/issues/752) | `jose` | `process.getBuiltinModule` misuse breaks Edge Runtime / Next.js middleware — fixed in [`v6.0.4`](https://github.com/panva/jose/releases/tag/v6.0.4) |
-| [anthropics/claude-code#18181](https://github.com/anthropics/claude-code/issues/18181) | `claude` | Manual update doesn't fix symlink when `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` is set — fixed upstream |
-| [TanStack/db#17](https://github.com/TanStack/db/pull/17) | `@tanstack/db` | Incorrect example todo app path in README — docs only, no npm change |
+| [panva/jose#752](https://github.com/panva/jose/issues/752) | `jose` | `process.getBuiltinModule` misuse breaks Edge Runtime / Next.js middleware; fixed in [`v6.0.4`](https://github.com/panva/jose/releases/tag/v6.0.4) |
+| [anthropics/claude-code#18181](https://github.com/anthropics/claude-code/issues/18181) | `claude` | Manual update doesn't fix symlink when `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` is set; fixed upstream |
+| [TanStack/db#17](https://github.com/TanStack/db/pull/17) | `@tanstack/db` | Incorrect example todo app path in README; docs only, no npm change |
 
 ## Usage
 
