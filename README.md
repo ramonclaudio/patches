@@ -1,19 +1,16 @@
 # patches
 
-[@FFmpeg](https://twitter.com/FFmpeg) said it best: "Talk is cheap, send patches." here are mine.
+[Talk is cheap, send patches.](https://x.com/FFmpeg/status/1762805900035686805)
 
 > [!NOTE]
-> Once a PR merges and you bump the dep, drop the patch.
+> Patches move Open → Merged → Released as PRs land and versions ship. Once released, bump the dep and drop the patch.
 
-## Active
+## Open
+
+Patch is needed. PR not yet merged.
 
 | Package | Version | Format | Fix | PR |
 | :--- | :--- | :--- | :--- | :--- |
-| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | Missing `capsule` + `ellipse` shapes in `clipShape`/`mask`; broken `foregroundStyle` hierarchical handling | [expo/expo#43158](https://github.com/expo/expo/pull/43158) |
-| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | Per-axis `scaleEffect({ x, y })` missing from view modifiers; adds `inverted` prop to `List` for bottom-anchored scrolling | [expo/expo#43228](https://github.com/expo/expo/pull/43228) |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Bun, npm (patch-package), pnpm | Cookie expiry string comparison, null session cache, wrong `isAuthenticated` check | [get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218) |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Bun, npm (patch-package), pnpm | Pinned `better-auth` peer dep `1.4.9` blocks newer 1.4.x versions | [get-convex/better-auth#245](https://github.com/get-convex/better-auth/pull/245) |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.11` | Bun, npm (patch-package), pnpm | Concurrent `fetchAccessToken` calls race to `/token`; `pendingTokenRef` deduplicates in-flight requests | [get-convex/better-auth#267](https://github.com/get-convex/better-auth/pull/267) |
 | [`@tobilu/qmd`](packages/@tobilu/qmd/) | `1.0.6` | Bun, npm (patch-package), pnpm | `typescript` in `peerDependencies` instead of `devDependencies`; missing `tsc` in `prepare` script | [tobi/qmd#197](https://github.com/tobi/qmd/pull/197) |
 | [`@shopify/mini-oxygen`](packages/@shopify/mini-oxygen/) | `4.0.0` | Bun, npm (patch-package), pnpm | Vite 7 `ReferenceError: __vite_ssr_exportName__ is not defined`; missing 6th SSR key, `getBuiltins()` support, `fetchModule` importer fix, removes deprecated `root`, bumps `vite` peer dep to `^7.0.0` | [Shopify/hydrogen#3493](https://github.com/Shopify/hydrogen/pull/3493) |
 | [`@shopify/hydrogen`](packages/@shopify/hydrogen/) | `2026.1.0` | Bun, npm (patch-package), pnpm | `vite` peer dep `^5.1.0 \|\| ^6.2.1` updated to `^7.0.0` | [Shopify/hydrogen#3493](https://github.com/Shopify/hydrogen/pull/3493) |
@@ -22,12 +19,24 @@
 | [`bun`](packages/oven-sh/bun/) | `1.3.9` | Bun | `includePrerelease` semantics wrong for peer dep semver validation | [oven-sh/bun#27085](https://github.com/oven-sh/bun/pull/27085) |
 | [`bun`](packages/oven-sh/bun/) | `1.3.9` | Bun | Invalid YAML sequence in `update-root-certs` workflow `labels` field | [oven-sh/bun#27086](https://github.com/oven-sh/bun/pull/27086) |
 
-## Resolved
+## Merged
+
+Patch is needed. PR merged but no release yet.
+
+| Package | Version | Format | Fix | PR |
+| :--- | :--- | :--- | :--- | :--- |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | Missing `capsule` + `ellipse` shapes in `clipShape`/`mask`; broken `foregroundStyle` hierarchical handling | [expo/expo#43158](https://github.com/expo/expo/pull/43158) |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | Per-axis `scaleEffect({ x, y })` missing from view modifiers; adds `inverted` prop to `List` for bottom-anchored scrolling | [expo/expo#43228](https://github.com/expo/expo/pull/43228) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.11` | Bun, npm (patch-package), pnpm | Concurrent `fetchAccessToken` calls race to `/token`; `pendingTokenRef` deduplicates in-flight requests | [get-convex/better-auth#267](https://github.com/get-convex/better-auth/pull/267) |
+
+## Released
 
 Bump the dep instead.
 
 | Package | Was | Format | Fix | Fixed in |
 | :--- | :--- | :--- | :--- | :--- |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Bun, npm (patch-package), pnpm | Cookie expiry string comparison, null session cache, wrong `isAuthenticated` check | `0.10.11` ([get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218)) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Bun, npm (patch-package), pnpm | Pinned `better-auth` peer dep `1.4.9` blocks newer 1.4.x versions | `0.10.11` ([get-convex/better-auth#245](https://github.com/get-convex/better-auth/pull/245)) |
 | [`convex`](packages/convex/) | `1.31.3` | Bun, npm (patch-package), pnpm | `WebSocketManager` crashes where `window` exists but `addEventListener` doesn't | `1.31.4` ([get-convex/convex-backend#44935](https://github.com/get-convex/convex-backend/pull/44935)) |
 | [`bun`](packages/oven-sh/bun/) | `1.2.20` | Bun | `decompress` option missing from `fetch()` TypeScript types | `1.2.21` ([oven-sh/bun#21855](https://github.com/oven-sh/bun/pull/21855)) |
 
@@ -196,10 +205,6 @@ packages/
 One dir per package manager. Not every package has patches for every manager.
 
 Filenames have a `-prXXX` suffix (e.g. `@expo%2Fui@56.0.0-canary-20260212-4f61309-pr43228.patch`) so you can trace back to the upstream PR. Strip it when copying to your project.
-
-## Contributing
-
-Include the patch, what it fixes, and the package version.
 
 ## License
 
