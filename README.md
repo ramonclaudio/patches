@@ -28,8 +28,8 @@ Kept for reference. Bump the dep instead.
 
 | Package | Was | Format | Fix | Fixed in |
 | :--- | :--- | :--- | :--- | :--- |
-| [`convex`](packages/convex/) | `1.31.3` | Bun, npm (patch-package), pnpm | `WebSocketManager` crashes where `window` exists but `addEventListener` doesn't | [`1.31.4`](https://github.com/get-convex/convex-backend/pull/44935) |
-| `bun` | pre-`1.3.0` | — | `decompress` option missing from `fetch()` TypeScript types | [`1.3.0`](https://github.com/oven-sh/bun/pull/21855) |
+| [`convex`](packages/convex/) | `1.31.3` | Bun, npm (patch-package), pnpm | `WebSocketManager` crashes where `window` exists but `addEventListener` doesn't | `1.31.4` — [get-convex/convex-backend#44935](https://github.com/get-convex/convex-backend/pull/44935) |
+| [`bun`](packages/oven-sh/bun/) | `1.2.20` | Bun | `decompress` option missing from `fetch()` TypeScript types | `1.2.21` — [oven-sh/bun#21855](https://github.com/oven-sh/bun/pull/21855) |
 
 ## Filed
 
