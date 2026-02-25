@@ -1,0 +1,120 @@
+diff --git a/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts b/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts
+index 73a0348a72ae4874b055b22dac32042b14d333a3..7bfa41a1b38cf376b430c5e6f66aec0dfea86ed7 100644
+--- a/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts
++++ b/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts
+@@ -147,7 +147,7 @@ export declare const opacity: (value: number) => ModifierConfig;
+  * @param cornerRadius - Corner radius for rounded rectangle (default: 8)
+  * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/view/clipshape(_:style:)).
+  */
+-export declare const clipShape: (shape: "rectangle" | "circle" | "roundedRectangle", cornerRadius?: number) => ModifierConfig;
++export declare const clipShape: (shape: "rectangle" | "circle" | "capsule" | "ellipse" | "roundedRectangle", cornerRadius?: number) => ModifierConfig;
+ /**
+  * Adds a border to a view.
+  * @param params - The border parameters. Color and width.
+@@ -484,7 +484,7 @@ export declare const layoutPriority: (priority: number) => ModifierConfig;
+  * @param cornerRadius - Corner radius for rounded rectangle (default: `8`).
+  * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/view/mask(_:)).
+  */
+-export declare const mask: (shape: "rectangle" | "circle" | "roundedRectangle", cornerRadius?: number) => ModifierConfig;
++export declare const mask: (shape: "rectangle" | "circle" | "capsule" | "ellipse" | "roundedRectangle", cornerRadius?: number) => ModifierConfig;
+ /**
+  * Overlays another view on top.
+  * @param params - Overlay color and alignment.
+diff --git a/node_modules/@expo/ui/ios/Modifiers/ViewModifierRegistry.swift b/node_modules/@expo/ui/ios/Modifiers/ViewModifierRegistry.swift
+index cc61cb6b46cb3d5960a18e10556aa0a882647af1..9d32ae67dbaccec381b32713baa2fc5b2710d3ce 100644
+--- a/node_modules/@expo/ui/ios/Modifiers/ViewModifierRegistry.swift
++++ b/node_modules/@expo/ui/ios/Modifiers/ViewModifierRegistry.swift
+@@ -373,18 +373,24 @@ internal struct BorderModifier: ViewModifier, Record {
+ }
+
+ internal struct ClipShapeModifier: ViewModifier, Record {
+-  @Field var shape: String = "rectangle"
++  @Field var shape: ShapeType = .rectangle
+   @Field var cornerRadius: CGFloat = 8
++  @Field var roundedCornerStyle: RoundedCornerStyle?
++  @Field var cornerSize: CornerSize?
+
+   @ViewBuilder
+   func body(content: Content) -> some View {
+     switch shape {
+-    case "circle":
++    case .capsule:
++      content.clipShape(makeCapsule(style: roundedCornerStyle))
++    case .circle:
+       content.clipShape(Circle())
+-    case "roundedRectangle":
+-      content.clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+-    default:
++    case .ellipse:
++      content.clipShape(Ellipse())
++    case .rectangle:
+       content.clipShape(Rectangle())
++    case .roundedRectangle:
++      content.clipShape(makeRoundedRectangle(cornerRadius: cornerRadius, cornerSize: cornerSize, style: roundedCornerStyle))
+     }
+   }
+ }
+@@ -587,18 +593,24 @@ internal struct ClippedModifier: ViewModifier, Record {
+ }
+
+ internal struct MaskModifier: ViewModifier, Record {
+-  @Field var shape: String = "rectangle"
++  @Field var shape: ShapeType = .rectangle
+   @Field var cornerRadius: CGFloat = 8
++  @Field var roundedCornerStyle: RoundedCornerStyle?
++  @Field var cornerSize: CornerSize?
+
+   @ViewBuilder
+   func body(content: Content) -> some View {
+     switch shape {
+-    case "circle":
++    case .capsule:
++      content.mask(makeCapsule(style: roundedCornerStyle))
++    case .circle:
+       content.mask(Circle())
+-    case "roundedRectangle":
+-      content.mask(RoundedRectangle(cornerRadius: cornerRadius))
+-    default:
++    case .ellipse:
++      content.mask(Ellipse())
++    case .rectangle:
+       content.mask(Rectangle())
++    case .roundedRectangle:
++      content.mask(makeRoundedRectangle(cornerRadius: cornerRadius, cornerSize: cornerSize, style: roundedCornerStyle))
+     }
+   }
+ }
+diff --git a/node_modules/@expo/ui/src/swift-ui/modifiers/index.ts b/node_modules/@expo/ui/src/swift-ui/modifiers/index.ts
+index 256b9f26d81e5ea237b9da4f3d05e78d60bb1f66..bcc314424b84a81c4685ae494f3d591eab838b36 100644
+--- a/node_modules/@expo/ui/src/swift-ui/modifiers/index.ts
++++ b/node_modules/@expo/ui/src/swift-ui/modifiers/index.ts
+@@ -222,7 +222,7 @@ export const opacity = (value: number) => createModifier('opacity', { value });
+  * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/view/clipshape(_:style:)).
+  */
+ export const clipShape = (
+-  shape: 'rectangle' | 'circle' | 'roundedRectangle',
++  shape: 'rectangle' | 'circle' | 'capsule' | 'ellipse' | 'roundedRectangle',
+   cornerRadius?: number
+ ) => createModifier('clipShape', { shape, cornerRadius });
+
+@@ -375,7 +375,10 @@ export const foregroundStyle = (
+   if (typeof style === 'string') {
+     return createModifier('foregroundStyle', { styleType: 'color', color: style });
+   }
+-  return createModifier('foregroundStyle', { styleType: style.type, ...style });
++  if (style.type === 'hierarchical') {
++    return createModifier('foregroundStyle', { styleType: 'hierarchical', hierarchicalStyle: style.style });
++  }
++  return createModifier('foregroundStyle', { styleType: style.type, ...style });
+ };
+
+ /**
+@@ -611,7 +614,7 @@ export const layoutPriority = (priority: number) => createModifier('layoutPriori
+  * @param cornerRadius - Corner radius for rounded rectangle (default: `8`).
+  * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/view/mask(_:)).
+  */
+-export const mask = (shape: 'rectangle' | 'circle' | 'roundedRectangle', cornerRadius?: number) =>
++export const mask = (shape: 'rectangle' | 'circle' | 'capsule' | 'ellipse' | 'roundedRectangle', cornerRadius?: number) =>
+   createModifier('mask', { shape, cornerRadius });
+
+ /**
