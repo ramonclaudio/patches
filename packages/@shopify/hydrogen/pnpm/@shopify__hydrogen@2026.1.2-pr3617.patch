@@ -1,0 +1,52 @@
+diff -ruN dist/vite/plugin.js dist/vite/plugin.js
+--- dist/vite/plugin.js	1985-10-26 04:15:00
++++ dist/vite/plugin.js	1985-10-26 04:15:00
+@@ -12,26 +12,19 @@
+ var sharedOptions = {};
+ function hydrogen(pluginOptions = {}) {
+   let middlewareOptions = {};
+-  const isHydrogenMonorepo = new URL(
+-    "../../..",
+-    import.meta.url
+-  ).pathname.endsWith("/hydrogen/packages/");
+   return [
+     {
+       name: "hydrogen:main",
+       config(_, env) {
+         sharedOptions.command = env.command;
+-        const isHydrogenMonorepo2 = new URL(
++        const isHydrogenMonorepo = new URL(
+           "../../..",
+           import.meta.url
+-        ).pathname.endsWith("/hydrogen/packages/");
++        ).pathname.endsWith("/packages/");
+         return {
+           build: {
+             outDir: "dist"
+           },
+-          server: {
+-            watch: null
+-          },
+           ssr: {
+             optimizeDeps: {
+               // Add CJS dependencies that break code in workerd
+@@ -52,7 +45,7 @@
+           optimizeDeps: {
+             // Vite performs an initial reload after optimizing these dependencies.
+             // Do it early to avoid the initial reload:
+-            include: isHydrogenMonorepo2 ? [
++            include: isHydrogenMonorepo ? [
+               // In monorepo, optimize non-Hydrogen packages to allow
+               // source code changes to be reflected without cache issues
+               "content-security-policy-builder",
+--- package.json	1985-10-26 04:15:00
++++ package.json	1985-10-26 04:15:00
+@@ -105,7 +105,7 @@
+     "react-router": "7.12.0",
+     "@react-router/dev": "7.12.0",
+     "react": "^18.3.1 || ~19.0.3 || ~19.1.4 || ^19.2.3",
+-    "vite": "^5.1.0 || ^6.2.1"
++    "vite": "^5.1.0 || ^6.2.1 || ^7.0.0 || ^8.0.0"
+   },
+   "peerDependenciesMeta": {
+     "vite": {
