@@ -1,7 +1,8 @@
-diff -ruN dist/node/server.js dist/node/server.js
---- dist/node/server.js	1985-10-26 04:15:00
-+++ dist/node/server.js	1985-10-26 04:15:00
-@@ -174,9 +174,10 @@
+diff --git a/dist/node/server.js b/dist/node/server.js
+index c33f6eb07013559208140305c3b1593136d8875c..d8cef1d6b778b0febec79ec652798d8cbeee7f18 100644
+--- a/dist/node/server.js
++++ b/dist/node/server.js
+@@ -174,9 +174,10 @@ function createRequestMiddleware(mf, {
  function sendProxyRequest(req, res, proxyServer) {
    const proxyRequest = new Promise(function(_resolve, reject) {
      const url = urlFromRequest(req);
@@ -14,9 +15,10 @@ diff -ruN dist/node/server.js dist/node/server.js
        path: `${url.protocol}//${url.host}${url.pathname}`,
        headers: {
          ...req.headers,
-diff -ruN dist/vite/entry-error.d.ts dist/vite/entry-error.d.ts
---- dist/vite/entry-error.d.ts	1985-10-26 04:15:00
-+++ dist/vite/entry-error.d.ts	1985-10-26 04:15:00
+diff --git a/dist/vite/entry-error.d.ts b/dist/vite/entry-error.d.ts
+index a9ab3a4b14516044c9e007e50c236d280d5aaa2b..514d8e9508fb86722a91557e11b783d66a6cff00 100644
+--- a/dist/vite/entry-error.d.ts
++++ b/dist/vite/entry-error.d.ts
 @@ -1,6 +1,5 @@
  import { ServerResponse } from 'node:http';
  import { ViteDevServer } from 'vite';
@@ -24,9 +26,11 @@ diff -ruN dist/vite/entry-error.d.ts dist/vite/entry-error.d.ts
  
  declare function isEntrypointError(webResponse: Response): boolean;
  type CustomEntryPointErrorHandler = (params: {
-diff -ruN dist/vite/environment.d.ts dist/vite/environment.d.ts
---- dist/vite/environment.d.ts	1969-12-31 19:00:00
-+++ dist/vite/environment.d.ts	1985-10-26 04:15:00
+diff --git a/dist/vite/environment.d.ts b/dist/vite/environment.d.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..5624a0a8557db56fcb7d252237ff7c6bb5de39ac
+--- /dev/null
++++ b/dist/vite/environment.d.ts
 @@ -0,0 +1,21 @@
 +import { FetchableDevEnvironment, ResolvedConfig, ViteDevServer } from 'vite';
 +import { MiniOxygenViteOptions, InternalMiniOxygenOptions } from './server-middleware.js';
@@ -49,9 +53,11 @@ diff -ruN dist/vite/environment.d.ts dist/vite/environment.d.ts
 +declare function createMiniOxygenDevEnvironment(name: string, config: ResolvedConfig, runtimeOptions: MiniOxygenRuntimeOptions, resolveRuntimeOptions: RuntimeOptionsResolver): MiniOxygenDevEnvironment;
 +
 +export { type MiniOxygenDevEnvironment, type MiniOxygenRuntimeOptions, createMiniOxygenDevEnvironment, mergeMiniOxygenRuntimeOptions };
-diff -ruN dist/vite/environment.js dist/vite/environment.js
---- dist/vite/environment.js	1969-12-31 19:00:00
-+++ dist/vite/environment.js	1985-10-26 04:15:00
+diff --git a/dist/vite/environment.js b/dist/vite/environment.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..450f08897d0ba549417a9b5dd82384b76646304f
+--- /dev/null
++++ b/dist/vite/environment.js
 @@ -0,0 +1,103 @@
 +import {
 +  createFetchableDevEnvironment
@@ -156,9 +162,10 @@ diff -ruN dist/vite/environment.js dist/vite/environment.js
 +  createMiniOxygenDevEnvironment,
 +  mergeMiniOxygenRuntimeOptions
 +};
-diff -ruN dist/vite/plugin.d.ts dist/vite/plugin.d.ts
---- dist/vite/plugin.d.ts	1985-10-26 04:15:00
-+++ dist/vite/plugin.d.ts	1985-10-26 04:15:00
+diff --git a/dist/vite/plugin.d.ts b/dist/vite/plugin.d.ts
+index 49e7ddb76926d1386c3c4c33c2e23c6c73e59a56..c406ba9a23991ccd9e8773ca14508f286e03e285 100644
+--- a/dist/vite/plugin.d.ts
++++ b/dist/vite/plugin.d.ts
 @@ -1,5 +1,7 @@
  import { Plugin } from 'vite';
 -import { MiniOxygenViteOptions, InternalMiniOxygenOptions } from './server-middleware.js';
@@ -168,7 +175,7 @@ diff -ruN dist/vite/plugin.d.ts dist/vite/plugin.d.ts
  import '../worker/index.js';
  import 'miniflare';
  import '../worker/assets.js';
-@@ -9,9 +11,7 @@
+@@ -9,9 +11,7 @@ import '../worker/handler.js';
  import './entry-error.js';
  
  type OxygenPluginOptions = Partial<Pick<MiniOxygenViteOptions, 'entry' | 'env' | 'inspectorPort' | 'logRequestLine' | 'debug'>>;
@@ -179,7 +186,7 @@ diff -ruN dist/vite/plugin.d.ts dist/vite/plugin.d.ts
  /**
   * For internal use only.
   * @private
-@@ -19,6 +19,7 @@
+@@ -19,6 +19,7 @@ type OxygenApiOptions = OxygenPluginOptions & InternalMiniOxygenOptions & {
  type OxygenPlugin = Plugin<{
      registerPluginOptions(newOptions: OxygenApiOptions): void;
  }>;
@@ -187,17 +194,18 @@ diff -ruN dist/vite/plugin.d.ts dist/vite/plugin.d.ts
  /**
   * Runs backend code in an Oxygen worker instead of Node.js during development.
   * If used with `remix`, place it before it in the Vite plugin list.
-diff -ruN dist/vite/plugin.js dist/vite/plugin.js
---- dist/vite/plugin.js	1985-10-26 04:15:00
-+++ dist/vite/plugin.js	1985-10-26 04:15:00
+diff --git a/dist/vite/plugin.js b/dist/vite/plugin.js
+index 1c03714e0d00be8cfd1c26f7f113e0c983192560..d86c90701402d9bfb37caf8bb27b0e87c6ac030e 100644
+--- a/dist/vite/plugin.js
++++ b/dist/vite/plugin.js
 @@ -1,13 +1,39 @@
  import { defaultClientConditions } from "vite";
 -import path from "node:path";
- import {
++import {
 +  createMiniOxygenDevEnvironment,
 +  mergeMiniOxygenRuntimeOptions
 +} from "./environment.js";
-+import {
+ import {
    setupOxygenMiddleware
  } from "./server-middleware.js";
  const DEFAULT_SSR_ENTRY = "./server";
@@ -233,7 +241,7 @@ diff -ruN dist/vite/plugin.js dist/vite/plugin.js
    return [
      {
        name: "oxygen:main",
-@@ -41,49 +67,41 @@
+@@ -41,49 +67,41 @@ function oxygen(pluginOptions = {}) {
            }
          };
        },
@@ -307,7 +315,7 @@ diff -ruN dist/vite/plugin.js dist/vite/plugin.js
          if (apiOptions.compatibilityDate) {
            if (!/^\d{4}-\d{2}-\d{2}$/.test(apiOptions.compatibilityDate)) {
              throw new Error(
-@@ -95,18 +113,11 @@
+@@ -95,18 +113,11 @@ function oxygen(pluginOptions = {}) {
              version: 1,
              compatibility_date: apiOptions.compatibilityDate
            };
@@ -329,9 +337,10 @@ diff -ruN dist/vite/plugin.js dist/vite/plugin.js
          }
        }
      }
-diff -ruN dist/vite/server-middleware.d.ts dist/vite/server-middleware.d.ts
---- dist/vite/server-middleware.d.ts	1985-10-26 04:15:00
-+++ dist/vite/server-middleware.d.ts	1985-10-26 04:15:00
+diff --git a/dist/vite/server-middleware.d.ts b/dist/vite/server-middleware.d.ts
+index ea2c856192212f1e5cf69867a4b7da1e8c84fd8a..2f60469559f9c07cbe8e632270a792109b68c6fe 100644
+--- a/dist/vite/server-middleware.d.ts
++++ b/dist/vite/server-middleware.d.ts
 @@ -1,12 +1,13 @@
  import { ViteDevServer } from 'vite';
 -import { RequestHook } from '../worker/index.js';
@@ -348,7 +357,7 @@ diff -ruN dist/vite/server-middleware.d.ts dist/vite/server-middleware.d.ts
  type InternalMiniOxygenOptions = {
      /**
       * A compatibility date to choose a version of the Oxygen worker.
-@@ -52,6 +53,10 @@
+@@ -52,6 +53,10 @@ type MiniOxygenViteOptions = InternalMiniOxygenOptions & {
      inspectorPort?: number;
      logRequestLine?: null | RequestHook;
  };
@@ -361,9 +370,10 @@ diff -ruN dist/vite/server-middleware.d.ts dist/vite/server-middleware.d.ts
  
 -export { type InternalMiniOxygenOptions, type MiniOxygenViteOptions, setupOxygenMiddleware };
 +export { type InternalMiniOxygenOptions, type MiniOxygen, type MiniOxygenViteOptions, WARMUP_PATHNAME, getViteUrl, setupOxygenMiddleware, startMiniOxygenRuntime, toMiniflareRequest };
-diff -ruN dist/vite/server-middleware.js dist/vite/server-middleware.js
---- dist/vite/server-middleware.js	1985-10-26 04:15:00
-+++ dist/vite/server-middleware.js	1985-10-26 04:15:00
+diff --git a/dist/vite/server-middleware.js b/dist/vite/server-middleware.js
+index 892882a5c31d4cbe20ca7ee0a59b4fea3ecde893..9d1969d9bfcd6a0d70c5fabb46ca6c6adde6b297 100644
+--- a/dist/vite/server-middleware.js
++++ b/dist/vite/server-middleware.js
 @@ -1,18 +1,19 @@
 -import { fetchModule } from "vite";
 +import {
@@ -388,7 +398,7 @@ diff -ruN dist/vite/server-middleware.js dist/vite/server-middleware.js
  const WARMUP_PATHNAME = "/__vite_warmup";
  function startMiniOxygenRuntime({
    viteDevServer,
-@@ -28,8 +29,9 @@
+@@ -28,8 +29,9 @@ function startMiniOxygenRuntime({
    const wrappedHook = requestHook || logRequestLine ? async (request) => {
      const info = await request.json();
      await Promise.all([requestHook?.(info), logRequestLine?.(info)]);
@@ -399,7 +409,7 @@ diff -ruN dist/vite/server-middleware.js dist/vite/server-middleware.js
    const miniOxygen = createMiniOxygen({
      debug,
      inspectorPort,
-@@ -40,13 +42,12 @@
+@@ -40,13 +42,12 @@ function startMiniOxygenRuntime({
          modulesRoot: "/",
          modules: [{ type: "ESModule", path: scriptPath }],
          serviceBindings: {
@@ -414,7 +424,7 @@ diff -ruN dist/vite/server-middleware.js dist/vite/server-middleware.js
            __VITE_WARMUP_PATHNAME: WARMUP_PATHNAME
          },
          unsafeEvalBinding: "__VITE_UNSAFE_EVAL",
-@@ -62,7 +63,7 @@
+@@ -62,7 +63,7 @@ function startMiniOxygenRuntime({
                acc[`wrapped_service_${index}`] = async (request) => {
                  const payload = await request.json();
                  const result = await binding(...payload);
@@ -423,7 +433,7 @@ diff -ruN dist/vite/server-middleware.js dist/vite/server-middleware.js
                };
              }
              return acc;
-@@ -95,68 +96,32 @@
+@@ -95,68 +96,32 @@ function startMiniOxygenRuntime({
        }
      ]
    });
@@ -512,7 +522,7 @@ diff -ruN dist/vite/server-middleware.js dist/vite/server-middleware.js
  }
  function getViteUrl(viteDevServer) {
    let viteUrl = viteDevServer.resolvedUrls?.local[0] ?? viteDevServer.resolvedUrls?.network[0];
-@@ -178,6 +143,48 @@
+@@ -178,6 +143,48 @@ function toMiniflareRequest(request) {
      duplex: "half"
    });
  }
@@ -562,16 +572,17 @@ diff -ruN dist/vite/server-middleware.js dist/vite/server-middleware.js
 +  startMiniOxygenRuntime,
 +  toMiniflareRequest
  };
-diff -ruN dist/vite/utils.d.ts dist/vite/utils.d.ts
---- dist/vite/utils.d.ts	1985-10-26 04:15:00
-+++ dist/vite/utils.d.ts	1985-10-26 04:15:00
+diff --git a/dist/vite/utils.d.ts b/dist/vite/utils.d.ts
+index 3812c59c115327d7d75107e93dadda16344df8b9..5ca0717fb8fde7b6f98cf033129ebb44cf022365 100644
+--- a/dist/vite/utils.d.ts
++++ b/dist/vite/utils.d.ts
 @@ -1,5 +1,4 @@
  import { ServerResponse, IncomingMessage } from 'node:http';
 -import { Response, Request } from 'miniflare';
  
  /**
   * Creates a fully qualified URL from a Node request or a string.
-@@ -9,7 +8,7 @@
+@@ -9,7 +8,7 @@ declare function toURL(req?: string | IncomingMessage, origin?: string): URL;
  /**
   * Turns a Node request into a Web request by using native Node APIs.
   */
@@ -580,9 +591,10 @@ diff -ruN dist/vite/utils.d.ts dist/vite/utils.d.ts
  /**
   * Reads from a Web response and writes to a Node response
   * using @mjackson/node-fetch-server for proper streaming support.
-diff -ruN dist/vite/utils.js dist/vite/utils.js
---- dist/vite/utils.js	1985-10-26 04:15:00
-+++ dist/vite/utils.js	1985-10-26 04:15:00
+diff --git a/dist/vite/utils.js b/dist/vite/utils.js
+index fa0710d7d9b11e467d31ae3db6de909a547ad5fb..d67b5deda464d917e906ab887391cdb80f3aa81f 100644
+--- a/dist/vite/utils.js
++++ b/dist/vite/utils.js
 @@ -1,6 +1,5 @@
  import { Readable } from "node:stream";
  import { sendResponse } from "@mjackson/node-fetch-server";
@@ -590,9 +602,10 @@ diff -ruN dist/vite/utils.js dist/vite/utils.js
  function toURL(req = "/", origin) {
    const isRequest = typeof req !== "string";
    let pathname = (isRequest ? req.url : req) || "/";
-diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
---- dist/vite/worker-entry.js	1985-10-26 04:15:00
-+++ dist/vite/worker-entry.js	1985-10-26 04:15:00
+diff --git a/dist/vite/worker-entry.js b/dist/vite/worker-entry.js
+index 15691d02bdcaae94e45aa6b629dcb2b91fd97dff..e0c4feacb6f4725ea59f7e882ecf097e3211148b 100644
+--- a/dist/vite/worker-entry.js
++++ b/dist/vite/worker-entry.js
 @@ -1,12 +1,9 @@
 -// ../../node_modules/.pnpm/vite@6.4.1_@types+node@22.19.11_jiti@2.6.1_lightningcss@1.30.2_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js
 -var VALID_ID_PREFIX = "/@id/";
@@ -608,7 +621,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
  }
  var windowsSlashRE = /\\/g;
  function slash(p) {
-@@ -23,18 +20,21 @@
+@@ -23,18 +20,21 @@ var AsyncFunction = async function() {
  }.constructor;
  var asyncFunctionDeclarationPaddingLineCount;
  function getAsyncFunctionDeclarationPaddingLineCount() {
@@ -637,7 +650,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
  }
  var _DRIVE_LETTER_START_RE = /^[A-Za-z]:\//;
  function normalizeWindowsPath(input = "") {
-@@ -49,7 +49,7 @@
+@@ -49,7 +49,7 @@ var resolve = function(...arguments_) {
    arguments_ = arguments_.map((argument) => normalizeWindowsPath(argument));
    let resolvedPath = "", resolvedAbsolute = false;
    for (let index = arguments_.length - 1; index >= -1 && !resolvedAbsolute; index--) {
@@ -646,7 +659,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
      !path || path.length === 0 || (resolvedPath = `${path}/${resolvedPath}`, resolvedAbsolute = isAbsolute(path));
    }
    return resolvedPath = normalizeString(resolvedPath, !resolvedAbsolute), resolvedAbsolute && !isAbsolute(resolvedPath) ? `/${resolvedPath}` : resolvedPath.length > 0 ? resolvedPath : ".";
-@@ -57,18 +57,14 @@
+@@ -57,18 +57,14 @@ var resolve = function(...arguments_) {
  function normalizeString(path, allowAboveRoot) {
    let res = "", lastSegmentLength = 0, lastSlash = -1, dots = 0, char = null;
    for (let index = 0; index <= path.length; ++index) {
@@ -669,7 +682,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
              lastSlashIndex === -1 ? (res = "", lastSegmentLength = 0) : (res = res.slice(0, lastSlashIndex), lastSegmentLength = res.length - 1 - res.lastIndexOf("/")), lastSlash = index, dots = 0;
              continue;
            } else if (res.length > 0) {
-@@ -77,8 +73,7 @@
+@@ -77,8 +73,7 @@ function normalizeString(path, allowAboveRoot) {
            }
          }
          allowAboveRoot && (res += res.length > 0 ? "/.." : "..", lastSegmentLength = 2);
@@ -679,7 +692,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
        lastSlash = index, dots = 0;
      } else char === "." && dots !== -1 ? ++dots : dots = -1;
    }
-@@ -88,12 +83,10 @@
+@@ -88,12 +83,10 @@ var isAbsolute = function(p) {
    return _IS_ABSOLUTE_RE.test(p);
  };
  var dirname = function(p) {
@@ -693,7 +706,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
  var percentRegEx = /%/g;
  var backslashRegEx = /\\/g;
  var newlineRegEx = /\n/g;
-@@ -102,15 +95,13 @@
+@@ -102,15 +95,13 @@ var tabRegEx = /\t/g;
  var questionRegex = /\?/g;
  var hashRegex = /#/g;
  function encodePathChars(filepath) {
@@ -712,7 +725,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
  }
  function toWindowsPath(path) {
    return path.replace(/\//g, "\\");
-@@ -120,16 +111,15 @@
+@@ -120,16 +111,15 @@ var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
  var intToChar = new Uint8Array(64);
  var charToInt = new Uint8Array(128);
  for (let i = 0; i < chars.length; i++) {
@@ -734,7 +747,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
    return value >>>= 1, shouldNegate && (value = -2147483648 | -value), relative + value;
  }
  function hasMoreVlq(reader, max) {
-@@ -146,19 +136,28 @@
+@@ -146,19 +136,28 @@ var StringReader = class {
      return this.buffer.charCodeAt(this.pos);
    }
    indexOf(char) {
@@ -769,7 +782,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
      }
      sorted || sort(line), decoded.push(line), reader.pos = semi + 1;
    } while (reader.pos <= length);
-@@ -178,81 +177,78 @@
+@@ -178,81 +177,78 @@ var NAMES_INDEX = 4;
  var found = false;
  function binarySearch(haystack, needle, low, high) {
    for (; low <= high; ) {
@@ -885,7 +898,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
  };
  function memoizedState() {
    return {
-@@ -262,16 +258,11 @@
+@@ -262,16 +258,11 @@ function memoizedState() {
    };
  }
  function getOriginalPosition(map, needle) {
@@ -904,7 +917,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
    importers = /* @__PURE__ */ new Set();
    imports = /* @__PURE__ */ new Set();
    evaluated = false;
-@@ -280,71 +271,74 @@
+@@ -280,71 +271,74 @@ var EvaluatedModuleNode = class {
    exports;
    file;
    map;
@@ -1011,7 +1024,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
      return mapString ? (mod.map = new DecodedMap(JSON.parse(decodeBase64(mapString)), mod.file), mod.map) : null;
    }
    clear() {
-@@ -358,40 +352,30 @@
+@@ -358,40 +352,30 @@ var prefixedBuiltins = /* @__PURE__ */ new Set([
    "node:test/reporters"
  ]);
  function normalizeModuleId(file) {
@@ -1054,17 +1067,18 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
 -      this.acceptDeps(deps, callback);
 -    else
 -      throw new Error("invalid hot.accept() usage.");
+-  }
+-  // export names (first arg) are irrelevant on the client side, they're
+-  // extracted in the server for propagation
 +    if (typeof deps == "function" || !deps) this.acceptDeps([this.ownerPath], ([mod]) => deps?.(mod));
 +    else if (typeof deps == "string") this.acceptDeps([deps], ([mod]) => callback?.(mod));
 +    else if (Array.isArray(deps)) this.acceptDeps(deps, callback);
 +    else throw Error("invalid hot.accept() usage.");
-   }
--  // export names (first arg) are irrelevant on the client side, they're
--  // extracted in the server for propagation
++  }
    acceptExports(_, callback) {
      this.acceptDeps([this.ownerPath], ([mod]) => callback?.(mod));
    }
-@@ -401,12 +385,10 @@
+@@ -401,12 +385,10 @@ var HMRContext = class {
    prune(cb) {
      this.hmrClient.pruneMap.set(this.ownerPath, cb);
    }
@@ -1078,7 +1092,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
      this.hmrClient.notifyListeners("vite:invalidate", {
        path: this.ownerPath,
        message,
-@@ -415,23 +397,20 @@
+@@ -415,23 +397,20 @@ var HMRContext = class {
        path: this.ownerPath,
        message,
        firstInvalidatedBy
@@ -1109,7 +1123,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
        if (pruned.length === 0) {
          map.delete(event);
          return;
-@@ -441,11 +420,15 @@
+@@ -441,11 +420,15 @@ var HMRContext = class {
      removeFromMap(this.hmrClient.customListenersMap), removeFromMap(this.newListeners);
    }
    send(event, data) {
@@ -1127,7 +1141,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
        id: this.ownerPath,
        callbacks: []
      };
-@@ -456,9 +439,6 @@
+@@ -456,9 +439,6 @@ var HMRContext = class {
    }
  };
  var HMRClient = class {
@@ -1137,7 +1151,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
    hotModulesMap = /* @__PURE__ */ new Map();
    disposeMap = /* @__PURE__ */ new Map();
    pruneMap = /* @__PURE__ */ new Map();
-@@ -466,8 +446,11 @@
+@@ -466,8 +446,11 @@ var HMRClient = class {
    customListenersMap = /* @__PURE__ */ new Map();
    ctxToListenersMap = /* @__PURE__ */ new Map();
    currentFirstInvalidatedBy;
@@ -1150,7 +1164,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
      cbs && await Promise.allSettled(cbs.map((cb) => cb(data)));
    }
    send(payload) {
-@@ -478,49 +461,38 @@
+@@ -478,49 +461,38 @@ var HMRClient = class {
    clear() {
      this.hotModulesMap.clear(), this.disposeMap.clear(), this.pruneMap.clear(), this.dataMap.clear(), this.customListenersMap.clear(), this.ctxToListenersMap.clear();
    }
@@ -1217,7 +1231,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
        disposer && await disposer(this.dataMap.get(acceptedPath));
        try {
          fetchedModule = await this.importUpdatedModule(update);
-@@ -531,13 +503,8 @@
+@@ -531,13 +503,8 @@ var HMRClient = class {
      return () => {
        try {
          this.currentFirstInvalidatedBy = firstInvalidatedBy;
@@ -1233,7 +1247,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
          this.logger.debug(`hot updated: ${loggedPath}`);
        } finally {
          this.currentFirstInvalidatedBy = void 0;
-@@ -547,12 +514,10 @@
+@@ -547,12 +514,10 @@ var HMRClient = class {
  };
  function analyzeImportedModDifference(mod, rawId, moduleType, metadata) {
    if (!metadata?.isDynamicImport && metadata?.importedNames?.length) {
@@ -1249,7 +1263,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
  CommonJS modules can always be imported via the default export, for example using:
  
  import pkg from '${rawId}';
-@@ -561,57 +526,46 @@
+@@ -561,57 +526,46 @@ const {${missingBindings.join(", ")}} = pkg;
      }
    }
  }
@@ -1331,7 +1345,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
                error ? promise.reject(error) : promise.resolve(result);
                return;
              }
-@@ -623,18 +577,14 @@
+@@ -623,18 +577,14 @@ var createInvokeableTransport = (transport) => {
      },
      disconnect() {
        return rpcPromises.forEach((promise) => {
@@ -1352,7 +1366,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
          type: "custom",
          event: "vite:invoke",
          data: {
-@@ -642,15 +592,15 @@
+@@ -642,15 +592,15 @@ var createInvokeableTransport = (transport) => {
            id: `send:${promiseId}`,
            data
          }
@@ -1376,7 +1390,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
          clearTimeout(timeoutId), rpcPromises.delete(promiseId), reject(err);
        });
        try {
-@@ -662,56 +612,50 @@
+@@ -662,56 +612,50 @@ var createInvokeableTransport = (transport) => {
    };
  };
  var normalizeModuleRunnerTransport = (transport) => {
@@ -1400,17 +1414,17 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
 -          }
 -        });
 -        maybePromise && (connectingPromise = maybePromise, await connectingPromise, connectingPromise = void 0), isConnected = true;
+-      }
+-    } : {},
+-    ...invokeableTransport.disconnect ? {
+-      async disconnect() {
+-        isConnected && (connectingPromise && await connectingPromise, isConnected = false, await invokeableTransport.disconnect());
 +    ...invokeableTransport.connect ? { async connect(onMessage) {
 +      if (isConnected) return;
 +      if (connectingPromise) {
 +        await connectingPromise;
 +        return;
        }
--    } : {},
--    ...invokeableTransport.disconnect ? {
--      async disconnect() {
--        isConnected && (connectingPromise && await connectingPromise, isConnected = false, await invokeableTransport.disconnect());
--      }
 -    } : {},
 +      let maybePromise = invokeableTransport.connect({
 +        onMessage: onMessage ?? (() => {
@@ -1460,7 +1474,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
  var ssrImportMetaKey = "__vite_ssr_import_meta__";
  var noop = () => {
  };
-@@ -724,7 +668,7 @@
+@@ -724,7 +668,7 @@ var hmrLogger = {
    error: (error) => console.log("[vite]", error)
  };
  function createHMRHandler(handler) {
@@ -1469,7 +1483,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
    return (payload) => queue.enqueue(() => handler(payload));
  }
  var Queue = class {
-@@ -740,9 +684,8 @@
+@@ -740,9 +684,8 @@ var Queue = class {
      });
    }
    dequeue() {
@@ -1481,7 +1495,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
      return item ? (this.pending = true, item.promise().then(item.resolve).catch(item.reject).finally(() => {
        this.pending = false, this.dequeue();
      }), true) : false;
-@@ -750,87 +693,72 @@
+@@ -750,87 +693,72 @@ var Queue = class {
  };
  function createHMRHandlerForRunner(runner) {
    return createHMRHandler(async (payload) => {
@@ -1613,7 +1627,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
    return entrypoints;
  }
  var sourceMapCache = {};
-@@ -838,69 +766,62 @@
+@@ -838,69 +766,62 @@ var fileContentsCache = {};
  var evaluatedModulesCache = /* @__PURE__ */ new Set();
  var retrieveFileHandlers = /* @__PURE__ */ new Set();
  var retrieveSourceMapHandlers = /* @__PURE__ */ new Set();
@@ -1703,7 +1717,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
    return sourceMapData ? {
      url: sourceMappingURL,
      map: sourceMapData
-@@ -909,49 +830,41 @@
+@@ -909,49 +830,41 @@ function retrieveSourceMap(source) {
  function mapSourcePosition(position) {
    if (!position.source) return position;
    let sourceMap = getRunnerSourceMap(position);
@@ -1768,7 +1782,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
      });
      return `eval at ${match[1]} (${position.source}:${position.line}:${position.column + 1})`;
    }
-@@ -959,62 +872,55 @@
+@@ -959,62 +872,55 @@ function mapEvalOrigin(origin) {
  }
  function CallSiteToString() {
    let fileName, fileLocation = "";
@@ -1850,7 +1864,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
      }, frame.getLineNumber = function() {
        return position.line;
      }, frame.getColumnNumber = function() {
-@@ -1024,156 +930,144 @@
+@@ -1024,156 +930,144 @@ function wrapCallSite(frame, state) {
      }, frame;
    }
    let origin = frame.isEval() && frame.getEvalOrigin();
@@ -1918,22 +1932,6 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
      return import(filepath);
    }
  };
--var ModuleRunner = class {
--  constructor(options, evaluator = new ESModulesEvaluator(), debug) {
--    if (this.options = options, this.evaluator = evaluator, this.debug = debug, this.evaluatedModules = options.evaluatedModules ?? new EvaluatedModules(), this.transport = normalizeModuleRunnerTransport(options.transport), options.hmr !== false) {
--      const optionsHmr = options.hmr ?? true, resolvedHmrLogger = optionsHmr === true || optionsHmr.logger === void 0 ? hmrLogger : optionsHmr.logger === false ? silentConsole : optionsHmr.logger;
--      if (this.hmrClient = new HMRClient(
--        resolvedHmrLogger,
--        this.transport,
--        ({ acceptedPath }) => this.import(acceptedPath)
--      ), !this.transport.connect)
--        throw new Error(
--          "HMR is not supported by this runner transport, but `hmr` option was set to true"
--        );
--      this.transport.connect(createHMRHandlerForRunner(this));
--    } else
--      this.transport.connect?.();
--    options.sourcemapInterceptor !== false && (this.resetSourceMapSupport = enableSourceMapSupport(this));
 +var customizationHookNamespace = "vite-module-runner:import-meta-resolve/v1/";
 +var customizationHooksModule = `
 +
@@ -1943,7 +1941,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
 +    const [parsedSpecifier, parsedImporter] = JSON.parse(data)
 +    specifier = parsedSpecifier
 +    context.parentURL = parsedImporter
-   }
++  }
 +  return nextResolve(specifier, context)
 +}
 +
@@ -1967,7 +1965,23 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
 +    }
 +  };
 +}
-+var ModuleRunner = class {
+ var ModuleRunner = class {
+-  constructor(options, evaluator = new ESModulesEvaluator(), debug) {
+-    if (this.options = options, this.evaluator = evaluator, this.debug = debug, this.evaluatedModules = options.evaluatedModules ?? new EvaluatedModules(), this.transport = normalizeModuleRunnerTransport(options.transport), options.hmr !== false) {
+-      const optionsHmr = options.hmr ?? true, resolvedHmrLogger = optionsHmr === true || optionsHmr.logger === void 0 ? hmrLogger : optionsHmr.logger === false ? silentConsole : optionsHmr.logger;
+-      if (this.hmrClient = new HMRClient(
+-        resolvedHmrLogger,
+-        this.transport,
+-        ({ acceptedPath }) => this.import(acceptedPath)
+-      ), !this.transport.connect)
+-        throw new Error(
+-          "HMR is not supported by this runner transport, but `hmr` option was set to true"
+-        );
+-      this.transport.connect(createHMRHandlerForRunner(this));
+-    } else
+-      this.transport.connect?.();
+-    options.sourcemapInterceptor !== false && (this.resetSourceMapSupport = enableSourceMapSupport(this));
+-  }
    evaluatedModules;
    hmrClient;
 -  envProxy = new Proxy({}, {
@@ -2088,7 +2102,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
        return mod.promise = promise, mod.evaluated = false, this.processImport(await promise, meta, metadata);
      } finally {
        mod.evaluated = true, debugTimer && clearTimeout(debugTimer);
-@@ -1181,79 +1075,64 @@
+@@ -1181,79 +1075,64 @@ ${getStack()}`
    }
    async cachedModule(url, importer) {
      let cached = this.concurrentModuleNodePromises.get(url);
@@ -2207,7 +2221,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
      Object.defineProperty(exports, Symbol.toStringTag, {
        value: "Module",
        enumerable: false,
-@@ -1263,19 +1142,23 @@
+@@ -1263,19 +1142,23 @@ ${getStack()}`
      this.hmrClient && Object.defineProperty(meta, "hot", {
        enumerable: true,
        get: () => {
@@ -2234,7 +2248,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
        [ssrImportMetaKey]: meta
      };
      return this.debug?.("[module runner] executing", href), await this.evaluator.runInlinedModule(context, code, mod), exports;
-@@ -1283,16 +1166,14 @@
+@@ -1283,16 +1166,14 @@ ${getStack()}`
  };
  function exportAll(exports, sourceModule) {
    if (exports !== sourceModule && !(isPrimitive(sourceModule) || Array.isArray(sourceModule) || sourceModule instanceof Promise)) {
@@ -2259,7 +2273,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
    }
  }
  
-@@ -1343,7 +1224,7 @@
+@@ -1343,7 +1224,7 @@ var worker_entry_default = {
    async fetch(request, env, context) {
      env.__VITE_SETUP_ENV(request);
      const url = new URL(request.url);
@@ -2268,7 +2282,7 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
      if ("errorResponse" in module) {
        return module.errorResponse;
      }
-@@ -1365,24 +1246,27 @@
+@@ -1365,24 +1246,27 @@ function createUserEnv(env) {
    );
  }
  var runtime;
@@ -2307,20 +2321,22 @@ diff -ruN dist/vite/worker-entry.js dist/vite/worker-entry.js
              });
            }
          },
-@@ -1432,6 +1316,11 @@
-       )
+@@ -1433,6 +1317,11 @@ function fetchEntryModule(publicUrl, env) {
      };
    });
-+}
+ }
 +function isViteInvokePayload(payload) {
 +  return Boolean(
 +    payload && typeof payload === "object" && "name" in payload && "data" in payload && Array.isArray(payload.data)
 +  );
- }
++}
  export {
    worker_entry_default as default
---- package.json	1985-10-26 04:15:00
-+++ package.json	1985-10-26 04:15:00
+ };
+diff --git a/package.json b/package.json
+index b4d22e175432a6d90d503c9e8063542591f1fc46..430ca59fafb2a64d547b71b228421a48c1bf4b18 100644
+--- a/package.json
++++ b/package.json
 @@ -48,7 +48,7 @@
      "source-map": "^0.7.4",
      "source-map-support": "^0.5.21",
