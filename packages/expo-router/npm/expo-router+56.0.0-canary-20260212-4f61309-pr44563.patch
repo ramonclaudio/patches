@@ -1,0 +1,271 @@
+diff --git a/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.d.ts.map b/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.d.ts.map
+index 1b5812c92be3b8..332b0c750d5268 100644
+--- a/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.d.ts.map
++++ b/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"StackToolbarClient.d.ts","sourceRoot":"","sources":["../../../../src/layouts/stack-utils/toolbar/StackToolbarClient.tsx"],"names":[],"mappings":"AACA,OAAO,EAAW,KAAK,SAAS,EAAE,MAAM,OAAO,CAAC;AAChD,OAAO,KAAK,EAAE,UAAU,EAAE,MAAM,cAAc,CAAC;AAO/C,OAAO,EAKL,KAAK,gBAAgB,EACtB,MAAM,WAAW,CAAC;AAKnB,OAAO,EAAE,4BAA4B,EAAE,MAAM,wCAAwC,CAAC;AAGtF,MAAM,WAAW,iBAAiB;IAChC;;;;OAIG;IACH,QAAQ,CAAC,EAAE,SAAS,CAAC;IACrB;;;;;;;;OAQG;IACH,SAAS,CAAC,EAAE,gBAAgB,CAAC;IAC7B;;;;;;;OAOG;IACH,OAAO,CAAC,EAAE,OAAO,CAAC;IAClB;;;;;;;OAOG;IACH,iBAAiB,CAAC,EAAE,OAAO,CAAC;IAC5B;;;;;OAKG;IACH,SAAS,CAAC,EAAE,UAAU,CAAC;IACvB;;;;OAIG;IACH,eAAe,CAAC,EAAE,UAAU,CAAC;CAC9B;AAED;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GA6DG;AACH,eAAO,MAAM,YAAY;YAAW,iBAAiB;;;;;;;;;;CAWpD,CAAC;AA4DF,wBAAgB,gCAAgC,CAC9C,OAAO,EAAE,4BAA4B,EACrC,KAAK,EAAE,iBAAiB,GACvB,4BAA4B,CAiC9B;AAYD,eAAe,YAAY,CAAC"}
+\ No newline at end of file
++{"version":3,"file":"StackToolbarClient.d.ts","sourceRoot":"","sources":["../../../../src/layouts/stack-utils/toolbar/StackToolbarClient.tsx"],"names":[],"mappings":"AACA,OAAO,EAAqC,KAAK,SAAS,EAAE,MAAM,OAAO,CAAC;AAC1E,OAAO,KAAK,EAAE,UAAU,EAAE,MAAM,cAAc,CAAC;AAO/C,OAAO,EAKL,KAAK,gBAAgB,EACtB,MAAM,WAAW,CAAC;AAKnB,OAAO,EAAE,4BAA4B,EAAE,MAAM,wCAAwC,CAAC;AAGtF,MAAM,WAAW,iBAAiB;IAChC;;;;OAIG;IACH,QAAQ,CAAC,EAAE,SAAS,CAAC;IACrB;;;;;;;;OAQG;IACH,SAAS,CAAC,EAAE,gBAAgB,CAAC;IAC7B;;;;;;;OAOG;IACH,OAAO,CAAC,EAAE,OAAO,CAAC;IAClB;;;;;;;OAOG;IACH,iBAAiB,CAAC,EAAE,OAAO,CAAC;IAC5B;;;;;OAKG;IACH,SAAS,CAAC,EAAE,UAAU,CAAC;IACvB;;;;OAIG;IACH,eAAe,CAAC,EAAE,UAAU,CAAC;CAC9B;AAED;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GA6DG;AACH,eAAO,MAAM,YAAY;YAAW,iBAAiB;;;;;;;;;;CAWpD,CAAC;AA4GF,wBAAgB,gCAAgC,CAC9C,OAAO,EAAE,4BAA4B,EACrC,KAAK,EAAE,iBAAiB,GACvB,4BAA4B,CAiC9B;AAYD,eAAe,YAAY,CAAC"}
+\ No newline at end of file
+diff --git a/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js b/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js
+index beb70a741d5d88..ba8657553eae06 100644
+--- a/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js
++++ b/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js
+@@ -100,10 +100,58 @@ const StackToolbarBottom = ({ children, disableImePadding, tintColor, background
+       </context_1.ToolbarColorContext.Provider>
+     </context_1.ToolbarPlacementContext.Provider>);
+ };
++/**
++ * Structural fingerprint of toolbar children: element types, keys, and
++ * serializable props. Function-typed props (handlers like `onPress`) are
++ * intentionally skipped — they are recreated on every parent render and
++ * would otherwise force a spurious re-registration on every render.
++ *
++ * Used as a `useMemo` dep so the registered options object stays reference-
++ * stable across renders that don't structurally change the toolbar.
++ */
++function fingerprintToolbarChildren(children) {
++    return react_1.Children.toArray(children)
++        .map((node) => {
++        if (!(0, react_1.isValidElement)(node))
++            return String(node ?? '');
++        const t = node.type;
++        const name = typeof t === 'string' ? t : (t.displayName ?? t.name ?? '?');
++        const bits = [];
++        for (const k in (node.props ?? {})) {
++            const v = node.props[k];
++            if (typeof v === 'function' || v === undefined)
++                continue;
++            if (k === 'children') {
++                bits.push('c:' + fingerprintToolbarChildren(v));
++                continue;
++            }
++            try {
++                bits.push(k + '=' + (typeof v === 'object' ? JSON.stringify(v) : String(v)));
++            }
++            catch {
++                bits.push(k + '=?');
++            }
++        }
++        return `${name}#${node.key ?? ''}{${bits.join(',')}}`;
++    })
++        .join('|');
++}
+ const StackToolbarHeader = ({ children, placement, asChild, disableImePadding, tintColor, backgroundColor, }) => {
+     if (placement !== 'left' && placement !== 'right') {
+         throw new Error(`Invalid placement "${placement}" for Stack.Toolbar. Expected "left" or "right".`);
+     }
++    // Re-register only when toolbar items are added, removed, swapped, or
++    // visually change. Function-prop changes (e.g. `onPress` closures recreated
++    // by setState in the parent) do not change the fingerprint, so typing in a
++    // TextField inside the parent screen will not retrigger the registry.
++    //
++    // Why this matters: JSX `children` is a new array on every parent render.
++    // If `useMemo` depended on `children` directly, the options object would
++    // be a new reference every render, which would make `useCompositionOption`
++    // re-dispatch on every render, which would re-render the navigator, which
++    // would re-render the parent screen, which would create new children — an
++    // infinite loop in any screen that has state.
++    const fingerprint = fingerprintToolbarChildren(children);
+     const options = (0, react_1.useMemo)(() => appendStackToolbarPropsToOptions({}, 
+     // satisfies ensures every prop is listed here
+     {
+@@ -113,7 +161,9 @@ const StackToolbarHeader = ({ children, placement, asChild, disableImePadding, t
+         disableImePadding,
+         tintColor,
+         backgroundColor,
+-    }), [children, placement, asChild, disableImePadding, tintColor, backgroundColor]);
++    }), 
++    // eslint-disable-next-line react-hooks/exhaustive-deps
++    [fingerprint, placement, asChild, disableImePadding, tintColor, backgroundColor]);
+     (0, composition_options_1.useCompositionOption)(options);
+     return null;
+ };
+diff --git a/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js.map b/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js.map
+index e597242dc5bdf8..bef9652799f2cc 100644
+--- a/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js.map
++++ b/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js.map
+@@ -1 +1 @@
+-{"version":3,"file":"StackToolbarClient.js","sourceRoot":"","sources":["../../../../src/layouts/stack-utils/toolbar/StackToolbarClient.tsx"],"names":[],"mappings":"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","sourcesContent":["'use client';\nimport { useMemo, type ReactNode } from 'react';\nimport type { ColorValue } from 'react-native';\n\nimport { StackToolbarButton } from './StackToolbarButton';\nimport { StackToolbarMenu, StackToolbarMenuAction } from './StackToolbarMenu';\nimport { StackToolbarSearchBarSlot } from './StackToolbarSearchBarSlot';\nimport { StackToolbarSpacer } from './StackToolbarSpacer';\nimport { StackToolbarView } from './StackToolbarView';\nimport {\n  ToolbarColorContext,\n  ToolbarPlacementContext,\n  useToolbarPlacement,\n  type ToolbarColors,\n  type ToolbarPlacement,\n} from './context';\nimport { processHeaderItemsForPlatform } from './processHeaderItemsForPlatform';\nimport { StackToolbarBadge, StackToolbarIcon, StackToolbarLabel } from './toolbar-primitives';\nimport { useCompositionOption } from '../../../fork/native-stack/composition-options';\nimport { NativeMenuContext } from '../../../link/NativeMenuContext';\nimport { NativeStackNavigationOptions } from '../../../react-navigation/native-stack';\nimport { RouterToolbarHost } from '../../../toolbar/native';\n\nexport interface StackToolbarProps {\n  /**\n   * Child elements to compose the toolbar. Can include Stack.Toolbar.Button,\n   * Stack.Toolbar.Menu, Stack.Toolbar.View, Stack.Toolbar.Spacer, and\n   * Stack.Toolbar.SearchBarSlot (bottom only) components.\n   */\n  children?: ReactNode;\n  /**\n   * The placement of the toolbar.\n   *\n   * - `'left'`: Renders items in the left area of the header.\n   * - `'right'`: Renders items in the right area of the header.\n   * - `'bottom'`: Renders items in the bottom toolbar (iOS only).\n   *\n   * @default 'bottom'\n   */\n  placement?: ToolbarPlacement;\n  /**\n   * When `true`, renders children as a custom component in the header area,\n   * replacing the default header layout.\n   *\n   * Only applies to `placement=\"left\"` and `placement=\"right\"`.\n   *\n   * @default false\n   */\n  asChild?: boolean;\n  /**\n   * When `true`, disables automatic keyboard (IME) padding on the bottom toolbar.\n   *\n   * Only applies to `placement=\"bottom\"` on Android.\n   *\n   * @default false\n   * @platform android\n   */\n  disableImePadding?: boolean;\n  /**\n   * Tint color applied to toolbar items (buttons, menu icons, text).\n   * Individual items can override this with their own `tintColor` prop.\n   *\n   * @platform android\n   */\n  tintColor?: ColorValue;\n  /**\n   * Background color for the toolbar and its menus.\n   *\n   * @platform android\n   */\n  backgroundColor?: ColorValue;\n}\n\n/**\n * The component used to configure the stack toolbar.\n *\n * - Use `placement=\"left\"` to customize the left side of the header.\n * - Use `placement=\"right\"` to customize the right side of the header.\n * - Use `placement=\"bottom\"` (default) to show a bottom toolbar (iOS only).\n *\n * If multiple instances of this component are rendered for the same screen,\n * the last one rendered in the component tree takes precedence.\n *\n * > **Note:** Using `Stack.Toolbar` with `placement=\"left\"` or `placement=\"right\"` will\n * automatically make the header visible (`headerShown: true`), as the toolbar is rendered\n * as part of the native header.\n *\n * > **Note:** `Stack.Toolbar` with `placement=\"bottom\"` can only be used inside **page**\n * components, not in layout components.\n *\n *\n * @example\n * ```tsx\n * import { Stack } from 'expo-router';\n *\n * export default function Layout() {\n *   return (\n *     <Stack>\n *       <Stack.Screen name=\"index\">\n *         <Stack.Toolbar placement=\"left\">\n *           <Stack.Toolbar.Button icon=\"sidebar.left\" onPress={() => alert('Left button pressed!')} />\n *         </Stack.Toolbar>\n *         <Stack.Toolbar placement=\"right\">\n *           <Stack.Toolbar.Button icon=\"ellipsis.circle\" onPress={() => alert('Right button pressed!')} />\n *         </Stack.Toolbar>\n *       </Stack.Screen>\n *     </Stack>\n *   );\n * }\n * ```\n *\n * @example\n * ```tsx\n * import { Stack } from 'expo-router';\n *\n * export default function Page() {\n *   return (\n *     <>\n *       <Stack.Toolbar placement=\"left\">\n *         <Stack.Toolbar.Button icon=\"sidebar.left\" onPress={() => alert('Left button pressed!')} />\n *       </Stack.Toolbar>\n *       <Stack.Toolbar>\n *         <Stack.Toolbar.Spacer />\n *         <Stack.Toolbar.Button icon=\"magnifyingglass\" onPress={() => {}} />\n *         <Stack.Toolbar.Spacer />\n *       </Stack.Toolbar>\n *       <ScreenContent />\n *     </>\n *   );\n * }\n * ```\n *\n * @experimental\n * @platform ios\n */\nexport const StackToolbar = (props: StackToolbarProps) => {\n  const parentPlacement = useToolbarPlacement();\n  if (parentPlacement) {\n    throw new Error(`Stack.Toolbar cannot be nested inside another Stack.Toolbar.`);\n  }\n\n  if (props.placement === 'bottom' || !props.placement) {\n    return <StackToolbarBottom {...props} />;\n  }\n\n  return <StackToolbarHeader {...props} key={props.placement} />;\n};\n\nconst StackToolbarBottom = ({\n  children,\n  disableImePadding,\n  tintColor,\n  backgroundColor,\n}: StackToolbarProps) => {\n  const colors = useMemo<ToolbarColors>(\n    () => ({ tintColor, backgroundColor }),\n    [tintColor, backgroundColor]\n  );\n  return (\n    <ToolbarPlacementContext.Provider value=\"bottom\">\n      <ToolbarColorContext.Provider value={colors}>\n        <NativeMenuContext value>\n          <RouterToolbarHost withImePadding={!disableImePadding} backgroundColor={backgroundColor}>\n            {children}\n          </RouterToolbarHost>\n        </NativeMenuContext>\n      </ToolbarColorContext.Provider>\n    </ToolbarPlacementContext.Provider>\n  );\n};\n\nconst StackToolbarHeader = ({\n  children,\n  placement,\n  asChild,\n  disableImePadding,\n  tintColor,\n  backgroundColor,\n}: StackToolbarProps) => {\n  if (placement !== 'left' && placement !== 'right') {\n    throw new Error(\n      `Invalid placement \"${placement}\" for Stack.Toolbar. Expected \"left\" or \"right\".`\n    );\n  }\n\n  const options = useMemo(\n    () =>\n      appendStackToolbarPropsToOptions(\n        {},\n        // satisfies ensures every prop is listed here\n        {\n          children,\n          placement,\n          asChild,\n          disableImePadding,\n          tintColor,\n          backgroundColor,\n        } satisfies Record<keyof StackToolbarProps, unknown>\n      ),\n    [children, placement, asChild, disableImePadding, tintColor, backgroundColor]\n  );\n  useCompositionOption(options);\n\n  return null;\n};\n\nexport function appendStackToolbarPropsToOptions(\n  options: NativeStackNavigationOptions,\n  props: StackToolbarProps\n): NativeStackNavigationOptions {\n  const { children, placement = 'bottom', asChild } = props;\n\n  if (placement === 'bottom') {\n    // Bottom toolbar doesn't modify navigation options\n    return options;\n  }\n\n  const colors: ToolbarColors = {\n    tintColor: props.tintColor,\n    backgroundColor: props.backgroundColor,\n  };\n\n  if (asChild) {\n    const wrappedChildren = (\n      <ToolbarColorContext.Provider value={colors}>{children}</ToolbarColorContext.Provider>\n    );\n    if (placement === 'left') {\n      return {\n        ...options,\n        headerShown: true,\n        headerLeft: () => wrappedChildren,\n      };\n    } else {\n      return {\n        ...options,\n        headerShown: true,\n        headerRight: () => wrappedChildren,\n      };\n    }\n  }\n\n  return { ...options, ...(processHeaderItemsForPlatform(children, placement, colors) ?? {}) };\n}\n\nStackToolbar.Button = StackToolbarButton;\nStackToolbar.Menu = StackToolbarMenu;\nStackToolbar.MenuAction = StackToolbarMenuAction;\nStackToolbar.SearchBarSlot = StackToolbarSearchBarSlot;\nStackToolbar.Spacer = StackToolbarSpacer;\nStackToolbar.View = StackToolbarView;\nStackToolbar.Label = StackToolbarLabel;\nStackToolbar.Icon = StackToolbarIcon;\nStackToolbar.Badge = StackToolbarBadge;\n\nexport default StackToolbar;\n"]}
+\ No newline at end of file
++{"version":3,"file":"StackToolbarClient.js","sourceRoot":"","sources":["../../../../src/layouts/stack-utils/toolbar/StackToolbarClient.tsx"],"names":[],"mappings":"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","sourcesContent":["'use client';\nimport { Children, isValidElement, useMemo, type ReactNode } from 'react';\nimport type { ColorValue } from 'react-native';\n\nimport { StackToolbarButton } from './StackToolbarButton';\nimport { StackToolbarMenu, StackToolbarMenuAction } from './StackToolbarMenu';\nimport { StackToolbarSearchBarSlot } from './StackToolbarSearchBarSlot';\nimport { StackToolbarSpacer } from './StackToolbarSpacer';\nimport { StackToolbarView } from './StackToolbarView';\nimport {\n  ToolbarColorContext,\n  ToolbarPlacementContext,\n  useToolbarPlacement,\n  type ToolbarColors,\n  type ToolbarPlacement,\n} from './context';\nimport { processHeaderItemsForPlatform } from './processHeaderItemsForPlatform';\nimport { StackToolbarBadge, StackToolbarIcon, StackToolbarLabel } from './toolbar-primitives';\nimport { useCompositionOption } from '../../../fork/native-stack/composition-options';\nimport { NativeMenuContext } from '../../../link/NativeMenuContext';\nimport { NativeStackNavigationOptions } from '../../../react-navigation/native-stack';\nimport { RouterToolbarHost } from '../../../toolbar/native';\n\nexport interface StackToolbarProps {\n  /**\n   * Child elements to compose the toolbar. Can include Stack.Toolbar.Button,\n   * Stack.Toolbar.Menu, Stack.Toolbar.View, Stack.Toolbar.Spacer, and\n   * Stack.Toolbar.SearchBarSlot (bottom only) components.\n   */\n  children?: ReactNode;\n  /**\n   * The placement of the toolbar.\n   *\n   * - `'left'`: Renders items in the left area of the header.\n   * - `'right'`: Renders items in the right area of the header.\n   * - `'bottom'`: Renders items in the bottom toolbar (iOS only).\n   *\n   * @default 'bottom'\n   */\n  placement?: ToolbarPlacement;\n  /**\n   * When `true`, renders children as a custom component in the header area,\n   * replacing the default header layout.\n   *\n   * Only applies to `placement=\"left\"` and `placement=\"right\"`.\n   *\n   * @default false\n   */\n  asChild?: boolean;\n  /**\n   * When `true`, disables automatic keyboard (IME) padding on the bottom toolbar.\n   *\n   * Only applies to `placement=\"bottom\"` on Android.\n   *\n   * @default false\n   * @platform android\n   */\n  disableImePadding?: boolean;\n  /**\n   * Tint color applied to toolbar items (buttons, menu icons, text).\n   * Individual items can override this with their own `tintColor` prop.\n   *\n   * @platform android\n   */\n  tintColor?: ColorValue;\n  /**\n   * Background color for the toolbar and its menus.\n   *\n   * @platform android\n   */\n  backgroundColor?: ColorValue;\n}\n\n/**\n * The component used to configure the stack toolbar.\n *\n * - Use `placement=\"left\"` to customize the left side of the header.\n * - Use `placement=\"right\"` to customize the right side of the header.\n * - Use `placement=\"bottom\"` (default) to show a bottom toolbar (iOS only).\n *\n * If multiple instances of this component are rendered for the same screen,\n * the last one rendered in the component tree takes precedence.\n *\n * > **Note:** Using `Stack.Toolbar` with `placement=\"left\"` or `placement=\"right\"` will\n * automatically make the header visible (`headerShown: true`), as the toolbar is rendered\n * as part of the native header.\n *\n * > **Note:** `Stack.Toolbar` with `placement=\"bottom\"` can only be used inside **page**\n * components, not in layout components.\n *\n *\n * @example\n * ```tsx\n * import { Stack } from 'expo-router';\n *\n * export default function Layout() {\n *   return (\n *     <Stack>\n *       <Stack.Screen name=\"index\">\n *         <Stack.Toolbar placement=\"left\">\n *           <Stack.Toolbar.Button icon=\"sidebar.left\" onPress={() => alert('Left button pressed!')} />\n *         </Stack.Toolbar>\n *         <Stack.Toolbar placement=\"right\">\n *           <Stack.Toolbar.Button icon=\"ellipsis.circle\" onPress={() => alert('Right button pressed!')} />\n *         </Stack.Toolbar>\n *       </Stack.Screen>\n *     </Stack>\n *   );\n * }\n * ```\n *\n * @example\n * ```tsx\n * import { Stack } from 'expo-router';\n *\n * export default function Page() {\n *   return (\n *     <>\n *       <Stack.Toolbar placement=\"left\">\n *         <Stack.Toolbar.Button icon=\"sidebar.left\" onPress={() => alert('Left button pressed!')} />\n *       </Stack.Toolbar>\n *       <Stack.Toolbar>\n *         <Stack.Toolbar.Spacer />\n *         <Stack.Toolbar.Button icon=\"magnifyingglass\" onPress={() => {}} />\n *         <Stack.Toolbar.Spacer />\n *       </Stack.Toolbar>\n *       <ScreenContent />\n *     </>\n *   );\n * }\n * ```\n *\n * @experimental\n * @platform ios\n */\nexport const StackToolbar = (props: StackToolbarProps) => {\n  const parentPlacement = useToolbarPlacement();\n  if (parentPlacement) {\n    throw new Error(`Stack.Toolbar cannot be nested inside another Stack.Toolbar.`);\n  }\n\n  if (props.placement === 'bottom' || !props.placement) {\n    return <StackToolbarBottom {...props} />;\n  }\n\n  return <StackToolbarHeader {...props} key={props.placement} />;\n};\n\nconst StackToolbarBottom = ({\n  children,\n  disableImePadding,\n  tintColor,\n  backgroundColor,\n}: StackToolbarProps) => {\n  const colors = useMemo<ToolbarColors>(\n    () => ({ tintColor, backgroundColor }),\n    [tintColor, backgroundColor]\n  );\n  return (\n    <ToolbarPlacementContext.Provider value=\"bottom\">\n      <ToolbarColorContext.Provider value={colors}>\n        <NativeMenuContext value>\n          <RouterToolbarHost withImePadding={!disableImePadding} backgroundColor={backgroundColor}>\n            {children}\n          </RouterToolbarHost>\n        </NativeMenuContext>\n      </ToolbarColorContext.Provider>\n    </ToolbarPlacementContext.Provider>\n  );\n};\n\n/**\n * Structural fingerprint of toolbar children: element types, keys, and\n * serializable props. Function-typed props (handlers like `onPress`) are\n * intentionally skipped — they are recreated on every parent render and\n * would otherwise force a spurious re-registration on every render.\n *\n * Used as a `useMemo` dep so the registered options object stays reference-\n * stable across renders that don't structurally change the toolbar.\n */\nfunction fingerprintToolbarChildren(children: ReactNode): string {\n  return Children.toArray(children)\n    .map((node) => {\n      if (!isValidElement(node)) return String(node ?? '');\n      const t = node.type as { displayName?: string; name?: string } | string;\n      const name = typeof t === 'string' ? t : (t.displayName ?? t.name ?? '?');\n      const bits: string[] = [];\n      for (const k in (node.props ?? {}) as Record<string, unknown>) {\n        const v = (node.props as Record<string, unknown>)[k];\n        if (typeof v === 'function' || v === undefined) continue;\n        if (k === 'children') {\n          bits.push('c:' + fingerprintToolbarChildren(v as ReactNode));\n          continue;\n        }\n        try {\n          bits.push(k + '=' + (typeof v === 'object' ? JSON.stringify(v) : String(v)));\n        } catch {\n          bits.push(k + '=?');\n        }\n      }\n      return `${name}#${node.key ?? ''}{${bits.join(',')}}`;\n    })\n    .join('|');\n}\n\nconst StackToolbarHeader = ({\n  children,\n  placement,\n  asChild,\n  disableImePadding,\n  tintColor,\n  backgroundColor,\n}: StackToolbarProps) => {\n  if (placement !== 'left' && placement !== 'right') {\n    throw new Error(\n      `Invalid placement \"${placement}\" for Stack.Toolbar. Expected \"left\" or \"right\".`\n    );\n  }\n\n  // Re-register only when toolbar items are added, removed, swapped, or\n  // visually change. Function-prop changes (e.g. `onPress` closures recreated\n  // by setState in the parent) do not change the fingerprint, so typing in a\n  // TextField inside the parent screen will not retrigger the registry.\n  //\n  // Why this matters: JSX `children` is a new array on every parent render.\n  // If `useMemo` depended on `children` directly, the options object would\n  // be a new reference every render, which would make `useCompositionOption`\n  // re-dispatch on every render, which would re-render the navigator, which\n  // would re-render the parent screen, which would create new children — an\n  // infinite loop in any screen that has state.\n  const fingerprint = fingerprintToolbarChildren(children);\n\n  const options = useMemo(\n    () =>\n      appendStackToolbarPropsToOptions(\n        {},\n        // satisfies ensures every prop is listed here\n        {\n          children,\n          placement,\n          asChild,\n          disableImePadding,\n          tintColor,\n          backgroundColor,\n        } satisfies Record<keyof StackToolbarProps, unknown>\n      ),\n    // eslint-disable-next-line react-hooks/exhaustive-deps\n    [fingerprint, placement, asChild, disableImePadding, tintColor, backgroundColor]\n  );\n  useCompositionOption(options);\n\n  return null;\n};\n\nexport function appendStackToolbarPropsToOptions(\n  options: NativeStackNavigationOptions,\n  props: StackToolbarProps\n): NativeStackNavigationOptions {\n  const { children, placement = 'bottom', asChild } = props;\n\n  if (placement === 'bottom') {\n    // Bottom toolbar doesn't modify navigation options\n    return options;\n  }\n\n  const colors: ToolbarColors = {\n    tintColor: props.tintColor,\n    backgroundColor: props.backgroundColor,\n  };\n\n  if (asChild) {\n    const wrappedChildren = (\n      <ToolbarColorContext.Provider value={colors}>{children}</ToolbarColorContext.Provider>\n    );\n    if (placement === 'left') {\n      return {\n        ...options,\n        headerShown: true,\n        headerLeft: () => wrappedChildren,\n      };\n    } else {\n      return {\n        ...options,\n        headerShown: true,\n        headerRight: () => wrappedChildren,\n      };\n    }\n  }\n\n  return { ...options, ...(processHeaderItemsForPlatform(children, placement, colors) ?? {}) };\n}\n\nStackToolbar.Button = StackToolbarButton;\nStackToolbar.Menu = StackToolbarMenu;\nStackToolbar.MenuAction = StackToolbarMenuAction;\nStackToolbar.SearchBarSlot = StackToolbarSearchBarSlot;\nStackToolbar.Spacer = StackToolbarSpacer;\nStackToolbar.View = StackToolbarView;\nStackToolbar.Label = StackToolbarLabel;\nStackToolbar.Icon = StackToolbarIcon;\nStackToolbar.Badge = StackToolbarBadge;\n\nexport default StackToolbar;\n"]}
+\ No newline at end of file
+diff --git a/node_modules/expo-router/src/layouts/stack-utils/__tests__/StackComposition.renderCount.test.ios.tsx b/node_modules/expo-router/src/layouts/stack-utils/__tests__/StackComposition.renderCount.test.ios.tsx
+index 57d07acf92312e..a18deb4b19f852 100644
+--- a/node_modules/expo-router/src/layouts/stack-utils/__tests__/StackComposition.renderCount.test.ios.tsx
++++ b/node_modules/expo-router/src/layouts/stack-utils/__tests__/StackComposition.renderCount.test.ios.tsx
+@@ -273,6 +273,92 @@ describe('Stack composition components render count', () => {
+     expect(ScreenStackItem).not.toHaveBeenCalled();
+   });
+ 
++  it('Stack.Toolbar item structure changes DO trigger re-registration', () => {
++    // Dual of the no-loop test: confirm we don't over-correct. Adding a
++    // toolbar item must still rebuild the header.
++    function Index() {
++      const [showSecond, setShowSecond] = useState(false);
++      return (
++        <>
++          <Stack.Toolbar placement="right">
++            <Stack.Toolbar.Button icon="star" onPress={() => {}} />
++            {showSecond && <Stack.Toolbar.Button icon="ellipsis.circle" onPress={() => {}} />}
++          </Stack.Toolbar>
++          <Button testID="toggle" title="Toggle" onPress={() => setShowSecond((v) => !v)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    // Initial: one button
++    const initialProps = ScreenStackItem.mock.calls[1][0];
++    expect(initialProps.headerConfig?.headerRightBarButtonItems).toHaveLength(1);
++
++    jest.clearAllMocks();
++
++    // Toggle: now two buttons — structural change, must re-register
++    act(() => {
++      fireEvent.press(screen.getByTestId('toggle'));
++    });
++
++    expect(ScreenStackItem).toHaveBeenCalled();
++    const updatedProps = ScreenStackItem.mock.calls[ScreenStackItem.mock.calls.length - 1][0];
++    expect(updatedProps.headerConfig?.headerRightBarButtonItems).toHaveLength(2);
++  });
++
++  it('local state changes do not infinite-loop with Stack.Toolbar', () => {
++    // Regression test: JSX `children` is a new array every parent render, so
++    // depending on it directly inside `useCompositionOption` re-dispatched on
++    // every render, which re-rendered the navigator, which re-rendered the
++    // screen, which created new children, which... — an infinite loop.
++    const indexRender = jest.fn();
++
++    function Index() {
++      indexRender();
++      const [count, setCount] = useState(0);
++      return (
++        <>
++          <Stack.Toolbar placement="left">
++            <Stack.Toolbar.Button icon="star" onPress={() => {}} />
++          </Stack.Toolbar>
++          <Stack.Toolbar placement="right">
++            <Stack.Toolbar.Button icon="ellipsis.circle" onPress={() => {}} />
++          </Stack.Toolbar>
++          <Text testID="count">{count}</Text>
++          <Button testID="increment" title="+" onPress={() => setCount((c) => c + 1)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('0');
++
++    // Clear after initial settle
++    jest.clearAllMocks();
++
++    // Increment counter — triggers rerender of screen component
++    act(() => {
++      fireEvent.press(screen.getByTestId('increment'));
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('1');
++
++    // Screen render fn IS called once (state changed, expected)
++    expect(indexRender).toHaveBeenCalledTimes(1);
++
++    // ScreenStackItem should NOT be called — toolbar items are structurally
++    // unchanged so the registered options object stays reference-stable.
++    expect(ScreenStackItem).not.toHaveBeenCalled();
++  });
++
+   it('changed composition options DO trigger ScreenStackItem update', () => {
+     const indexRender = jest.fn();
+ 
+diff --git a/node_modules/expo-router/src/layouts/stack-utils/toolbar/StackToolbarClient.tsx b/node_modules/expo-router/src/layouts/stack-utils/toolbar/StackToolbarClient.tsx
+index 30a1b679159116..80dd7428998401 100644
+--- a/node_modules/expo-router/src/layouts/stack-utils/toolbar/StackToolbarClient.tsx
++++ b/node_modules/expo-router/src/layouts/stack-utils/toolbar/StackToolbarClient.tsx
+@@ -1,5 +1,5 @@
+ 'use client';
+-import { useMemo, type ReactNode } from 'react';
++import { Children, isValidElement, useMemo, type ReactNode } from 'react';
+ import type { ColorValue } from 'react-native';
+ 
+ import { StackToolbarButton } from './StackToolbarButton';
+@@ -169,6 +169,40 @@ const StackToolbarBottom = ({
+   );
+ };
+ 
++/**
++ * Structural fingerprint of toolbar children: element types, keys, and
++ * serializable props. Function-typed props (handlers like `onPress`) are
++ * intentionally skipped — they are recreated on every parent render and
++ * would otherwise force a spurious re-registration on every render.
++ *
++ * Used as a `useMemo` dep so the registered options object stays reference-
++ * stable across renders that don't structurally change the toolbar.
++ */
++function fingerprintToolbarChildren(children: ReactNode): string {
++  return Children.toArray(children)
++    .map((node) => {
++      if (!isValidElement(node)) return String(node ?? '');
++      const t = node.type as { displayName?: string; name?: string } | string;
++      const name = typeof t === 'string' ? t : (t.displayName ?? t.name ?? '?');
++      const bits: string[] = [];
++      for (const k in (node.props ?? {}) as Record<string, unknown>) {
++        const v = (node.props as Record<string, unknown>)[k];
++        if (typeof v === 'function' || v === undefined) continue;
++        if (k === 'children') {
++          bits.push('c:' + fingerprintToolbarChildren(v as ReactNode));
++          continue;
++        }
++        try {
++          bits.push(k + '=' + (typeof v === 'object' ? JSON.stringify(v) : String(v)));
++        } catch {
++          bits.push(k + '=?');
++        }
++      }
++      return `${name}#${node.key ?? ''}{${bits.join(',')}}`;
++    })
++    .join('|');
++}
++
+ const StackToolbarHeader = ({
+   children,
+   placement,
+@@ -183,6 +217,19 @@ const StackToolbarHeader = ({
+     );
+   }
+ 
++  // Re-register only when toolbar items are added, removed, swapped, or
++  // visually change. Function-prop changes (e.g. `onPress` closures recreated
++  // by setState in the parent) do not change the fingerprint, so typing in a
++  // TextField inside the parent screen will not retrigger the registry.
++  //
++  // Why this matters: JSX `children` is a new array on every parent render.
++  // If `useMemo` depended on `children` directly, the options object would
++  // be a new reference every render, which would make `useCompositionOption`
++  // re-dispatch on every render, which would re-render the navigator, which
++  // would re-render the parent screen, which would create new children — an
++  // infinite loop in any screen that has state.
++  const fingerprint = fingerprintToolbarChildren(children);
++
+   const options = useMemo(
+     () =>
+       appendStackToolbarPropsToOptions(
+@@ -197,7 +244,8 @@ const StackToolbarHeader = ({
+           backgroundColor,
+         } satisfies Record<keyof StackToolbarProps, unknown>
+       ),
+-    [children, placement, asChild, disableImePadding, tintColor, backgroundColor]
++    // eslint-disable-next-line react-hooks/exhaustive-deps
++    [fingerprint, placement, asChild, disableImePadding, tintColor, backgroundColor]
+   );
+   useCompositionOption(options);
+ 
