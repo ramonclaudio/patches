@@ -11,48 +11,73 @@ Patches for open upstream PRs. Drop them when the release ships.
 
 ## Open
 
-Patch is needed. PR not yet merged.
+PR not yet merged. Most rows have a patch ready in `packages/`; rows marked `no patch: …` are tracked here for completeness when the upstream change can't be applied locally (CI, docs site, etc). Indented rows (`↳`) are sibling patches from the same upstream PR — apply them together.
 
 | Package | Version | Format | Fix | PR |
 | :--- | :--- | :--- | :--- | :--- |
-| [`@tobilu/qmd`](packages/@tobilu/qmd/) | `1.0.6` | Bun, npm (patch-package), pnpm | `typescript` in `peerDependencies` instead of `devDependencies`; missing `tsc` in `prepare` script | [tobi/qmd#197](https://github.com/tobi/qmd/pull/197) |
+| [`expo-router`](packages/expo-router/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | `Stack.Toolbar` infinite render loop on stateful screens; fix for issue [expo/expo#44561](https://github.com/expo/expo/issues/44561) | [expo/expo#44563](https://github.com/expo/expo/pull/44563) |
+| `@astrojs/compiler` | — | no patch: CI workflow fix, not runtime code | Add `-x` to `x86_64-unknown-linux-gnu` build for glibc compat | [withastro/compiler-rs#22](https://github.com/withastro/compiler-rs/pull/22) |
 | [`@shopify/mini-oxygen`](packages/@shopify/mini-oxygen/) | `4.0.0` | Bun, npm (patch-package), pnpm | Vite 7 `ReferenceError: __vite_ssr_exportName__ is not defined`; missing 6th SSR key, `getBuiltins()` support, `fetchModule` importer fix, removes deprecated `root`, bumps `vite` peer dep to `^7.0.0` | [Shopify/hydrogen#3493](https://github.com/Shopify/hydrogen/pull/3493) |
-| [`@shopify/hydrogen`](packages/@shopify/hydrogen/) | `2026.1.0` | Bun, npm (patch-package), pnpm | `vite` peer dep `^5.1.0 \|\| ^6.2.1` updated to `^7.0.0` | [Shopify/hydrogen#3493](https://github.com/Shopify/hydrogen/pull/3493) |
-| [`@shopify/hydrogen-react`](packages/@shopify/hydrogen-react/) | `2026.1.0` | Bun, npm (patch-package), pnpm | `vite` peer dep widened to `^5.1.0 \|\| ^6.2.1 \|\| ^7.0.0` | [Shopify/hydrogen#3493](https://github.com/Shopify/hydrogen/pull/3493) |
-| [`@shopify/cli-hydrogen`](packages/@shopify/cli-hydrogen/) | `11.1.9` | Bun, npm (patch-package), pnpm | `vite` peer dep `^5.1.0 \|\| ^6.2.0` updated to `^7.0.0` | [Shopify/hydrogen#3493](https://github.com/Shopify/hydrogen/pull/3493) |
-| [`bun`](packages/oven-sh/bun/) | `1.3.9` | Bun | `includePrerelease` semantics wrong for peer dep semver validation | [oven-sh/bun#27085](https://github.com/oven-sh/bun/pull/27085) |
+| ↳ [`@shopify/hydrogen`](packages/@shopify/hydrogen/) | `2026.1.0` | Bun, npm (patch-package), pnpm | `vite` peer dep `^5.1.0 \|\| ^6.2.1` widened to include `^7.0.0` so it accepts the patched mini-oxygen | sibling of [#3493](https://github.com/Shopify/hydrogen/pull/3493) |
+| ↳ [`@shopify/hydrogen-react`](packages/@shopify/hydrogen-react/) | `2026.1.0` | Bun, npm (patch-package), pnpm | `vite` peer dep widened to `^5.1.0 \|\| ^6.2.1 \|\| ^7.0.0` | sibling of [#3493](https://github.com/Shopify/hydrogen/pull/3493) |
+| ↳ [`@shopify/cli-hydrogen`](packages/@shopify/cli-hydrogen/) | `11.1.9` | Bun, npm (patch-package), pnpm | `vite` peer dep `^5.1.0 \|\| ^6.2.0` widened to include `^7.0.0` | sibling of [#3493](https://github.com/Shopify/hydrogen/pull/3493) |
 | [`bun`](packages/oven-sh/bun/) | `1.3.9` | Bun | Invalid YAML sequence in `update-root-certs` workflow `labels` field | [oven-sh/bun#27086](https://github.com/oven-sh/bun/pull/27086) |
-
-## Merged
-
-Patch is needed. PR merged but no release yet.
-
-| Package | Version | Format | Fix | PR |
-| :--- | :--- | :--- | :--- | :--- |
-| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | Missing `capsule` + `ellipse` shapes in `clipShape`/`mask`; broken `foregroundStyle` hierarchical handling | [expo/expo#43158](https://github.com/expo/expo/pull/43158) |
-| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | Per-axis `scaleEffect({ x, y })` missing from view modifiers; adds `inverted` prop to `List` for bottom-anchored scrolling | [expo/expo#43228](https://github.com/expo/expo/pull/43228) |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.11` | Bun, npm (patch-package), pnpm | Concurrent `fetchAccessToken` calls race to `/token`; `pendingTokenRef` deduplicates in-flight requests | [get-convex/better-auth#267](https://github.com/get-convex/better-auth/pull/267) |
+| [`bun`](packages/oven-sh/bun/) | `1.3.9` | Bun | `includePrerelease` semantics wrong for peer dep semver validation | [oven-sh/bun#27085](https://github.com/oven-sh/bun/pull/27085) |
+| `shadcn/ui` | — | no patch: docs website feature (copy-to-markdown), not runtime code | Raw `<ComponentsList>` tag leaking into copy-to-markdown output | [shadcn-ui/ui#9484](https://github.com/shadcn-ui/ui/pull/9484) |
 
 ## Released
 
-Bump the dep instead.
+PR merged. Bump the dep (or wait for the next canary) to drop the patch.
 
 | Package | Was | Format | Fix | Fixed in |
 | :--- | :--- | :--- | :--- | :--- |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Bun, npm (patch-package), pnpm | Cookie expiry string comparison, null session cache, wrong `isAuthenticated` check | `0.10.11` ([get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218)) |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | iOS: `textContentType` modifier for SwiftUI text inputs | awaiting canary ([expo/expo#44548](https://github.com/expo/expo/pull/44548)) |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | iOS: `textInputAutocapitalization` modifier | awaiting canary ([expo/expo#44547](https://github.com/expo/expo/pull/44547)) |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | iOS: `scrollTargetBehavior` and `scrollTargetLayout` modifiers | awaiting canary ([expo/expo#43955](https://github.com/expo/expo/pull/43955)) |
+| `@napi-rs/cli` | — | no patch: bundles to `dist/index.cjs`, `src/` ships but isn't loaded at runtime | `--cross-compile` ignored when host matches target | merged ([napi-rs/napi-rs#3189](https://github.com/napi-rs/napi-rs/pull/3189)) |
+| `shadcn/ui` | — | no patch: registry directory JSON in the docs site, not runtime code | Add `@ramonclaudio-coderabbit` to the registry directory | merged ([shadcn-ui/ui#9331](https://github.com/shadcn-ui/ui/pull/9331)) |
+| [`expo-modules-core`](packages/expo-modules-core/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | iOS: serialize `PersistentFileLog.readEntries` on the dispatch queue to fix race condition | `56.0.0-canary-20260401-5e87ef7` ([expo/expo#43958](https://github.com/expo/expo/pull/43958)) |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | iOS: `defaultScrollAnchorForRole` modifier | `56.0.0-canary-20260401-5e87ef7` ([expo/expo#43923](https://github.com/expo/expo/pull/43923)) |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | iOS: `defaultScrollAnchor` modifier | `56.0.0-canary-20260401-5e87ef7` ([expo/expo#43914](https://github.com/expo/expo/pull/43914)) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.12` | Bun, npm (patch-package), pnpm | Stray `react-dom` peer dep removed | `0.10.13` ([get-convex/better-auth#278](https://github.com/get-convex/better-auth/pull/278)) |
+| `app-store-connect-cli` | — | no patch: Swift CLI binary distributed via Homebrew, no npm package | macOS app screen capture + Mac App Store canvas framing for `shots` command | merged ([rudrankriyam/App-Store-Connect-CLI#784](https://github.com/rudrankriyam/App-Store-Connect-CLI/pull/784)) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.11` | Bun, npm (patch-package), pnpm | Concurrent `fetchAccessToken` calls race to `/token`; `pendingTokenRef` deduplicates in-flight requests | `0.10.12` ([get-convex/better-auth#267](https://github.com/get-convex/better-auth/pull/267)) |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | Per-axis `scaleEffect({ x, y })` missing from view modifiers; adds `inverted` prop to `List` for bottom-anchored scrolling | `56.0.0-canary-20260305-5163746` ([expo/expo#43228](https://github.com/expo/expo/pull/43228)) |
 | [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Bun, npm (patch-package), pnpm | Pinned `better-auth` peer dep `1.4.9` blocks newer 1.4.x versions | `0.10.11` ([get-convex/better-auth#245](https://github.com/get-convex/better-auth/pull/245)) |
-| [`convex`](packages/convex/) | `1.31.3` | Bun, npm (patch-package), pnpm | `WebSocketManager` crashes where `window` exists but `addEventListener` doesn't | `1.31.4` ([get-convex/convex-backend#44935](https://github.com/get-convex/convex-backend/pull/44935)) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Bun, npm (patch-package), pnpm | Cookie expiry string comparison, null session cache, wrong `isAuthenticated` check | `0.10.11` ([get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218)) |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Bun, npm (patch-package), pnpm | Missing `capsule` + `ellipse` shapes in `clipShape`/`mask`; broken `foregroundStyle` hierarchical handling | `56.0.0-canary-20260305-5163746` ([expo/expo#43158](https://github.com/expo/expo/pull/43158)) |
+| [`convex`](packages/convex/) | `1.31.3` | Bun, npm (patch-package), pnpm | `WebSocketManager` crashes where `window` exists but `addEventListener` doesn't | `1.31.4` ([get-convex/convex-js@baafbf5](https://github.com/get-convex/convex-js/commit/baafbf5bb200d6db81804558fbd01ccce77355fc)) |
 | [`bun`](packages/oven-sh/bun/) | `1.2.20` | Bun | `decompress` option missing from `fetch()` TypeScript types | `1.2.21` ([oven-sh/bun#21855](https://github.com/oven-sh/bun/pull/21855)) |
+| [`create-fumadocs-app`](packages/create-fumadocs-app/) | `15.6.4` | Bun, npm (patch-package), pnpm | Fix Prettier formatting in `tanstack-start` template `NotFound.tsx` | `15.6.5` ([fuma-nama/fumadocs#2095](https://github.com/fuma-nama/fumadocs/pull/2095)) |
+| [`create-fumadocs-app`](packages/create-fumadocs-app/) | `15.6.4` | Bun, npm (patch-package), pnpm | Fix Vite and TanStack Router configuration warnings in `tanstack-start` template | `15.6.5` ([fuma-nama/fumadocs#2092](https://github.com/fuma-nama/fumadocs/pull/2092)) |
+| `@tanstack/db` | — | no patch: `README` docs only, not runtime code | Incorrect example todo app path | merged ([TanStack/db#17](https://github.com/TanStack/db/pull/17)) |
+
+## Closed
+
+PRs I closed without merge (or never filed). Some were rebuilt upstream with a different approach, others are still stale.
+
+| Package | Was | Format | Fix | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| `@tobilu/qmd` | — | no patch: `docs/mcp-setup.md` only, not runtime code | Tool name, param names, and ghost params in `mcp-setup.md` out of sync with `inputSchema` in `src/mcp.ts` | still stale ([tobi/qmd#95](https://github.com/tobi/qmd/pull/95) closed by me; corrections documented in the PR body) |
+| [`@tobilu/qmd`](packages/@tobilu/qmd/) | `1.0.7` | Bun, npm (patch-package), pnpm | `typescript` in `peerDependencies` instead of `devDependencies`; missing `tsc` in `prepare` script | `1.1.0+` ([tobi/qmd#197](https://github.com/tobi/qmd/pull/197) closed by me after upstream rebuilt the fix differently) |
+| [`react-native-view-shot`](packages/react-native-view-shot/) | `4.0.3` | Bun, npm (patch-package), pnpm | RN 0.84 / new arch: `RCTScrollView` removed; switch `snapshotContentContainer` check to `UIScrollView` | `5.0.0-alpha.2` ([gre/react-native-view-shot#587](https://github.com/gre/react-native-view-shot/pull/587); no PR filed, upstream adopted the same approach) |
 
 ## Filed
 
-Bugs I reported that were fixed upstream without a patch.
+Issues I reported.
 
-| Issue | Package | Notes |
-| :--- | :--- | :--- |
-| [panva/jose#752](https://github.com/panva/jose/issues/752) | `jose` | `process.getBuiltinModule` misuse breaks Edge Runtime / Next.js middleware; fixed in [`v6.0.4`](https://github.com/panva/jose/releases/tag/v6.0.4) |
-| [anthropics/claude-code#18181](https://github.com/anthropics/claude-code/issues/18181) | `claude` | Manual update doesn't fix symlink when `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` is set; fixed upstream |
-| [TanStack/db#17](https://github.com/TanStack/db/pull/17) | `@tanstack/db` | Incorrect example todo app path in README; docs only, no npm change |
+| Issue | Package | Status | Notes |
+| :--- | :--- | :--- | :--- |
+| [anthropics/claude-code#18075](https://github.com/anthropics/claude-code/issues/18075) | `claude` | open | Feature request: env var for custom Chromium browser path |
+| [Shopify/hydrogen#3263](https://github.com/Shopify/hydrogen/issues/3263) | `@shopify/mini-oxygen` | open | Add support for Vite 7 in `@shopify/mini-oxygen`; tracked by PR [#3493](https://github.com/Shopify/hydrogen/pull/3493) |
+| [shadcn-ui/ui#8892](https://github.com/shadcn-ui/ui/issues/8892) | `shadcn/ui` | fixed (my PR) | Registry directory submission for CodeRabbit; [@shadcn](https://github.com/shadcn) asked me to send a PR, I shipped [#9331](https://github.com/shadcn-ui/ui/pull/9331) which auto-closed this issue on merge |
+| [anthropics/claude-code#20664](https://github.com/anthropics/claude-code/issues/20664) | `claude` | stale | `--fork-session` doesn't inherit `CLAUDE_CODE_TASK_LIST_ID` from parent session; auto-closed by `github-actions` for inactivity, no human ever responded in the thread |
+| [tobi/qmd#198](https://github.com/tobi/qmd/issues/198) | `@tobilu/qmd` | closed by me | `bun install -g` requires manual `bun pm trust better-sqlite3`; closed by me, known runtime limitation, no upstream fix |
+| [get-convex/better-auth#219](https://github.com/get-convex/better-auth/issues/219) | `@convex-dev/better-auth` | fixed (my PR) | Potential duplicate token requests during concurrent `fetchAccessToken` calls; fixed by my own PR [#267](https://github.com/get-convex/better-auth/pull/267) |
+| [anthropics/claude-code#18181](https://github.com/anthropics/claude-code/issues/18181) | `claude` | fixed (my report) | Manual update doesn't fix symlink when `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` is set; [@bcherny](https://github.com/bcherny) replied "Fix incoming" and closed the issue |
+| [Textualize/textual#5980](https://github.com/Textualize/textual/issues/5980) | `textual` | closed by me | Emoji with variation selectors cause button layout misalignment in Ghostty; closed by me after the discussion concluded the fix belongs in terminal emulators via mode 2027, not in `textual` |
+| [panva/jose#752](https://github.com/panva/jose/issues/752) | `jose` | fixed (my report) | `process.getBuiltinModule` misuse breaks Edge Runtime / Next.js middleware; fixed in [`v6.0.4`](https://github.com/panva/jose/releases/tag/v6.0.4) after my traces convinced [@panva](https://github.com/panva) the bug was real (he thanked me on close) |
+| [cursor/cursor#3182](https://github.com/cursor/cursor/issues/3182) | `cursor` | fixed | Unable to update spending limit or toggle usage-based pricing on main dashboard; fixed upstream (cursor later disabled their issue tracker) |
 
 ## Usage
 
