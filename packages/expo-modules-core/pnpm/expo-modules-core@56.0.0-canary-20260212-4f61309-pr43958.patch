@@ -1,0 +1,20 @@
+diff --git a/ios/Core/Logging/PersistentFileLog.swift b/ios/Core/Logging/PersistentFileLog.swift
+index 893857805d8ed5..5ddcbb6a309476 100644
+--- a/ios/Core/Logging/PersistentFileLog.swift
++++ b/ios/Core/Logging/PersistentFileLog.swift
+@@ -43,10 +43,12 @@ public class PersistentFileLog {
+    Read entries from log file
+    */
+   public func readEntries() -> [String] {
+-    if getFileSize() == 0 {
+-      return []
++    return PersistentFileLog.serialQueue.sync {
++      if getFileSize() == 0 {
++        return []
++      }
++      return (try? self.readFileSync()) ?? []
+     }
+-    return (try? self.readFileSync()) ?? []
+   }
+ 
+   /**
