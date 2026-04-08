@@ -28,6 +28,7 @@ PR not yet merged. Most rows have a patch ready in `packages/`. Rows marked `no 
 | [`bun`](packages/oven-sh/bun/) | `1.3.9` | Bun | Invalid YAML sequence in `update-root-certs` workflow `labels` field | [oven-sh/bun#27086](https://github.com/oven-sh/bun/pull/27086) |
 | [`bun`](packages/oven-sh/bun/) | `1.3.9` | Bun | `includePrerelease` semantics wrong for peer dep semver validation | [oven-sh/bun#27085](https://github.com/oven-sh/bun/pull/27085) |
 | `shadcn/ui` | n/a | no patch: docs website feature (copy-to-markdown), not runtime code | Raw `<ComponentsList>` tag leaking into copy-to-markdown output | [shadcn-ui/ui#9484](https://github.com/shadcn-ui/ui/pull/9484) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.11.4` | Bun, npm (patch-package), pnpm | Migrate to `better-auth` 1.6: bumps peer to `>=1.6.0 <1.7.0`; accepts the new `Where.mode` field in adapter validators so `api.adapter.findOne` stops throwing `ArgumentValidationError`; passes `asResponse: false` at 7 internal plugin endpoint call sites (convex + cross-domain) so 1.6's flipped `shouldReturnResponse` default doesn't turn `{ token }` into `undefined` (JWT cookies becoming the literal string `"undefined"`) or crash `setSessionCookie` on cross-domain; silences `oidcProvider` deprecation warning with `__skipDeprecationWarning` | [get-convex/better-auth#323](https://github.com/get-convex/better-auth/pull/323) |
 
 ## Released
 
