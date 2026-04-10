@@ -1,0 +1,1261 @@
+diff --git a/internal/cli/cmdtest/shots_capture_test.go b/internal/cli/cmdtest/shots_capture_test.go
+index 0caa46635..9044ece8c 100644
+--- a/internal/cli/cmdtest/shots_capture_test.go
++++ b/internal/cli/cmdtest/shots_capture_test.go
+@@ -36,7 +36,7 @@ func TestShotsCapture_RequiredFlagErrors(t *testing.T) {
+ 			wantErr: "--provider must be",
+ 		},
+ 		{
+-			name:    "provider must be axe",
++			name:    "simctl is not a valid provider",
+ 			args:    []string{"screenshots", "capture", "--bundle-id", "com.example.app", "--name", "home", "--provider", "simctl"},
+ 			wantErr: "--provider must be",
+ 		},
+diff --git a/internal/cli/cmdtest/shots_frame_test.go b/internal/cli/cmdtest/shots_frame_test.go
+index 09a747a87..5d7e30438 100644
+--- a/internal/cli/cmdtest/shots_frame_test.go
++++ b/internal/cli/cmdtest/shots_frame_test.go
+@@ -332,6 +332,239 @@ screenshots:
+ 	}
+ }
+ 
++func TestShotsFrame_MacDevice(t *testing.T) {
++	t.Setenv("ASC_APP_ID", "")
++	t.Setenv("ASC_CONFIG_PATH", filepath.Join(t.TempDir(), "config.json"))
++
++	rawPath := filepath.Join(t.TempDir(), "raw.png")
++	writeFramePNG(t, rawPath, makeRawImage(2560, 1600))
++	kouFixturePath := filepath.Join(t.TempDir(), "kou-fixture.png")
++	writeFramePNG(t, kouFixturePath, makeRawImage(2880, 1800))
++	installMockKou(t, kouFixturePath, filepath.Join(t.TempDir(), "kou-out", "framed.png"))
++
++	root := RootCommand("1.2.3")
++	if err := root.Parse([]string{
++		"screenshots", "frame",
++		"--input", rawPath,
++		"--output-dir", filepath.Join(t.TempDir(), "framed"),
++		"--device", "mac",
++		"--title", "My App",
++		"--subtitle", "Your tagline",
++		"--output", "json",
++	}); err != nil {
++		t.Fatalf("parse error: %v", err)
++	}
++
++	stdout, stderr := captureOutput(t, func() {
++		if err := root.Run(context.Background()); err != nil {
++			t.Fatalf("run error: %v", err)
++		}
++	})
++	if stderr != "" {
++		t.Fatalf("expected empty stderr, got %q", stderr)
++	}
++
++	var result struct {
++		Device       string `json:"device"`
++		DisplayType  string `json:"display_type"`
++		UploadWidth  int    `json:"upload_width"`
++		UploadHeight int    `json:"upload_height"`
++		Width        int    `json:"width"`
++		Height       int    `json:"height"`
++	}
++	if err := json.Unmarshal([]byte(stdout), &result); err != nil {
++		t.Fatalf("unmarshal frame output: %v\nstdout=%q", err, stdout)
++	}
++	if result.Device != "mac" {
++		t.Fatalf("expected device mac, got %q", result.Device)
++	}
++	if result.DisplayType != "APP_DESKTOP" {
++		t.Fatalf("expected display type APP_DESKTOP, got %q", result.DisplayType)
++	}
++	if result.UploadWidth != 2880 || result.UploadHeight != 1800 {
++		t.Fatalf("expected upload target 2880x1800, got %dx%d", result.UploadWidth, result.UploadHeight)
++	}
++	if result.Width != 2880 || result.Height != 1800 {
++		t.Fatalf("expected output 2880x1800, got %dx%d", result.Width, result.Height)
++	}
++}
++
++func TestShotsFrame_MacDeviceNoText(t *testing.T) {
++	t.Setenv("ASC_APP_ID", "")
++	t.Setenv("ASC_CONFIG_PATH", filepath.Join(t.TempDir(), "config.json"))
++
++	rawPath := filepath.Join(t.TempDir(), "raw.png")
++	writeFramePNG(t, rawPath, makeRawImage(2560, 1600))
++	kouFixturePath := filepath.Join(t.TempDir(), "kou-fixture.png")
++	writeFramePNG(t, kouFixturePath, makeRawImage(2880, 1800))
++	installMockKou(t, kouFixturePath, filepath.Join(t.TempDir(), "kou-out", "framed.png"))
++
++	root := RootCommand("1.2.3")
++	if err := root.Parse([]string{
++		"screenshots", "frame",
++		"--input", rawPath,
++		"--output-dir", filepath.Join(t.TempDir(), "framed"),
++		"--device", "mac",
++		"--output", "json",
++	}); err != nil {
++		t.Fatalf("parse error: %v", err)
++	}
++
++	stdout, stderr := captureOutput(t, func() {
++		if err := root.Run(context.Background()); err != nil {
++			t.Fatalf("run error: %v", err)
++		}
++	})
++	if stderr != "" {
++		t.Fatalf("expected empty stderr, got %q", stderr)
++	}
++
++	var result struct {
++		Device       string `json:"device"`
++		DisplayType  string `json:"display_type"`
++		UploadWidth  int    `json:"upload_width"`
++		UploadHeight int    `json:"upload_height"`
++	}
++	if err := json.Unmarshal([]byte(stdout), &result); err != nil {
++		t.Fatalf("unmarshal frame output: %v\nstdout=%q", err, stdout)
++	}
++	if result.Device != "mac" {
++		t.Fatalf("expected device mac, got %q", result.Device)
++	}
++	if result.DisplayType != "APP_DESKTOP" {
++		t.Fatalf("expected display type APP_DESKTOP, got %q", result.DisplayType)
++	}
++	if result.UploadWidth != 2880 || result.UploadHeight != 1800 {
++		t.Fatalf("expected upload target 2880x1800, got %dx%d", result.UploadWidth, result.UploadHeight)
++	}
++}
++
++func TestShotsFrame_MacDeviceSubtitleOnly(t *testing.T) {
++	t.Setenv("ASC_APP_ID", "")
++	t.Setenv("ASC_CONFIG_PATH", filepath.Join(t.TempDir(), "config.json"))
++
++	rawPath := filepath.Join(t.TempDir(), "raw.png")
++	writeFramePNG(t, rawPath, makeRawImage(2560, 1600))
++	kouFixturePath := filepath.Join(t.TempDir(), "kou-fixture.png")
++	writeFramePNG(t, kouFixturePath, makeRawImage(2880, 1800))
++	installMockKou(t, kouFixturePath, filepath.Join(t.TempDir(), "kou-out", "framed.png"))
++
++	root := RootCommand("1.2.3")
++	if err := root.Parse([]string{
++		"screenshots", "frame",
++		"--input", rawPath,
++		"--output-dir", filepath.Join(t.TempDir(), "framed"),
++		"--device", "mac",
++		"--subtitle", "Just a tagline",
++		"--output", "json",
++	}); err != nil {
++		t.Fatalf("parse error: %v", err)
++	}
++
++	stdout, stderr := captureOutput(t, func() {
++		if err := root.Run(context.Background()); err != nil {
++			t.Fatalf("run error: %v", err)
++		}
++	})
++	if stderr != "" {
++		t.Fatalf("expected empty stderr, got %q", stderr)
++	}
++
++	var result struct {
++		Device      string `json:"device"`
++		DisplayType string `json:"display_type"`
++	}
++	if err := json.Unmarshal([]byte(stdout), &result); err != nil {
++		t.Fatalf("unmarshal frame output: %v\nstdout=%q", err, stdout)
++	}
++	if result.Device != "mac" {
++		t.Fatalf("expected device mac, got %q", result.Device)
++	}
++	if result.DisplayType != "APP_DESKTOP" {
++		t.Fatalf("expected display type APP_DESKTOP, got %q", result.DisplayType)
++	}
++}
++
++func TestShotsFrame_CanvasFlagsRejectNonCanvasDevice(t *testing.T) {
++	tests := []struct {
++		name string
++		args []string
++	}{
++		{
++			name: "title on iphone",
++			args: []string{"screenshots", "frame", "--input", "/tmp/raw.png", "--title", "Hello"},
++		},
++		{
++			name: "bg-color on iphone",
++			args: []string{"screenshots", "frame", "--input", "/tmp/raw.png", "--bg-color", "#fff"},
++		},
++		{
++			name: "title-color on iphone",
++			args: []string{"screenshots", "frame", "--input", "/tmp/raw.png", "--title-color", "#000"},
++		},
++		{
++			name: "subtitle on iphone",
++			args: []string{"screenshots", "frame", "--input", "/tmp/raw.png", "--subtitle", "Tagline"},
++		},
++		{
++			name: "subtitle-color on iphone",
++			args: []string{"screenshots", "frame", "--input", "/tmp/raw.png", "--subtitle-color", "#333"},
++		},
++	}
++
++	for _, test := range tests {
++		t.Run(test.name, func(t *testing.T) {
++			root := RootCommand("1.2.3")
++			root.FlagSet.SetOutput(io.Discard)
++
++			stdout, stderr := captureOutput(t, func() {
++				if err := root.Parse(test.args); err != nil {
++					t.Fatalf("parse error: %v", err)
++				}
++				err := root.Run(context.Background())
++				if !errors.Is(err, flag.ErrHelp) {
++					t.Fatalf("expected ErrHelp, got %v", err)
++				}
++			})
++
++			if stdout != "" {
++				t.Fatalf("expected empty stdout, got %q", stdout)
++			}
++			if !strings.Contains(stderr, "only apply to canvas devices") {
++				t.Fatalf("expected canvas device error, got %q", stderr)
++			}
++		})
++	}
++}
++
++func TestShotsFrame_CanvasFlagsRejectConfigMode(t *testing.T) {
++	root := RootCommand("1.2.3")
++	root.FlagSet.SetOutput(io.Discard)
++
++	stdout, stderr := captureOutput(t, func() {
++		if err := root.Parse([]string{
++			"screenshots",
++			"frame",
++			"--config", "/tmp/frame.yaml",
++			"--device", "mac",
++			"--title", "Hello",
++		}); err != nil {
++			t.Fatalf("parse error: %v", err)
++		}
++		err := root.Run(context.Background())
++		if !errors.Is(err, flag.ErrHelp) {
++			t.Fatalf("expected ErrHelp, got %v", err)
++		}
++	})
++
++	if stdout != "" {
++		t.Fatalf("expected empty stdout, got %q", stdout)
++	}
++	if !strings.Contains(stderr, "cannot be used with --config") {
++		t.Fatalf("expected config mode canvas error, got %q", stderr)
++	}
++}
++
+ func TestShotsFrame_WatchRequiresConfig(t *testing.T) {
+ 	root := RootCommand("1.2.3")
+ 	root.FlagSet.SetOutput(io.Discard)
+@@ -444,10 +677,3 @@ func makeRawImage(width, height int) image.Image {
+ 	}
+ 	return img
+ }
+-
+-func max(a, b int) int {
+-	if a > b {
+-		return a
+-	}
+-	return b
+-}
+diff --git a/internal/cli/cmdtest/shots_frames_list_devices_test.go b/internal/cli/cmdtest/shots_frames_list_devices_test.go
+index 3b046c927..e8fc35245 100644
+--- a/internal/cli/cmdtest/shots_frames_list_devices_test.go
++++ b/internal/cli/cmdtest/shots_frames_list_devices_test.go
+@@ -49,6 +49,7 @@ func TestShotsFramesListDevices_JSON(t *testing.T) {
+ 		"iphone-17-pro-max",
+ 		"iphone-16e",
+ 		"iphone-17",
++		"mac",
+ 	}
+ 	if len(result.Devices) != len(expected) {
+ 		t.Fatalf("expected %d devices, got %d", len(expected), len(result.Devices))
+diff --git a/internal/cli/shots/shots_capture.go b/internal/cli/shots/shots_capture.go
+index 38c4bec3e..2f6e8cb49 100644
+--- a/internal/cli/shots/shots_capture.go
++++ b/internal/cli/shots/shots_capture.go
+@@ -16,7 +16,7 @@ import (
+ // ShotsCaptureCommand returns the screenshots capture subcommand.
+ func ShotsCaptureCommand() *ffcli.Command {
+ 	fs := flag.NewFlagSet("capture", flag.ExitOnError)
+-	provider := fs.String("provider", screenshots.ProviderAXe, "Capture provider: axe (default)")
++	provider := fs.String("provider", screenshots.ProviderAXe, fmt.Sprintf("Capture provider: %s (iOS simulator), %s (macOS, app must be running)", screenshots.ProviderAXe, screenshots.ProviderMacOS))
+ 	bundleID := fs.String("bundle-id", "", "App bundle ID (required)")
+ 	udid := fs.String("udid", "booted", "Simulator UDID (default: booted)")
+ 	name := fs.String("name", "", "Screenshot name for output file (required)")
+@@ -26,9 +26,14 @@ func ShotsCaptureCommand() *ffcli.Command {
+ 	return &ffcli.Command{
+ 		Name:       "capture",
+ 		ShortUsage: "asc screenshots capture --bundle-id BUNDLE_ID --name NAME [flags]",
+-		ShortHelp:  "Capture a single screenshot from the simulator (experimental).",
+-		LongHelp: `Capture one screenshot from the running app on the simulator (experimental).
+-App must already be installed; simulator must be booted or --udid set.`,
++		ShortHelp:  "Capture a single screenshot from a simulator or running macOS app (experimental).",
++		LongHelp: `Capture one screenshot from a running app (experimental).
++
++iOS/simulator (default): app must be installed; simulator must be booted or --udid set.
++
++macOS: app must be running. Captures the frontmost visible window by bundle ID.
++  Requires: Screen Recording permission for your terminal app, and Xcode Command Line Tools (swift).
++  asc screenshots capture --provider macos --bundle-id com.example.MyApp --name home`,
+ 		FlagSet:   fs,
+ 		UsageFunc: shared.DefaultUsageFunc,
+ 		Exec: func(ctx context.Context, args []string) error {
+@@ -47,8 +52,8 @@ App must already be installed; simulator must be booted or --udid set.`,
+ 				return flag.ErrHelp
+ 			}
+ 			providerVal := strings.TrimSpace(strings.ToLower(*provider))
+-			if providerVal != screenshots.ProviderAXe {
+-				fmt.Fprintf(os.Stderr, "Error: --provider must be %q\n", screenshots.ProviderAXe)
++			if providerVal != screenshots.ProviderAXe && providerVal != screenshots.ProviderMacOS {
++				fmt.Fprintf(os.Stderr, "Error: --provider must be %q or %q\n", screenshots.ProviderAXe, screenshots.ProviderMacOS)
+ 				return flag.ErrHelp
+ 			}
+ 
+@@ -72,7 +77,10 @@ App must already be installed; simulator must be booted or --udid set.`,
+ 				OutputDir: absOut,
+ 			}
+ 
+-			result, err := screenshots.Capture(ctx, req)
++			timeoutCtx, cancel := shared.ContextWithTimeout(ctx)
++			defer cancel()
++
++			result, err := screenshots.Capture(timeoutCtx, req)
+ 			if err != nil {
+ 				return fmt.Errorf("screenshots capture: %w", err)
+ 			}
+diff --git a/internal/cli/shots/shots_frame.go b/internal/cli/shots/shots_frame.go
+index d899ef965..3fe8b87ec 100644
+--- a/internal/cli/shots/shots_frame.go
++++ b/internal/cli/shots/shots_frame.go
+@@ -30,6 +30,11 @@ func ShotsFrameCommand() *ffcli.Command {
+ 		string(screenshots.DefaultFrameDevice()),
+ 		fmt.Sprintf("Frame device: %s", strings.Join(screenshots.FrameDeviceValues(), ", ")),
+ 	)
++	title := fs.String("title", "", "Title text overlay (canvas mode only, e.g. --device mac)")
++	subtitle := fs.String("subtitle", "", "Subtitle text overlay (canvas mode only, e.g. --device mac)")
++	bgColor := fs.String("bg-color", "", "Solid background color in canvas mode (e.g. #1a1a2e); defaults to dark gradient")
++	titleColor := fs.String("title-color", "", "Title text color in canvas mode (e.g. #000000); defaults to #ffffff")
++	subtitleColor := fs.String("subtitle-color", "", "Subtitle text color in canvas mode (e.g. #333333); defaults to #aaaaaa")
+ 	output := shared.BindOutputFlags(fs)
+ 	watch := fs.Bool("watch", false, "Watch config and asset files for changes, auto-regenerate (requires --config)")
+ 	watchDebounce := fs.Duration("watch-debounce", 500*time.Millisecond, "Debounce delay between change detection and regeneration")
+@@ -98,6 +103,20 @@ framed screenshots whenever the YAML config or referenced raw assets change.`,
+ 				return flag.ErrHelp
+ 			}
+ 
++			hasCanvasFlags := strings.TrimSpace(*title) != "" ||
++				strings.TrimSpace(*subtitle) != "" ||
++				strings.TrimSpace(*bgColor) != "" ||
++				strings.TrimSpace(*titleColor) != "" ||
++				strings.TrimSpace(*subtitleColor) != ""
++			if hasCanvasFlags && configVal != "" {
++				fmt.Fprintf(os.Stderr, "Error: --title, --subtitle, --bg-color, --title-color, --subtitle-color cannot be used with --config; set these in the YAML config instead\n")
++				return flag.ErrHelp
++			}
++			if hasCanvasFlags && !screenshots.IsCanvasDevice(deviceVal) {
++				fmt.Fprintf(os.Stderr, "Error: --title, --subtitle, --bg-color, --title-color, --subtitle-color only apply to canvas devices (e.g. --device mac)\n")
++				return flag.ErrHelp
++			}
++
+ 			absInput := ""
+ 			if inputVal != "" {
+ 				var err error
+@@ -117,11 +136,26 @@ framed screenshots whenever the YAML config or referenced raw assets change.`,
+ 				return fmt.Errorf("screenshots frame: %w", err)
+ 			}
+ 
+-			result, err := screenshots.Frame(ctx, screenshots.FrameRequest{
++			timeoutCtx, cancel := shared.ContextWithTimeout(ctx)
++			defer cancel()
++
++			var canvasOpts *screenshots.CanvasOptions
++			if hasCanvasFlags && screenshots.IsCanvasDevice(deviceVal) {
++				canvasOpts = &screenshots.CanvasOptions{
++					Title:         strings.TrimSpace(*title),
++					Subtitle:      strings.TrimSpace(*subtitle),
++					BGColor:       strings.TrimSpace(*bgColor),
++					TitleColor:    strings.TrimSpace(*titleColor),
++					SubtitleColor: strings.TrimSpace(*subtitleColor),
++				}
++			}
++
++			result, err := screenshots.Frame(timeoutCtx, screenshots.FrameRequest{
+ 				InputPath:  absInput,
+ 				OutputPath: outPath,
+ 				Device:     string(deviceVal),
+ 				ConfigPath: configVal,
++				Canvas:     canvasOpts,
+ 			})
+ 			if err != nil {
+ 				return fmt.Errorf("screenshots frame: %w", err)
+diff --git a/internal/screenshots/capture.go b/internal/screenshots/capture.go
+index 0247ba591..afa716dde 100644
+--- a/internal/screenshots/capture.go
++++ b/internal/screenshots/capture.go
+@@ -10,7 +10,8 @@ import (
+ )
+ 
+ const (
+-	ProviderAXe = "axe"
++	ProviderAXe   = "axe"
++	ProviderMacOS = "macos"
+ )
+ 
+ // Provider captures a single screenshot and returns the path to the PNG.
+@@ -37,8 +38,14 @@ func CaptureWithProvider(ctx context.Context, req CaptureRequest, p Provider) (*
+ 		switch req.Provider {
+ 		case ProviderAXe:
+ 			p = &AXeProvider{}
++		case ProviderMacOS:
++			mp, err := newMacOSProvider()
++			if err != nil {
++				return nil, err
++			}
++			p = mp
+ 		default:
+-			return nil, fmt.Errorf("unknown provider %q", req.Provider)
++			return nil, fmt.Errorf("unknown provider %q (allowed: %s, %s)", req.Provider, ProviderAXe, ProviderMacOS)
+ 		}
+ 	}
+ 
+diff --git a/internal/screenshots/capture_test.go b/internal/screenshots/capture_test.go
+index e483cbbe6..088e35ea9 100644
+--- a/internal/screenshots/capture_test.go
++++ b/internal/screenshots/capture_test.go
+@@ -11,6 +11,26 @@ import (
+ 	"testing"
+ )
+ 
++func TestCapture_MacOSProviderIsKnown(t *testing.T) {
++	dir := t.TempDir()
++	pngPath := filepath.Join(dir, "valid.png")
++	writeMinimalPNG(t, pngPath, 390, 844)
++
++	req := CaptureRequest{
++		Provider:  ProviderMacOS,
++		BundleID:  "com.example.app",
++		Name:      "home",
++		OutputDir: dir,
++	}
++	result, err := CaptureWithProvider(context.Background(), req, &fakeProvider{path: pngPath})
++	if err != nil {
++		t.Fatalf("unexpected error for macos provider: %v", err)
++	}
++	if result.Provider != ProviderMacOS {
++		t.Fatalf("result.Provider = %q, want %q", result.Provider, ProviderMacOS)
++	}
++}
++
+ func TestCapture_UnknownProvider(t *testing.T) {
+ 	ctx := context.Background()
+ 	req := CaptureRequest{
+diff --git a/internal/screenshots/frame.go b/internal/screenshots/frame.go
+index 3e2ba9437..7ff45365e 100644
+--- a/internal/screenshots/frame.go
++++ b/internal/screenshots/frame.go
+@@ -29,10 +29,30 @@ const (
+ 	FrameDeviceIPhone17PM  FrameDevice = "iphone-17-pro-max"
+ 	FrameDeviceIPhone16e   FrameDevice = "iphone-16e"
+ 	FrameDeviceIPhone17    FrameDevice = "iphone-17"
++	FrameDeviceMac         FrameDevice = "mac"
+ 
+ 	pinnedKoubouVersion = "0.13.0"
+ )
+ 
++const (
++	canvasTitleFontSize    = 60
++	canvasSubtitleFontSize = 28
++	canvasWindowHeightFrac = 0.70 // max window height as fraction of canvas height when text overlays are present
++
++	canvasTitleY        = "12%"
++	canvasSubtitleY     = "16%"
++	canvasSubtitleSoloY = "12%" // subtitle Y when no title is present
++	canvasWindowCenterY = "50%"
++	canvasWindowTextY   = "60%" // window pushed down to make room for text overlays
++
++	canvasBGColorFrom = "#0d0c1e"
++	canvasBGColorTo   = "#140f2d"
++	canvasBGAngle     = 135.0
++
++	canvasDefaultTitleColor    = "#ffffff"
++	canvasDefaultSubtitleColor = "#aaaaaa"
++)
++
+ var koubouVersionPattern = regexp.MustCompile(`(?i)\bv?(\d+\.\d+\.\d+)\b`)
+ 
+ var (
+@@ -48,12 +68,14 @@ var supportedFrameDevices = []FrameDevice{
+ 	FrameDeviceIPhone17PM,
+ 	FrameDeviceIPhone16e,
+ 	FrameDeviceIPhone17,
++	FrameDeviceMac,
+ }
+ 
+ type frameDeviceKoubouSpec struct {
+ 	FrameName   string
+-	OutputSize  string
++	OutputSize  string // Koubou named size (e.g. "iPhone6_9" or "AppDesktop_2880")
+ 	DisplayType string
++	Canvas      bool // true = plain canvas, no device bezel; screenshot scaled to fill
+ }
+ 
+ // Keeps the existing asc device slugs while delegating rendering to Koubou frame names.
+@@ -83,14 +105,33 @@ var frameDeviceKoubouSpecs = map[FrameDevice]frameDeviceKoubouSpec{
+ 		OutputSize:  "iPhone6_1",
+ 		DisplayType: "APP_IPHONE_61",
+ 	},
++	FrameDeviceMac: {
++		FrameName:   "Mac",
++		OutputSize:  "AppDesktop_2880",
++		DisplayType: "APP_DESKTOP",
++		Canvas:      true,
++	},
+ }
+ 
++// CanvasOptions controls title/subtitle/color overlays for canvas-mode devices
++// (e.g. --device mac). All fields are optional; zero values use defaults.
++type CanvasOptions struct {
++	Title         string
++	Subtitle      string
++	BGColor       string // solid background hex color (e.g. "#ffffff"); defaults to dark gradient
++	TitleColor    string // title text color; defaults to canvasDefaultTitleColor
++	SubtitleColor string // subtitle text color; defaults to canvasDefaultSubtitleColor
++}
++
++func (o CanvasOptions) hasText() bool { return o.Title != "" || o.Subtitle != "" }
++
+ // FrameRequest holds options for composing one screenshot.
+ type FrameRequest struct {
+-	InputPath  string // required when ConfigPath is empty
+-	OutputPath string // optional for custom config mode; required for input mode
+-	Device     string // device slug; defaults to iphone-air when empty
+-	ConfigPath string // optional Koubou YAML config path
++	InputPath  string         // required when ConfigPath is empty
++	OutputPath string         // optional for custom config mode; required for input mode
++	Device     string         // device slug; defaults to iphone-air when empty
++	ConfigPath string         // optional Koubou YAML config path
++	Canvas     *CanvasOptions // nil for bezel devices; non-nil for canvas devices (e.g. mac)
+ 
+ 	// Kept for backwards compatibility; ignored in Koubou mode.
+ 	FrameRoot   string
+@@ -135,23 +176,53 @@ type koubouDefaultConfig struct {
+ 	Screenshots map[string]koubouDefaultScreenshotSpec `yaml:"screenshots"`
+ }
+ 
++// koubouOutputSize is either a named size string (e.g. "iPhone6_9") or an explicit
++// [width, height] pixel list (used for canvas devices like Mac). It implements
++// yaml.Marshaler so the correct YAML type is always emitted — no any needed.
++type koubouOutputSize struct {
++	named string // non-empty for named sizes (iOS)
++	w, h  int    // non-zero for explicit pixel dimensions (Mac canvas)
++}
++
++func namedOutputSize(name string) koubouOutputSize { return koubouOutputSize{named: name} }
++func dimsOutputSize(w, h int) koubouOutputSize     { return koubouOutputSize{w: w, h: h} }
++
++func (s koubouOutputSize) MarshalYAML() (interface{}, error) {
++	if s.named != "" {
++		return s.named, nil
++	}
++	return []int{s.w, s.h}, nil
++}
++
+ type koubouProjectConfig struct {
+-	Name       string `yaml:"name"`
+-	OutputDir  string `yaml:"output_dir"`
+-	Device     string `yaml:"device"`
+-	OutputSize string `yaml:"output_size"`
++	Name       string           `yaml:"name"`
++	OutputDir  string           `yaml:"output_dir"`
++	Device     string           `yaml:"device"`
++	OutputSize koubouOutputSize `yaml:"output_size"`
++}
++
++type koubouGradientConfig struct {
++	Type      string   `yaml:"type"`
++	Colors    []string `yaml:"colors"`
++	Direction float64  `yaml:"direction,omitempty"`
+ }
+ 
+ type koubouDefaultScreenshotSpec struct {
+-	Content []koubouDefaultContentItem `yaml:"content"`
++	Background *koubouGradientConfig      `yaml:"background,omitempty"`
++	Content    []koubouDefaultContentItem `yaml:"content"`
+ }
+ 
+ type koubouDefaultContentItem struct {
+-	Type     string    `yaml:"type"`
+-	Asset    string    `yaml:"asset"`
+-	Position [2]string `yaml:"position"`
+-	Scale    float64   `yaml:"scale"`
+-	Frame    bool      `yaml:"frame"`
++	Type      string    `yaml:"type"`
++	Asset     string    `yaml:"asset,omitempty"`
++	Content   string    `yaml:"content,omitempty"`
++	Position  [2]string `yaml:"position"`
++	Scale     float64   `yaml:"scale,omitempty"`
++	Frame     *bool     `yaml:"frame,omitempty"`
++	Color     string    `yaml:"color,omitempty"`
++	Size      int       `yaml:"size,omitempty"`
++	Weight    string    `yaml:"weight,omitempty"`
++	Alignment string    `yaml:"alignment,omitempty"`
+ }
+ 
+ // DefaultFrameDevice returns the default frame device.
+@@ -181,6 +252,12 @@ func FrameDeviceOptions() []FrameDeviceOption {
+ 	return options
+ }
+ 
++// IsCanvasDevice returns true if the device uses canvas mode (no device bezel).
++func IsCanvasDevice(device FrameDevice) bool {
++	spec, ok := frameDeviceKoubouSpecs[device]
++	return ok && spec.Canvas
++}
++
+ // ParseFrameDevice normalizes and validates a frame device value.
+ func ParseFrameDevice(raw string) (FrameDevice, error) {
+ 	normalized := normalizeFrameDevice(raw)
+@@ -233,6 +310,9 @@ func Frame(ctx context.Context, req FrameRequest) (*FrameResult, error) {
+ 		if !ok {
+ 			return nil, fmt.Errorf("no Koubou mapping configured for device %q", device)
+ 		}
++		if req.Canvas != nil && !spec.Canvas {
++			return nil, fmt.Errorf("canvas options require a canvas device; %q uses a device bezel", device)
++		}
+ 
+ 		absInputPath, err := filepath.Abs(inputPath)
+ 		if err != nil {
+@@ -242,7 +322,7 @@ func Frame(ctx context.Context, req FrameRequest) (*FrameResult, error) {
+ 			return nil, fmt.Errorf("read input screenshot: %w", err)
+ 		}
+ 
+-		generatedConfigPath, generatedMetadata, generatedWorkDir, err := createDefaultKoubouConfig(absInputPath, spec)
++		generatedConfigPath, generatedMetadata, generatedWorkDir, err := createDefaultKoubouConfig(absInputPath, spec, req.Canvas)
+ 		if err != nil {
+ 			return nil, err
+ 		}
+@@ -317,9 +397,13 @@ func Frame(ctx context.Context, req FrameRequest) (*FrameResult, error) {
+ 	}, nil
+ }
+ 
++// boolPtr returns a pointer to b. Used for YAML fields that require *bool for omitempty.
++func boolPtr(b bool) *bool { return &b }
++
+ func createDefaultKoubouConfig(
+ 	absInputPath string,
+ 	spec frameDeviceKoubouSpec,
++	canvas *CanvasOptions,
+ ) (string, frameExecutionMetadata, string, error) {
+ 	workDir, err := os.MkdirTemp("", "asc-shots-kou-*")
+ 	if err != nil {
+@@ -331,25 +415,120 @@ func createDefaultKoubouConfig(
+ 		return "", frameExecutionMetadata{}, "", fmt.Errorf("create temp output directory: %w", err)
+ 	}
+ 
++	scale := 1.0
++	kouOutputSize := namedOutputSize(spec.OutputSize)
++	opts := canvas
++	if opts == nil {
++		opts = &CanvasOptions{}
++	}
++
++	if spec.Canvas {
++		if cw, ch, ok := resolveKoubouOutputSize(spec.OutputSize); ok {
++			kouOutputSize = dimsOutputSize(cw, ch)
++			if dims, err := asc.ReadImageDimensions(absInputPath); err == nil && dims.Width > 0 && dims.Height > 0 {
++				maxH := float64(ch)
++				if opts.hasText() {
++					maxH = float64(ch) * canvasWindowHeightFrac
++				}
++				scaleByW := float64(cw) / float64(dims.Width)
++				scaleByH := maxH / float64(dims.Height)
++				if scaleByW < scaleByH {
++					scale = scaleByW
++				} else {
++					scale = scaleByH
++				}
++			}
++		}
++	}
++
++	var background *koubouGradientConfig
++	var contentItems []koubouDefaultContentItem
++	windowY := canvasWindowCenterY
++
++	if spec.Canvas {
++		if opts.BGColor != "" {
++			background = &koubouGradientConfig{
++				Type:   "linear",
++				Colors: []string{opts.BGColor, opts.BGColor},
++			}
++		} else {
++			background = &koubouGradientConfig{
++				Type:      "linear",
++				Colors:    []string{canvasBGColorFrom, canvasBGColorTo},
++				Direction: canvasBGAngle,
++			}
++		}
++
++		if opts.hasText() {
++			windowY = canvasWindowTextY
++		}
++
++		if opts.Title != "" {
++			tc := opts.TitleColor
++			if tc == "" {
++				tc = canvasDefaultTitleColor
++			}
++			contentItems = append(contentItems, koubouDefaultContentItem{
++				Type:      "text",
++				Content:   opts.Title,
++				Position:  [2]string{"50%", canvasTitleY},
++				Size:      canvasTitleFontSize,
++				Weight:    "bold",
++				Color:     tc,
++				Alignment: "center",
++			})
++		}
++
++		subtitleY := canvasSubtitleY
++		if opts.Title == "" {
++			subtitleY = canvasSubtitleSoloY
++		}
++		if opts.Subtitle != "" {
++			sc := opts.SubtitleColor
++			if sc == "" {
++				sc = canvasDefaultSubtitleColor
++			}
++			contentItems = append(contentItems, koubouDefaultContentItem{
++				Type:      "text",
++				Content:   opts.Subtitle,
++				Position:  [2]string{"50%", subtitleY},
++				Size:      canvasSubtitleFontSize,
++				Color:     sc,
++				Alignment: "center",
++			})
++		}
++
++		contentItems = append(contentItems, koubouDefaultContentItem{
++			Type:     "image",
++			Asset:    absInputPath,
++			Position: [2]string{"50%", windowY},
++			Scale:    scale,
++			Frame:    boolPtr(false),
++		})
++	} else {
++		contentItems = []koubouDefaultContentItem{
++			{
++				Type:     "image",
++				Asset:    absInputPath,
++				Position: [2]string{"50%", "50%"},
++				Scale:    scale,
++				Frame:    boolPtr(true),
++			},
++		}
++	}
++
+ 	configPath := filepath.Join(workDir, "frame.yaml")
+ 	config := koubouDefaultConfig{
+ 		Project: koubouProjectConfig{
+ 			Name:       "ASC Shots Frame",
+ 			OutputDir:  kouOutputDir,
+ 			Device:     spec.FrameName,
+-			OutputSize: spec.OutputSize,
++			OutputSize: kouOutputSize,
+ 		},
+ 		Screenshots: map[string]koubouDefaultScreenshotSpec{
+ 			"framed": {
+-				Content: []koubouDefaultContentItem{
+-					{
+-						Type:     "image",
+-						Asset:    absInputPath,
+-						Position: [2]string{"50%", "50%"},
+-						Scale:    1.0,
+-						Frame:    true,
+-					},
+-				},
++				Background: background,
++				Content:    contentItems,
+ 			},
+ 		},
+ 	}
+@@ -465,6 +644,11 @@ func resolveKoubouOutputSize(value any) (int, int, bool) {
+ 		"iphone6_1": {Width: 1179, Height: 2556},
+ 		"iphone5_8": {Width: 1170, Height: 2532},
+ 		"iphone5_5": {Width: 1242, Height: 2208},
++		// Mac App Store desktop (16:10)
++		"appdesktop_1280": {Width: 1280, Height: 800},
++		"appdesktop_1440": {Width: 1440, Height: 900},
++		"appdesktop_2560": {Width: 2560, Height: 1600},
++		"appdesktop_2880": {Width: 2880, Height: 1800},
+ 	}
+ 
+ 	switch typed := value.(type) {
+@@ -493,6 +677,14 @@ func resolveKoubouOutputSize(value any) (int, int, bool) {
+ }
+ 
+ func displayTypeForDimensions(width, height int) (string, bool) {
++	// Mac — Apple's four required 16:10 screenshot sizes
++	macSizes := [][2]int{{1280, 800}, {1440, 900}, {2560, 1600}, {2880, 1800}}
++	for _, sz := range macSizes {
++		if width == sz[0] && height == sz[1] {
++			return "APP_DESKTOP", true
++		}
++	}
++
+ 	iphoneDisplayTypes := []string{
+ 		"APP_IPHONE_69",
+ 		"APP_IPHONE_67",
+diff --git a/internal/screenshots/frame_test.go b/internal/screenshots/frame_test.go
+index c4db8bb4c..908a718bd 100644
+--- a/internal/screenshots/frame_test.go
++++ b/internal/screenshots/frame_test.go
+@@ -10,6 +10,8 @@ import (
+ 	"slices"
+ 	"strings"
+ 	"testing"
++
++	"gopkg.in/yaml.v3"
+ )
+ 
+ func TestParseFrameDevice_DefaultIsIPhoneAir(t *testing.T) {
+@@ -86,6 +88,7 @@ func TestResolveKoubouOutputSize(t *testing.T) {
+ 		wantOK     bool
+ 	}{
+ 		{name: "named size", value: "iPhone6_9", wantWidth: 1320, wantHeight: 2868, wantOK: true},
++		{name: "desktop named size", value: "AppDesktop_2880", wantWidth: 2880, wantHeight: 1800, wantOK: true},
+ 		{name: "custom list", value: []any{1200, 2500}, wantWidth: 1200, wantHeight: 2500, wantOK: true},
+ 		{name: "unknown name", value: "iphone7_2", wantOK: false},
+ 		{name: "invalid list", value: []any{"bad", 2}, wantOK: false},
+@@ -107,6 +110,15 @@ func TestResolveKoubouOutputSize(t *testing.T) {
+ 	}
+ }
+ 
++func TestDisplayTypeForDimensions_Mac(t *testing.T) {
++	for _, sz := range [][2]int{{1280, 800}, {1440, 900}, {2560, 1600}, {2880, 1800}} {
++		displayType, ok := displayTypeForDimensions(sz[0], sz[1])
++		if !ok || displayType != "APP_DESKTOP" {
++			t.Fatalf("displayTypeForDimensions(%d, %d) = %q, %v; want APP_DESKTOP, true", sz[0], sz[1], displayType, ok)
++		}
++	}
++}
++
+ func TestParseKoubouConfigMetadata(t *testing.T) {
+ 	configPath := filepath.Join(t.TempDir(), "frame.yaml")
+ 	config := `project:
+@@ -301,6 +313,162 @@ func makeFrameTestImage(width, height int) image.Image {
+ 	return img
+ }
+ 
++// parsedCanvasConfig is a lightweight struct for inspecting generated Koubou YAML
++// in canvas tests without depending on the full koubouDefaultConfig type hierarchy.
++type parsedCanvasConfig struct {
++	Screenshots map[string]struct {
++		Background *struct {
++			Colors []string `yaml:"colors"`
++		} `yaml:"background"`
++		Content []struct {
++			Type     string    `yaml:"type"`
++			Content  string    `yaml:"content"`
++			Position [2]string `yaml:"position"`
++			Color    string    `yaml:"color"`
++		} `yaml:"content"`
++	} `yaml:"screenshots"`
++}
++
++func TestCreateDefaultKoubouConfig_CanvasNoText(t *testing.T) {
++	rawPath := filepath.Join(t.TempDir(), "raw.png")
++	writeFrameTestPNG(t, rawPath, makeFrameTestImage(2560, 1600))
++
++	spec := frameDeviceKoubouSpecs[FrameDeviceMac]
++	configPath, metadata, workDir, err := createDefaultKoubouConfig(rawPath, spec, &CanvasOptions{})
++	if err != nil {
++		t.Fatalf("createDefaultKoubouConfig() error = %v", err)
++	}
++	defer os.RemoveAll(workDir)
++
++	if metadata.DisplayType != "APP_DESKTOP" {
++		t.Fatalf("DisplayType = %q, want APP_DESKTOP", metadata.DisplayType)
++	}
++	if metadata.UploadWidth != 2880 || metadata.UploadHeight != 1800 {
++		t.Fatalf("dimensions = %dx%d, want 2880x1800", metadata.UploadWidth, metadata.UploadHeight)
++	}
++
++	data, err := os.ReadFile(configPath)
++	if err != nil {
++		t.Fatalf("ReadFile() error = %v", err)
++	}
++	var cfg parsedCanvasConfig
++	if err := yaml.Unmarshal(data, &cfg); err != nil {
++		t.Fatalf("yaml.Unmarshal() error = %v", err)
++	}
++
++	framed := cfg.Screenshots["framed"]
++	// No text: exactly 1 content item (the image), window centered at 50%.
++	if len(framed.Content) != 1 {
++		t.Fatalf("expected 1 content item (image only), got %d", len(framed.Content))
++	}
++	item := framed.Content[0]
++	if item.Type != "image" {
++		t.Fatalf("expected image item, got %q", item.Type)
++	}
++	if item.Position[1] != canvasWindowCenterY {
++		t.Fatalf("window Y = %q, want %q (center, no text)", item.Position[1], canvasWindowCenterY)
++	}
++}
++
++func TestCreateDefaultKoubouConfig_CanvasSubtitleOnly(t *testing.T) {
++	rawPath := filepath.Join(t.TempDir(), "raw.png")
++	writeFrameTestPNG(t, rawPath, makeFrameTestImage(2560, 1600))
++
++	spec := frameDeviceKoubouSpecs[FrameDeviceMac]
++	canvas := &CanvasOptions{Subtitle: "Just a tagline"}
++	configPath, _, workDir, err := createDefaultKoubouConfig(rawPath, spec, canvas)
++	if err != nil {
++		t.Fatalf("createDefaultKoubouConfig() error = %v", err)
++	}
++	defer os.RemoveAll(workDir)
++
++	data, err := os.ReadFile(configPath)
++	if err != nil {
++		t.Fatalf("ReadFile() error = %v", err)
++	}
++	var cfg parsedCanvasConfig
++	if err := yaml.Unmarshal(data, &cfg); err != nil {
++		t.Fatalf("yaml.Unmarshal() error = %v", err)
++	}
++
++	framed := cfg.Screenshots["framed"]
++	// Subtitle only: text item + image item = 2 items total.
++	if len(framed.Content) != 2 {
++		t.Fatalf("expected 2 content items (subtitle + image), got %d", len(framed.Content))
++	}
++	subtitleItem := framed.Content[0]
++	if subtitleItem.Type != "text" {
++		t.Fatalf("expected first item to be text, got %q", subtitleItem.Type)
++	}
++	if subtitleItem.Content != "Just a tagline" {
++		t.Fatalf("subtitle content = %q, want %q", subtitleItem.Content, "Just a tagline")
++	}
++	// With no title, subtitle uses the solo Y position.
++	if subtitleItem.Position[1] != canvasSubtitleSoloY {
++		t.Fatalf("subtitle Y = %q, want %q (solo)", subtitleItem.Position[1], canvasSubtitleSoloY)
++	}
++	imageItem := framed.Content[1]
++	// Has text => window is pushed down.
++	if imageItem.Position[1] != canvasWindowTextY {
++		t.Fatalf("window Y = %q, want %q (text present)", imageItem.Position[1], canvasWindowTextY)
++	}
++}
++
++func TestCreateDefaultKoubouConfig_CanvasCustomColors(t *testing.T) {
++	rawPath := filepath.Join(t.TempDir(), "raw.png")
++	writeFrameTestPNG(t, rawPath, makeFrameTestImage(2560, 1600))
++
++	spec := frameDeviceKoubouSpecs[FrameDeviceMac]
++	canvas := &CanvasOptions{
++		Title:         "My App",
++		Subtitle:      "Tagline",
++		BGColor:       "#ffffff",
++		TitleColor:    "#ff0000",
++		SubtitleColor: "#00ff00",
++	}
++	configPath, _, workDir, err := createDefaultKoubouConfig(rawPath, spec, canvas)
++	if err != nil {
++		t.Fatalf("createDefaultKoubouConfig() error = %v", err)
++	}
++	defer os.RemoveAll(workDir)
++
++	data, err := os.ReadFile(configPath)
++	if err != nil {
++		t.Fatalf("ReadFile() error = %v", err)
++	}
++	var cfg parsedCanvasConfig
++	if err := yaml.Unmarshal(data, &cfg); err != nil {
++		t.Fatalf("yaml.Unmarshal() error = %v", err)
++	}
++
++	framed := cfg.Screenshots["framed"]
++	// Solid background: both gradient colors should be the solid color.
++	if framed.Background == nil {
++		t.Fatal("expected background config")
++	}
++	if len(framed.Background.Colors) != 2 {
++		t.Fatalf("expected 2 background colors, got %d", len(framed.Background.Colors))
++	}
++	for i, c := range framed.Background.Colors {
++		if c != "#ffffff" {
++			t.Fatalf("background color[%d] = %q, want #ffffff", i, c)
++		}
++	}
++
++	// title + subtitle + image = 3 items.
++	if len(framed.Content) != 3 {
++		t.Fatalf("expected 3 content items, got %d", len(framed.Content))
++	}
++	titleItem := framed.Content[0]
++	if titleItem.Color != "#ff0000" {
++		t.Fatalf("title color = %q, want #ff0000", titleItem.Color)
++	}
++	subtitleItem := framed.Content[1]
++	if subtitleItem.Color != "#00ff00" {
++		t.Fatalf("subtitle color = %q, want #00ff00", subtitleItem.Color)
++	}
++}
++
+ func listFrameTempWorkDirs(t *testing.T) []string {
+ 	t.Helper()
+ 
+diff --git a/internal/screenshots/provider_macos.go b/internal/screenshots/provider_macos.go
+new file mode 100644
+index 000000000..1b9e29c9e
+--- /dev/null
++++ b/internal/screenshots/provider_macos.go
+@@ -0,0 +1,127 @@
++//go:build darwin
++
++package screenshots
++
++import (
++	"context"
++	"errors"
++	"fmt"
++	"os"
++	"os/exec"
++	"path/filepath"
++	"strconv"
++	"strings"
++)
++
++const xcodeCLTHint = "Install Xcode Command Line Tools with: xcode-select --install"
++
++// MacOSProvider captures a screenshot of a running macOS app window via screencapture.
++type MacOSProvider struct{}
++
++// Capture finds the app window by bundle ID and captures it with screencapture -l.
++func (p *MacOSProvider) Capture(ctx context.Context, req CaptureRequest) (string, error) {
++	if err := os.MkdirAll(req.OutputDir, 0o755); err != nil {
++		return "", fmt.Errorf("create output dir: %w", err)
++	}
++	pngPath := filepath.Join(req.OutputDir, req.Name+".png")
++
++	bundleID := strings.TrimSpace(req.BundleID)
++	wid, err := macOSWindowID(ctx, bundleID)
++	if err != nil {
++		return "", err
++	}
++
++	cmd := exec.CommandContext(ctx, "screencapture", "-x", "-l", strconv.Itoa(wid), pngPath)
++	if out, err := cmd.CombinedOutput(); err != nil {
++		return "", fmt.Errorf("screencapture: %w (output: %s)", err, strings.TrimSpace(string(out)))
++	}
++	if _, err := os.Stat(pngPath); err != nil {
++		return "", fmt.Errorf("screenshot not written to %q: %w", pngPath, err)
++	}
++	return pngPath, nil
++}
++
++// macOSWindowID returns the CGWindowID for the frontmost visible window of the
++// app identified by bundleID. Uses a Swift one-liner so no external tools are needed.
++func macOSWindowID(ctx context.Context, bundleID string) (int, error) {
++	// Embed the bundle ID directly so no argument passing is needed.
++	src := fmt.Sprintf(`import Cocoa
++let bid = %q
++let apps = NSRunningApplication.runningApplications(withBundleIdentifier: bid)
++guard let app = apps.first else {
++    fputs("app not running: \(bid)\n", stderr); exit(1)
++}
++let pid = app.processIdentifier
++let opts = CGWindowListOption([.optionOnScreenOnly, .excludeDesktopElements])
++guard let list = CGWindowListCopyWindowInfo(opts, kCGNullWindowID) as? [[String:Any]] else { exit(1) }
++for w in list {
++    guard let p = w[kCGWindowOwnerPID as String] as? Int32, p == pid else { continue }
++    guard let layer = w[kCGWindowLayer as String] as? Int, layer >= 0 else { continue }
++    guard let wid = w[kCGWindowNumber as String] as? Int else { continue }
++    guard let b = w[kCGWindowBounds as String] as? [String:CGFloat],
++          (b["Width"] ?? 0) > 10, (b["Height"] ?? 0) > 10 else { continue }
++    print(wid); exit(0)
++}
++fputs("no visible window for: \(bid)\n", stderr); exit(1)
++`, bundleID)
++
++	cmd := exec.CommandContext(ctx, "swift", "-")
++	cmd.Stdin = strings.NewReader(src)
++	out, err := cmd.Output()
++	if err != nil {
++		return 0, formatMacOSWindowLookupError(bundleID, err, out)
++	}
++	wid, err := strconv.Atoi(strings.TrimSpace(string(out)))
++	if err != nil {
++		return 0, fmt.Errorf("parse window ID %q: %w", strings.TrimSpace(string(out)), err)
++	}
++	return wid, nil
++}
++
++func formatMacOSWindowLookupError(bundleID string, err error, out []byte) error {
++	if errors.Is(err, exec.ErrNotFound) {
++		return fmt.Errorf("find window for %q: swift not found in PATH. %s", bundleID, xcodeCLTHint)
++	}
++
++	msg := ""
++	var ee *exec.ExitError
++	if errors.As(err, &ee) {
++		msg = strings.TrimSpace(string(ee.Stderr))
++	}
++	if msg == "" {
++		msg = strings.TrimSpace(string(out))
++	}
++	if msg == "" {
++		msg = strings.TrimSpace(err.Error())
++	}
++	if msg == "" {
++		msg = "unknown swift error"
++	}
++
++	if looksLikeMissingCLT(msg) {
++		return fmt.Errorf("find window for %q: %s. %s", bundleID, msg, xcodeCLTHint)
++	}
++
++	return fmt.Errorf("find window for %q: %s", bundleID, msg)
++}
++
++func looksLikeMissingCLT(message string) bool {
++	normalized := strings.ToLower(strings.TrimSpace(message))
++	if normalized == "" {
++		return false
++	}
++	clues := []string{
++		"xcode command line tools",
++		"xcrun: error: invalid active developer path",
++		"unable to find utility \"swift\"",
++		"unable to find utility 'swift'",
++		"tool \"swift\" requires xcode",
++		"tool 'swift' requires xcode",
++	}
++	for _, clue := range clues {
++		if strings.Contains(normalized, clue) {
++			return true
++		}
++	}
++	return false
++}
+diff --git a/internal/screenshots/provider_macos_darwin.go b/internal/screenshots/provider_macos_darwin.go
+new file mode 100644
+index 000000000..9d4c65358
+--- /dev/null
++++ b/internal/screenshots/provider_macos_darwin.go
+@@ -0,0 +1,7 @@
++//go:build darwin
++
++package screenshots
++
++func newMacOSProvider() (Provider, error) {
++	return &MacOSProvider{}, nil
++}
+diff --git a/internal/screenshots/provider_macos_other.go b/internal/screenshots/provider_macos_other.go
+new file mode 100644
+index 000000000..033cf12c9
+--- /dev/null
++++ b/internal/screenshots/provider_macos_other.go
+@@ -0,0 +1,9 @@
++//go:build !darwin
++
++package screenshots
++
++import "fmt"
++
++func newMacOSProvider() (Provider, error) {
++	return nil, fmt.Errorf("provider %q is only supported on macOS", ProviderMacOS)
++}
+diff --git a/internal/screenshots/provider_macos_test.go b/internal/screenshots/provider_macos_test.go
+new file mode 100644
+index 000000000..071b54dad
+--- /dev/null
++++ b/internal/screenshots/provider_macos_test.go
+@@ -0,0 +1,64 @@
++//go:build darwin
++
++package screenshots
++
++import (
++	"errors"
++	"os/exec"
++	"strings"
++	"testing"
++)
++
++func TestFormatMacOSWindowLookupError_SwiftMissingIncludesInstallHint(t *testing.T) {
++	err := &exec.Error{Name: "swift", Err: exec.ErrNotFound}
++
++	got := formatMacOSWindowLookupError("com.example.app", err, nil)
++	if got == nil {
++		t.Fatal("expected error")
++	}
++
++	msg := got.Error()
++	if !strings.Contains(msg, "swift not found in PATH") {
++		t.Fatalf("expected missing swift message, got %q", msg)
++	}
++	if !strings.Contains(msg, "xcode-select --install") {
++		t.Fatalf("expected CLT install hint, got %q", msg)
++	}
++}
++
++func TestFormatMacOSWindowLookupError_MissingCLTIncludesInstallHint(t *testing.T) {
++	err := &exec.ExitError{
++		Stderr: []byte("xcrun: error: invalid active developer path (/Library/Developer/CommandLineTools), missing xcrun"),
++	}
++
++	got := formatMacOSWindowLookupError("com.example.app", err, nil)
++	if got == nil {
++		t.Fatal("expected error")
++	}
++
++	msg := got.Error()
++	if !strings.Contains(msg, "invalid active developer path") {
++		t.Fatalf("expected CLT failure details, got %q", msg)
++	}
++	if !strings.Contains(msg, "xcode-select --install") {
++		t.Fatalf("expected CLT install hint, got %q", msg)
++	}
++}
++
++func TestFormatMacOSWindowLookupError_AppNotRunningNoCLTHint(t *testing.T) {
++	err := errors.New("exit status 1")
++	out := []byte("app not running: com.example.app")
++
++	got := formatMacOSWindowLookupError("com.example.app", err, out)
++	if got == nil {
++		t.Fatal("expected error")
++	}
++
++	msg := got.Error()
++	if !strings.Contains(msg, "app not running") {
++		t.Fatalf("expected runtime details in message, got %q", msg)
++	}
++	if strings.Contains(msg, "xcode-select --install") {
++		t.Fatalf("did not expect CLT install hint for app runtime error, got %q", msg)
++	}
++}
+diff --git a/internal/screenshots/types.go b/internal/screenshots/types.go
+index 774401265..ad376ea47 100644
+--- a/internal/screenshots/types.go
++++ b/internal/screenshots/types.go
+@@ -2,7 +2,7 @@ package screenshots
+ 
+ // CaptureRequest holds parameters for a single screenshot capture.
+ type CaptureRequest struct {
+-	Provider  string // "axe"
++	Provider  string // ProviderAXe or ProviderMacOS
+ 	BundleID  string
+ 	UDID      string // simulator UDID or "booted"
+ 	Name      string // output file name (without extension)

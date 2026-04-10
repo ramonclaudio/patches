@@ -1,0 +1,185 @@
+diff --git a/.changeset/fix-password-reset-callback-operation-id.md b/.changeset/fix-password-reset-callback-operation-id.md
+new file mode 100644
+index 00000000000..54e7f976976
+--- /dev/null
++++ b/.changeset/fix-password-reset-callback-operation-id.md
+@@ -0,0 +1,5 @@
++---
++"better-auth": patch
++---
++
++fix(api): align top-level `operationId` on `requestPasswordResetCallback` with the OpenAPI `resetPasswordCallback`
+diff --git a/demo/expo/src/app/forget-password.tsx b/demo/expo/src/app/forgot-password.tsx
+similarity index 91%
+rename from demo/expo/src/app/forget-password.tsx
+rename to demo/expo/src/app/forgot-password.tsx
+index 142e0c71c69..778d0697b4a 100644
+--- a/demo/expo/src/app/forget-password.tsx
++++ b/demo/expo/src/app/forgot-password.tsx
+@@ -14,12 +14,12 @@ import { Input } from "@/components/ui/input";
+ import { Text } from "@/components/ui/text";
+ import { authClient } from "@/lib/auth-client";
+ 
+-export default function ForgetPassword() {
++export default function ForgotPassword() {
+ 	const [email, setEmail] = useState("");
+ 	return (
+ 		<Card className="w-10/12 ">
+ 			<CardHeader>
+-				<CardTitle>Forget Password</CardTitle>
++				<CardTitle>Forgot Password</CardTitle>
+ 				<CardDescription>
+ 					Enter your email to reset your password
+ 				</CardDescription>
+@@ -36,7 +36,7 @@ export default function ForgetPassword() {
+ 				<View className="w-full gap-2">
+ 					<Button
+ 						onPress={() => {
+-							authClient.forgetPassword({
++							authClient.requestPasswordReset({
+ 								email,
+ 								redirectTo: "/reset-password",
+ 							});
+diff --git a/demo/expo/src/app/index.tsx b/demo/expo/src/app/index.tsx
+index 1dfab94ac61..76af8a9c8f8 100644
+--- a/demo/expo/src/app/index.tsx
++++ b/demo/expo/src/app/index.tsx
+@@ -93,10 +93,10 @@ export default function Index() {
+ 						variant="link"
+ 						className="w-full"
+ 						onPress={() => {
+-							router.push("/forget-password");
++							router.push("/forgot-password");
+ 						}}
+ 					>
+-						<Text className="underline text-center">Forget Password?</Text>
++						<Text className="underline text-center">Forgot Password?</Text>
+ 					</Button>
+ 					<Button
+ 						onPress={() => {
+diff --git a/demo/nextjs/app/(auth)/forget-password/page.tsx b/demo/nextjs/app/(auth)/forgot-password/page.tsx
+similarity index 93%
+rename from demo/nextjs/app/(auth)/forget-password/page.tsx
+rename to demo/nextjs/app/(auth)/forgot-password/page.tsx
+index db80dc242f8..a1c26d030f8 100644
+--- a/demo/nextjs/app/(auth)/forget-password/page.tsx
++++ b/demo/nextjs/app/(auth)/forgot-password/page.tsx
+@@ -3,7 +3,7 @@
+ import { ArrowLeft, CheckCircle2 } from "lucide-react";
+ import Link from "next/link";
+ import { useState } from "react";
+-import { ForgetPasswordForm } from "@/components/forms/forget-password-form";
++import { ForgotPasswordForm } from "@/components/forms/forgot-password-form";
+ import { Alert, AlertDescription } from "@/components/ui/alert";
+ import { Button } from "@/components/ui/button";
+ import {
+@@ -59,7 +59,7 @@ export default function Page() {
+ 					</CardDescription>
+ 				</CardHeader>
+ 				<CardContent>
+-					<ForgetPasswordForm onSuccess={() => setIsSubmitted(true)} />
++					<ForgotPasswordForm onSuccess={() => setIsSubmitted(true)} />
+ 				</CardContent>
+ 				<CardFooter className="flex justify-center">
+ 					<Link href="/sign-in">
+diff --git a/demo/nextjs/components/forms/forget-password-form.tsx b/demo/nextjs/components/forms/forgot-password-form.tsx
+similarity index 79%
+rename from demo/nextjs/components/forms/forget-password-form.tsx
+rename to demo/nextjs/components/forms/forgot-password-form.tsx
+index 02ad50ad6ba..f4c6c491d69 100644
+--- a/demo/nextjs/components/forms/forget-password-form.tsx
++++ b/demo/nextjs/components/forms/forgot-password-form.tsx
+@@ -15,33 +15,33 @@ import {
+ import { Input } from "@/components/ui/input";
+ import { authClient } from "@/lib/auth-client";
+ 
+-const forgetPasswordSchema = z.object({
++const forgotPasswordSchema = z.object({
+ 	email: z.email("Please enter a valid email address."),
+ });
+ 
+-type ForgetPasswordFormValues = z.infer<typeof forgetPasswordSchema>;
++type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+ 
+-interface ForgetPasswordFormProps {
++interface ForgotPasswordFormProps {
+ 	onSuccess?: () => void;
+ 	onError?: (error: string) => void;
+ 	redirectTo?: string;
+ }
+ 
+-export function ForgetPasswordForm({
++export function ForgotPasswordForm({
+ 	onSuccess,
+ 	onError,
+ 	redirectTo = "/reset-password",
+-}: ForgetPasswordFormProps) {
++}: ForgotPasswordFormProps) {
+ 	const [loading, startTransition] = useTransition();
+ 
+-	const form = useForm<ForgetPasswordFormValues>({
+-		resolver: zodResolver(forgetPasswordSchema),
++	const form = useForm<ForgotPasswordFormValues>({
++		resolver: zodResolver(forgotPasswordSchema),
+ 		defaultValues: {
+ 			email: "",
+ 		},
+ 	});
+ 
+-	const onSubmit = (data: ForgetPasswordFormValues) => {
++	const onSubmit = (data: ForgotPasswordFormValues) => {
+ 		startTransition(async () => {
+ 			try {
+ 				await authClient.requestPasswordReset({
+@@ -63,10 +63,10 @@ export function ForgetPasswordForm({
+ 					control={form.control}
+ 					render={({ field, fieldState }) => (
+ 						<Field data-invalid={fieldState.invalid}>
+-							<FieldLabel htmlFor="forget-email">Email</FieldLabel>
++							<FieldLabel htmlFor="forgot-email">Email</FieldLabel>
+ 							<Input
+ 								{...field}
+-								id="forget-email"
++								id="forgot-email"
+ 								type="email"
+ 								placeholder="Enter your email"
+ 								aria-invalid={fieldState.invalid}
+diff --git a/demo/nextjs/components/forms/sign-in-form.tsx b/demo/nextjs/components/forms/sign-in-form.tsx
+index e23b52e1d15..d974c537101 100644
+--- a/demo/nextjs/components/forms/sign-in-form.tsx
++++ b/demo/nextjs/components/forms/sign-in-form.tsx
+@@ -109,7 +109,7 @@ export function SignInForm({
+ 							<div className="flex items-center">
+ 								<FieldLabel htmlFor="sign-in-password">Password</FieldLabel>
+ 								<Link
+-									href="/forget-password"
++									href="/forgot-password"
+ 									className="ml-auto inline-block text-sm underline text-foreground"
+ 								>
+ 									Forgot your password?
+diff --git a/packages/better-auth/src/api/routes/password.test.ts b/packages/better-auth/src/api/routes/password.test.ts
+index ed3b110dce8..06c699e20a7 100644
+--- a/packages/better-auth/src/api/routes/password.test.ts
++++ b/packages/better-auth/src/api/routes/password.test.ts
+@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
+ import { getTestInstance } from "../../test-utils";
+ import type { Account } from "../../types";
+ 
+-describe("forget password", async () => {
++describe("forgot password", async () => {
+ 	const mockSendEmail = vi.fn();
+ 	const mockOnPasswordReset = vi.fn();
+ 	let token = "";
+diff --git a/packages/better-auth/src/api/routes/password.ts b/packages/better-auth/src/api/routes/password.ts
+index 5a2b15a3420..03fbecf3c8c 100644
+--- a/packages/better-auth/src/api/routes/password.ts
++++ b/packages/better-auth/src/api/routes/password.ts
+@@ -153,7 +153,7 @@ export const requestPasswordResetCallback = createAuthEndpoint(
+ 	"/reset-password/:token",
+ 	{
+ 		method: "GET",
+-		operationId: "forgetPasswordCallback",
++		operationId: "resetPasswordCallback",
+ 		query: z.object({
+ 			callbackURL: z.string().meta({
+ 				description: "The URL to redirect the user to reset their password",

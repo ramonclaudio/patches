@@ -1,0 +1,42 @@
+diff --git a/src/browser/http_client.ts b/src/browser/http_client.ts
+index 937c4bc6..b247e208 100644
+--- a/src/browser/http_client.ts
++++ b/src/browser/http_client.ts
+@@ -576,4 +576,7 @@ function forwardErrorData(errorData: JSONValue, error: ConvexError<string>) {
+ /**
+  * @internal
+  */
+-type FetchOptions = { cache: "force-cache" | "no-store" };
++type FetchOptions = {
++  cache: "force-cache" | "no-store";
++  signal?: AbortSignal;
++};
+diff --git a/src/nextjs/index.ts b/src/nextjs/index.ts
+index 6d3b7d11..013a58ef 100644
+--- a/src/nextjs/index.ts
++++ b/src/nextjs/index.ts
+@@ -84,6 +84,12 @@ export type NextjsOptions = {
+    * The default value is `false`
+    */
+   skipConvexDeploymentUrlCheck?: boolean;
++  /**
++   * AbortSignal to cancel the request.
++   *
++   * Use with React 19.2's cacheSignal() to abort fetches when cache lifetime ends.
++   */
++  signal?: AbortSignal | null;
+ };
+ 
+ /**
+@@ -199,7 +205,10 @@ function setupClient(options: NextjsOptions) {
+   if (options.adminToken !== undefined) {
+     client.setAdminAuth(options.adminToken);
+   }
+-  client.setFetchOptions({ cache: "no-store" });
++  client.setFetchOptions({
++    cache: "no-store",
++    signal: options.signal ?? undefined,
++  });
+   return client;
+ }
+ 

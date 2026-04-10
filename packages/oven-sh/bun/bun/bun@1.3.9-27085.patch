@@ -1,57 +1,99 @@
 diff --git a/src/install/PackageManager/PackageManagerEnqueue.zig b/src/install/PackageManager/PackageManagerEnqueue.zig
-index 9df5508e741..ec536fe9640 100644
+index 2aa0d286519..31caf982f06 100644
 --- a/src/install/PackageManager/PackageManagerEnqueue.zig
 +++ b/src/install/PackageManager/PackageManagerEnqueue.zig
-@@ -1848,7 +1848,7 @@ fn getOrPutResolvedPackage(
- fn resolutionSatisfiesDependency(this: *PackageManager, resolution: Resolution, dependency: Dependency.Version) bool {
+@@ -1548,7 +1548,7 @@ fn getOrPutResolvedPackage(
+                 .id => |existing_id| {
+                     if (existing_id < resolutions.len) {
+                         const existing_resolution = resolutions[existing_id];
+-                        if (resolutionSatisfiesDependency(this, existing_resolution, version)) {
++                        if (resolutionSatisfiesDependency(this, existing_resolution, version, true)) {
+                             successFn(this, dependency_id, existing_id);
+                             return .{
+                                 // we must fetch it from the packages array again, incase the package array mutates the value in the `successFn`
+@@ -1582,7 +1582,7 @@ fn getOrPutResolvedPackage(
+                     for (list.items) |existing_id| {
+                         if (existing_id < resolutions.len) {
+                             const existing_resolution = resolutions[existing_id];
+-                            if (resolutionSatisfiesDependency(this, existing_resolution, version)) {
++                            if (resolutionSatisfiesDependency(this, existing_resolution, version, true)) {
+                                 successFn(this, dependency_id, existing_id);
+                                 return .{
+                                     .package = this.lockfile.packages.get(existing_id),
+@@ -1886,10 +1886,13 @@ fn getOrPutResolvedPackage(
+     }
+ }
+
+-fn resolutionSatisfiesDependency(this: *PackageManager, resolution: Resolution, dependency: Dependency.Version) bool {
++fn resolutionSatisfiesDependency(this: *PackageManager, resolution: Resolution, dependency: Dependency.Version, comptime include_prerelease: bool) bool {
      const buf = this.lockfile.buffers.string_bytes.items;
      if (resolution.tag == .npm and dependency.tag == .npm) {
 -        return dependency.value.npm.version.satisfies(resolution.value.npm.version, buf, buf);
-+        return dependency.value.npm.version.satisfiesIncludePrerelease(resolution.value.npm.version, buf, buf);
++        return if (include_prerelease)
++            dependency.value.npm.version.satisfiesIncludingPrereleases(resolution.value.npm.version, buf, buf)
++        else
++            dependency.value.npm.version.satisfies(resolution.value.npm.version, buf, buf);
      }
- 
+
      if (resolution.tag == .git and dependency.tag == .git) {
 diff --git a/src/semver/SemverQuery.zig b/src/semver/SemverQuery.zig
-index 056cf119174..5ae0736c130 100644
+index 056cf119174..8cec6b970be 100644
 --- a/src/semver/SemverQuery.zig
 +++ b/src/semver/SemverQuery.zig
-@@ -100,6 +100,20 @@ pub const List = struct {
+@@ -77,7 +77,7 @@ pub const List = struct {
          );
      }
- 
-+    pub fn satisfiesIncludePrerelease(list: *const List, version: Version, list_buf: string, version_buf: string) bool {
-+        var pre_matched = false;
-+        return list.head.satisfiesPre(
-+            version,
-+            list_buf,
-+            version_buf,
-+            &pre_matched,
-+        ) or (list.next orelse return false).satisfiesIncludePrerelease(
-+            version,
-+            list_buf,
-+            version_buf,
-+        );
+
+-    pub fn satisfiesPre(list: *const List, version: Version, list_buf: string, version_buf: string) bool {
++    pub fn satisfiesPre(list: *const List, version: Version, list_buf: string, version_buf: string, comptime include_prerelease: bool) bool {
+         if (comptime Environment.allow_assert) {
+             assert(version.tag.hasPre());
+         }
+@@ -87,16 +87,22 @@ pub const List = struct {
+         // - if it does, also needs to match major, minor, patch with at least one of the other versions
+         //   with a prerelease
+         // https://github.com/npm/node-semver/blob/ac9b35769ab0ddfefd5a3af4a3ecaf3da2012352/classes/range.js#L505
++        //
++        // When include_prerelease is true (used for peer dep validation, following yarn v1's
++        // satisfiesWithPrereleases), the pre_matched gate is skipped. This allows prerelease
++        // versions like 56.0.0-canary to satisfy ranges like >=14.0.4 where no comparator
++        // has a prerelease on the same major.minor.patch.
+         var pre_matched = false;
+         return (list.head.satisfiesPre(
+             version,
+             list_buf,
+             version_buf,
+             &pre_matched,
+-        ) and pre_matched) or (list.next orelse return false).satisfiesPre(
++        ) and (include_prerelease or pre_matched)) or (list.next orelse return false).satisfiesPre(
+             version,
+             list_buf,
+             version_buf,
++            include_prerelease,
+         );
+     }
+
+@@ -295,7 +301,22 @@ pub const Group = struct {
+         version_buf: string,
+     ) bool {
+         return if (version.tag.hasPre())
+-            group.head.satisfiesPre(version, group_buf, version_buf)
++            group.head.satisfiesPre(version, group_buf, version_buf, false)
++        else
++            group.head.satisfies(version, group_buf, version_buf);
 +    }
 +
-     pub fn eql(lhs: *const List, rhs: *const List) bool {
-         if (!lhs.head.eql(&rhs.head)) return false;
- 
-@@ -299,6 +313,18 @@ pub const Group = struct {
-         else
-             group.head.satisfies(version, group_buf, version_buf);
-     }
-+
-+    pub inline fn satisfiesIncludePrerelease(
++    /// Like satisfies, but prerelease versions satisfy ranges even when no
++    /// comparator has a prerelease on the same major.minor.patch. Used for
++    /// peer dependency validation (matches yarn v1 behavior).
++    pub inline fn satisfiesIncludingPrereleases(
 +        group: *const Group,
 +        version: Version,
 +        group_buf: string,
 +        version_buf: string,
 +    ) bool {
 +        return if (version.tag.hasPre())
-+            group.head.satisfiesIncludePrerelease(version, group_buf, version_buf)
-+        else
-+            group.head.satisfies(version, group_buf, version_buf);
-+    }
- };
- 
- pub fn eql(lhs: *const Query, rhs: *const Query) bool {
++            group.head.satisfiesPre(version, group_buf, version_buf, true)
+         else
+             group.head.satisfies(version, group_buf, version_buf);
+     }

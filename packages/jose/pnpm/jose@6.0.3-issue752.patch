@@ -1,0 +1,166 @@
+diff --git a/dist/webapi/jwks/remote.js b/dist/webapi/jwks/remote.js
+index ac55e68d01..65d8a43649 100644
+--- a/dist/webapi/jwks/remote.js
++++ b/dist/webapi/jwks/remote.js
+@@ -9,7 +9,7 @@ function isCloudflareWorkers() {
+ let USER_AGENT;
+ if (typeof navigator === 'undefined' || !navigator.userAgent?.startsWith?.('Mozilla/5.0 ')) {
+     const NAME = 'jose';
+-    const VERSION = 'v6.0.3';
++    const VERSION = 'v6.0.4';
+     USER_AGENT = `${NAME}/${VERSION}`;
+ }
+ export const customFetch = Symbol();
+diff --git a/dist/webapi/lib/asn1.js b/dist/webapi/lib/asn1.js
+index 16fba34200..107bab1347 100644
+--- a/dist/webapi/lib/asn1.js
++++ b/dist/webapi/lib/asn1.js
+@@ -185,11 +185,17 @@ function spkiFromX509(buf) {
+     const tbsCertificate = getElement(getElement(parseElement(buf).contents)[0].contents);
+     return encodeBase64(tbsCertificate[tbsCertificate[0].raw[0] === 0xa0 ? 6 : 5].raw);
+ }
+-let X509Certificate;
++let createPublicKey;
+ function getSPKI(x509) {
+-    if ((X509Certificate ||= globalThis.process?.getBuiltinModule?.('node:crypto')?.X509Certificate)) {
++    try {
++        createPublicKey ??= globalThis.process?.getBuiltinModule?.('node:crypto')?.createPublicKey;
++    }
++    catch {
++        createPublicKey = 0;
++    }
++    if (createPublicKey) {
+         try {
+-            return new X509Certificate(x509).publicKey.export({ format: 'pem', type: 'spki' });
++            return new createPublicKey(x509).export({ format: 'pem', type: 'spki' });
+         }
+         catch { }
+     }
+diff --git a/dist/webapi/lib/base64url.js b/dist/webapi/lib/base64url.js
+index 8b4bd1e9d4..9fc00ce7e2 100644
+--- a/dist/webapi/lib/base64url.js
++++ b/dist/webapi/lib/base64url.js
+@@ -1,26 +1,29 @@
+-import { encoder, decoder, Buffer } from '../lib/buffer_utils.js';
++import { encoder, decoder } from '../lib/buffer_utils.js';
+ export function encodeBase64(input) {
+-    if (Buffer)
+-        return Buffer.from(input).toString('base64');
+-    let unencoded = input;
+-    if (typeof unencoded === 'string') {
+-        unencoded = encoder.encode(unencoded);
++    if (Uint8Array.prototype.toBase64) {
++        return input.toBase64();
+     }
+     const CHUNK_SIZE = 0x8000;
+     const arr = [];
+-    for (let i = 0; i < unencoded.length; i += CHUNK_SIZE) {
+-        arr.push(String.fromCharCode.apply(null, unencoded.subarray(i, i + CHUNK_SIZE)));
++    for (let i = 0; i < input.length; i += CHUNK_SIZE) {
++        arr.push(String.fromCharCode.apply(null, input.subarray(i, i + CHUNK_SIZE)));
+     }
+     return btoa(arr.join(''));
+ }
+ export function encode(input) {
+-    if (Buffer)
+-        return Buffer.from(input).toString('base64url');
+-    return encodeBase64(input).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
++    let unencoded = input;
++    if (typeof unencoded === 'string') {
++        unencoded = encoder.encode(unencoded);
++    }
++    if (Uint8Array.prototype.toBase64) {
++        return unencoded.toBase64({ alphabet: 'base64url', omitPadding: true });
++    }
++    return encodeBase64(unencoded).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+ }
+ export function decodeBase64(encoded) {
+-    if (Buffer)
+-        return Buffer.from(encoded, 'base64');
++    if (Uint8Array.fromBase64) {
++        return Uint8Array.fromBase64(encoded);
++    }
+     const binary = atob(encoded);
+     const bytes = new Uint8Array(binary.length);
+     for (let i = 0; i < binary.length; i++) {
+@@ -29,12 +32,15 @@ export function decodeBase64(encoded) {
+     return bytes;
+ }
+ export function decode(input) {
++    if (Uint8Array.fromBase64) {
++        return Uint8Array.fromBase64(typeof input === 'string' ? input : decoder.decode(input), {
++            alphabet: 'base64url',
++        });
++    }
+     let encoded = input;
+     if (encoded instanceof Uint8Array) {
+         encoded = decoder.decode(encoded);
+     }
+-    if (Buffer)
+-        return Buffer.from(encoded, 'base64url');
+     encoded = encoded.replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, '');
+     try {
+         return decodeBase64(encoded);
+diff --git a/dist/webapi/lib/buffer_utils.js b/dist/webapi/lib/buffer_utils.js
+index a2ecfaabe4..465f818d27 100644
+--- a/dist/webapi/lib/buffer_utils.js
++++ b/dist/webapi/lib/buffer_utils.js
+@@ -1,11 +1,7 @@
+ export const encoder = new TextEncoder();
+ export const decoder = new TextDecoder();
+ const MAX_INT32 = 2 ** 32;
+-const Buffer = globalThis.process?.getBuiltinModule?.('node:buffer')?.Buffer;
+-export { Buffer };
+ export function concat(...buffers) {
+-    if (Buffer)
+-        return Buffer.concat(buffers);
+     const size = buffers.reduce((acc, { length }) => acc + length, 0);
+     const buf = new Uint8Array(size);
+     let i = 0;
+diff --git a/dist/webapi/lib/decrypt.js b/dist/webapi/lib/decrypt.js
+index 581ea30942..a873b9e16f 100644
+--- a/dist/webapi/lib/decrypt.js
++++ b/dist/webapi/lib/decrypt.js
+@@ -5,25 +5,24 @@ import { JOSENotSupported, JWEDecryptionFailed, JWEInvalid } from '../util/error
+ import { checkEncCryptoKey } from './crypto_key.js';
+ import invalidKeyInput from './invalid_key_input.js';
+ import { isCryptoKey } from './is_key_like.js';
+-let timingSafeEqual = globalThis.process?.getBuiltinModule?.('node:crypto')?.timingSafeEqual;
+-timingSafeEqual ||= (a, b) => {
++async function timingSafeEqual(a, b) {
+     if (!(a instanceof Uint8Array)) {
+         throw new TypeError('First argument must be a buffer');
+     }
+     if (!(b instanceof Uint8Array)) {
+         throw new TypeError('Second argument must be a buffer');
+     }
+-    if (a.length !== b.length) {
+-        throw new TypeError('Input buffers must have the same length');
+-    }
+-    const len = a.length;
++    const algorithm = { name: 'HMAC', hash: 'SHA-256' };
++    const key = (await crypto.subtle.generateKey(algorithm, false, ['sign']));
++    const aHmac = new Uint8Array(await crypto.subtle.sign(algorithm, key, a));
++    const bHmac = new Uint8Array(await crypto.subtle.sign(algorithm, key, b));
+     let out = 0;
+     let i = -1;
+-    while (++i < len) {
+-        out |= a[i] ^ b[i];
++    while (++i < 32) {
++        out |= aHmac[i] ^ bHmac[i];
+     }
+     return out === 0;
+-};
++}
+ async function cbcDecrypt(enc, cek, ciphertext, iv, tag, aad) {
+     if (!(cek instanceof Uint8Array)) {
+         throw new TypeError(invalidKeyInput(cek, 'Uint8Array'));
+@@ -38,7 +37,7 @@ async function cbcDecrypt(enc, cek, ciphertext, iv, tag, aad) {
+     const expectedTag = new Uint8Array((await crypto.subtle.sign('HMAC', macKey, macData)).slice(0, keySize >> 3));
+     let macCheckPassed;
+     try {
+-        macCheckPassed = timingSafeEqual(tag, expectedTag);
++        macCheckPassed = await timingSafeEqual(tag, expectedTag);
+     }
+     catch {
+     }
