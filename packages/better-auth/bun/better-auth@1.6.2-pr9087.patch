@@ -1,0 +1,13 @@
+diff --git a/dist/client/config.mjs b/dist/client/config.mjs
+index 1234567..abcdef0 100644
+--- a/dist/client/config.mjs
++++ b/dist/client/config.mjs
+@@ -67,7 +67,7 @@
+ 	const atomListeners = [{
+ 		signal: "$sessionSignal",
+ 		matcher(path) {
+-			return path === "/sign-out" || path === "/update-user" || path === "/update-session" || path === "/sign-up/email" || path === "/sign-in/email" || path === "/delete-user" || path === "/verify-email" || path === "/revoke-sessions" || path === "/revoke-session" || path === "/change-email";
++			return path === "/sign-out" || path === "/update-user" || path === "/update-session" || path === "/sign-up/email" || path === "/sign-in/email" || path === "/delete-user" || path === "/verify-email" || path === "/revoke-sessions" || path === "/revoke-session" || path === "/revoke-other-sessions" || path === "/change-email" || path === "/change-password";
+ 		},
+ 		callback(path) {
+ 			if (path === "/sign-out") broadcastSessionUpdate("signout");
