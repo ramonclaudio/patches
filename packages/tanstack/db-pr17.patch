@@ -1,0 +1,13 @@
+diff --git a/README.md b/README.md
+index 2c355c296..959551718 100644
+--- a/README.md
++++ b/README.md
+@@ -4,7 +4,7 @@ A library for creating fast optimistic updates with flexible backend support tha
+ 
+ This library is still under design! Please let us know what you think.
+ 
+-Checkout the [example todo app](todo-app/).
++Checkout the [example todo app](examples/react/todo).
+ 
+ ## Installation
+ 
