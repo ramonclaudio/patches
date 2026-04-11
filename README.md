@@ -75,6 +75,7 @@ PRs I closed without merge (or never filed). Some were rebuilt upstream with a d
 | [`@astrojs/compiler`](packages/withastro/compiler-rs/) | n/a | Source (git apply) | Add `-x` to `x86_64-unknown-linux-gnu` build for glibc compat (predecessor of #22) | closed ([withastro/compiler-rs#21](https://github.com/withastro/compiler-rs/pull/21); rebuilt as [#22](https://github.com/withastro/compiler-rs/pull/22)) |
 | [`convex`](packages/convex/) | n/a | Source (git apply) | Add `signal` parameter to `NextjsOptions` for React 19.2 `cacheSignal()` abort support | closed ([get-convex/convex-js#95](https://github.com/get-convex/convex-js/pull/95)) |
 | [`react-native-view-shot`](packages/react-native-view-shot/) | `4.0.3` | Bun, npm (patch-package), pnpm | RN 0.84 / new arch: `RCTScrollView` removed; switch `snapshotContentContainer` check to `UIScrollView` | `5.0.0-alpha.2` ([gre/react-native-view-shot#587](https://github.com/gre/react-native-view-shot/pull/587); no PR filed, upstream adopted the same approach) |
+| [`@tanstack/start-server-core`](packages/@tanstack/start-server-core/) | `1.167.10` | Bun, npm (patch-package), pnpm | Add missing `pluginAdapters` to `VIRTUAL_MODULES` export; `start-plugin-core@1.167.19` was published referencing it before `start-server-core` got a matching release, crashing `vite dev` | `1.167.11` ([TanStack/router#7146](https://github.com/TanStack/router/pull/7146) closed by me; Tanner synced versions manually in `e61c49ce31`) |
 
 ## Filed
 

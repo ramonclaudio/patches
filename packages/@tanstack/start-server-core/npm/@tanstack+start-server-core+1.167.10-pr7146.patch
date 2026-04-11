@@ -1,0 +1,20 @@
+--- a/node_modules/@tanstack/start-server-core/dist/esm/virtual-modules.js
++++ b/node_modules/@tanstack/start-server-core/dist/esm/virtual-modules.js
+@@ -2,7 +2,8 @@
+ var VIRTUAL_MODULES = {
+ 	startManifest: "tanstack-start-manifest:v",
+ 	injectedHeadScripts: "tanstack-start-injected-head-scripts:v",
+-	serverFnResolver: "#tanstack-start-server-fn-resolver"
++	serverFnResolver: "#tanstack-start-server-fn-resolver",
++	pluginAdapters: "#tanstack-start-plugin-adapters"
+ };
+ //#endregion
+ export { VIRTUAL_MODULES };
+--- a/node_modules/@tanstack/start-server-core/dist/esm/virtual-modules.d.ts
++++ b/node_modules/@tanstack/start-server-core/dist/esm/virtual-modules.d.ts
+@@ -2,4 +2,5 @@
+     readonly startManifest: "tanstack-start-manifest:v";
+     readonly injectedHeadScripts: "tanstack-start-injected-head-scripts:v";
+     readonly serverFnResolver: "#tanstack-start-server-fn-resolver";
++    readonly pluginAdapters: "#tanstack-start-plugin-adapters";
+ };
