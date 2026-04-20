@@ -1,0 +1,82 @@
+From 5661bf6845058fbc432d3b5643f9bf6148494327 Mon Sep 17 00:00:00 2001
+From: Ray <hello@ramonclaudio.com>
+Date: Sun, 19 Apr 2026 06:17:30 -0400
+Subject: [PATCH 1/2] fix(ci): use --use-napi-cross for linux-gnu targets
+
+Switches x86_64-unknown-linux-gnu and aarch64-unknown-linux-gnu from
+cargo-zigbuild (via -x) to @napi-rs/cross-toolchain (via --use-napi-cross),
+matching the pattern used by @napi-rs/package-template, oxc, @swc/core,
+@napi-rs/canvas, and others.
+
+Zigbuild without an explicit glibc suffix falls back to zig's per-arch
+baseline, which is 2.35 on x86_64 and 2.30 on aarch64 for zig 0.15. The
+resulting binaries fail to load on systems with older glibc (Vercel,
+Amazon Linux 2023, RHEL/CentOS 7, Debian 10, etc.).
+
+@napi-rs/cross-toolchain pins glibc to 2.17 for both architectures.
+
+Verified with a full CI run on a fork:
+- x86_64-unknown-linux-gnu: GLIBC_2.35 -> GLIBC_2.16
+- aarch64-unknown-linux-gnu: GLIBC_2.30 -> GLIBC_2.17
+
+Also narrows the setup-zig and cargo-zigbuild install conditions to
+musl targets only, since gnu no longer needs them.
+---
+ .github/workflows/ci.yml | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index f0f19925..dd271fa5 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -138,10 +138,10 @@ jobs:
+           # -- Linux GNU --
+           - host: ubuntu-latest
+             target: x86_64-unknown-linux-gnu
+-            build: pnpm run build --target x86_64-unknown-linux-gnu -x
++            build: pnpm run build --target x86_64-unknown-linux-gnu --use-napi-cross
+           - host: ubuntu-latest
+             target: aarch64-unknown-linux-gnu
+-            build: pnpm run build --target aarch64-unknown-linux-gnu -x
++            build: pnpm run build --target aarch64-unknown-linux-gnu --use-napi-cross
+ 
+           # -- Linux musl --
+           - host: ubuntu-latest
+@@ -200,13 +200,13 @@ jobs:
+           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
+ 
+       - uses: mlugg/setup-zig@v2
+-        if: ${{ contains(matrix.settings.target, 'linux') }}
++        if: ${{ contains(matrix.settings.target, 'musl') }}
+         with:
+           version: 0.15.2
+ 
+       - name: Install cargo-zigbuild
+         uses: taiki-e/install-action@v2
+-        if: ${{ contains(matrix.settings.target, 'linux') }}
++        if: ${{ contains(matrix.settings.target, 'musl') }}
+         env:
+           GITHUB_TOKEN: ${{ github.token }}
+         with:
+
+From 4b513060d5594ce15b2699dad14a718ec7867e40 Mon Sep 17 00:00:00 2001
+From: Princesseuh <3019731+Princesseuh@users.noreply.github.com>
+Date: Mon, 20 Apr 2026 11:40:25 +0200
+Subject: [PATCH 2/2] chore: changeset
+
+---
+ .changeset/fix-linux-gnu-glibc.md | 5 +++++
+ 1 file changed, 5 insertions(+)
+ create mode 100644 .changeset/fix-linux-gnu-glibc.md
+
+diff --git a/.changeset/fix-linux-gnu-glibc.md b/.changeset/fix-linux-gnu-glibc.md
+new file mode 100644
+index 00000000..9e4b41f7
+--- /dev/null
++++ b/.changeset/fix-linux-gnu-glibc.md
+@@ -0,0 +1,5 @@
++---
++"@astrojs/compiler-rs": patch
++---
++
++Fixed linux-gnu binaries requiring glibc 2.35+, which broke on Vercel, Amazon Linux 2023, and other environments with older glibc. Binaries now target glibc 2.17.
