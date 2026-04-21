@@ -1,15 +1,88 @@
 diff --git a/node_modules/@convex-dev/better-auth/package.json b/node_modules/@convex-dev/better-auth/package.json
 --- a/node_modules/@convex-dev/better-auth/package.json
 +++ b/node_modules/@convex-dev/better-auth/package.json
-@@ -103,7 +103,7 @@
+@@ -6,7 +6,7 @@
+   "bugs": {
+     "url": "https://github.com/get-convex/better-auth/issues"
+   },
+-  "version": "0.11.4",
++  "version": "0.12.0",
+   "license": "Apache-2.0",
+   "keywords": [
+     "convex",
+@@ -24,17 +24,15 @@
+     "build:clean": "rm -rf dist *.tsbuildinfo && npm run build:codegen",
+     "typecheck": "tsc --noEmit && tsc -p examples/next && tsc -p examples/next/convex && tsc -p examples/react && tsc -p examples/react/convex && tsc -p examples/tanstack && tsc -p examples/tanstack/convex",
+     "lint": "eslint .",
+-    "all": "run-p -r 'dev' 'test:watch'",
+     "test": "vitest run --typecheck",
+     "test:watch": "vitest --typecheck --clearScreen false",
+     "test:debug": "vitest --inspect-brk --no-file-parallelism",
+     "test:e2e": "npm run build && cd e2e && npm run test",
+     "test:coverage": "vitest run --coverage --coverage.reporter=text",
+-    "preversion": "npm ci && npm run build:clean && run-p test lint typecheck",
+-    "prepublishOnly": "npm whoami || npm login && sleep 3",
++    "preversion": "npm ci && npm run build:clean && npm run test && npm run lint && npm run typecheck",
+     "alpha": "npm version prerelease --preid alpha && npm publish --tag alpha && git push --follow-tags",
+     "release": "npm version patch && npm publish && git push --follow-tags",
+-    "version": "vim -c 'normal o' -c 'normal o## '$npm_package_version CHANGELOG.md && prettier -w CHANGELOG.md && git add CHANGELOG.md"
++    "version": "(npm whoami || npm login) && vim -c 'normal o' -c 'normal o## '$npm_package_version CHANGELOG.md && prettier -w CHANGELOG.md && git add CHANGELOG.md"
+   },
+   "files": [
+     "dist",
+@@ -103,40 +101,38 @@
      }
    },
    "peerDependencies": {
 -    "better-auth": ">=1.5.0 <1.6.0",
-+    "better-auth": ">=1.6.2 <1.7.0",
++    "better-auth": ">=1.6.5 <1.7.0",
      "convex": "^1.25.0",
      "react": "^18.3.1 || ^19.0.0"
    },
+   "devDependencies": {
+-    "@better-auth/core": "^1.5.6",
+-    "@better-auth/test-utils": "^1.5.6",
++    "@better-auth/core": "^1.6.5",
++    "@better-auth/test-utils": "^1.6.5",
+     "@edge-runtime/vm": "5.0.0",
+     "@eslint/eslintrc": "3.3.1",
+     "@eslint/js": "9.39.1",
+     "@tanstack/react-start": "^1.140.1",
+     "@types/common-tags": "^1.8.4",
+-    "@types/node": "20.19.24",
+-    "@types/react": "18.3.26",
+-    "@types/react-dom": "18.3.7",
++    "@types/node": "24.12.2",
++    "@types/react": "19.2.14",
++    "@types/react-dom": "19.2.3",
+     "@types/semver": "^7.7.0",
+-    "better-auth": "^1.5.6",
++    "better-auth": "^1.6.5",
+     "chokidar-cli": "3.0.0",
+     "concurrently": "^9.2.0",
+-    "convex": "^1.31.2",
++    "convex": "1.35.1",
+     "convex-test": "0.0.41",
+-    "cpy-cli": "6.0.0",
+     "eslint": "9.39.1",
+     "eslint-plugin-import": "^2.32.0",
+     "eslint-plugin-react": "7.37.5",
+-    "eslint-plugin-react-hooks": "5.2.0",
++    "eslint-plugin-react-hooks": "7.1.0",
+     "eslint-plugin-react-refresh": "0.4.24",
+-    "globals": "15.14.0",
++    "globals": "17.5.0",
+     "next": "^16.0.3",
+-    "npm-run-all2": "8.0.4",
+     "pkg-pr-new": "0.0.60",
+     "prettier": "3.6.2",
+-    "react": "18.3.1",
+-    "react-dom": "18.3.1",
++    "react": "19.2.5",
++    "react-dom": "19.2.5",
+     "typescript": "5.9.3",
+     "typescript-eslint": "8.46.4",
+     "vitest": "^4.0.15"
 diff --git a/node_modules/@convex-dev/better-auth/dist/auth-options.d.ts.map b/node_modules/@convex-dev/better-auth/dist/auth-options.d.ts.map
 --- a/node_modules/@convex-dev/better-auth/dist/auth-options.d.ts.map
 +++ b/node_modules/@convex-dev/better-auth/dist/auth-options.d.ts.map
@@ -21,7 +94,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/auth-options.d.ts.map b/n
 diff --git a/node_modules/@convex-dev/better-auth/dist/auth-options.js b/node_modules/@convex-dev/better-auth/dist/auth-options.js
 --- a/node_modules/@convex-dev/better-auth/dist/auth-options.js
 +++ b/node_modules/@convex-dev/better-auth/dist/auth-options.js
-@@ -35,6 +35,7 @@
+@@ -35,6 +35,7 @@ export const options = {
          }),
          oidcProvider({
              loginPage: "/login",
@@ -40,7 +113,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/auth-options.js.map b/nod
 diff --git a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.d.ts b/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.d.ts
 --- a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.d.ts
 +++ b/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.d.ts
-@@ -2,6 +2,7 @@
+@@ -2,6 +2,7 @@ import type { Infer } from "convex/values";
  import type { DocumentByName, GenericDataModel, GenericQueryCtx, PaginationOptions, PaginationResult, SchemaDefinition, TableNamesInDataModel } from "convex/server";
  import type { BetterAuthDBSchema } from "better-auth/db";
  export declare const adapterWhereValidator: import("convex/values").VObject<{
@@ -48,7 +121,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.d.ts
      operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
      connector?: "AND" | "OR" | undefined;
      value: string | number | boolean | string[] | number[] | null;
-@@ -11,7 +12,8 @@
+@@ -11,7 +12,8 @@ export declare const adapterWhereValidator: import("convex/values").VObject<{
      operator: import("convex/values").VUnion<"lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined, [import("convex/values").VLiteral<"lt", "required">, import("convex/values").VLiteral<"lte", "required">, import("convex/values").VLiteral<"gt", "required">, import("convex/values").VLiteral<"gte", "required">, import("convex/values").VLiteral<"eq", "required">, import("convex/values").VLiteral<"in", "required">, import("convex/values").VLiteral<"not_in", "required">, import("convex/values").VLiteral<"ne", "required">, import("convex/values").VLiteral<"contains", "required">, import("convex/values").VLiteral<"starts_with", "required">, import("convex/values").VLiteral<"ends_with", "required">], "optional", never>;
      value: import("convex/values").VUnion<string | number | boolean | string[] | number[] | null, [import("convex/values").VString<string, "required">, import("convex/values").VFloat64<number, "required">, import("convex/values").VBoolean<boolean, "required">, import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "required">, import("convex/values").VArray<number[], import("convex/values").VFloat64<number, "required">, "required">, import("convex/values").VNull<null, "required">], "required", never>;
      connector: import("convex/values").VUnion<"AND" | "OR" | undefined, [import("convex/values").VLiteral<"AND", "required">, import("convex/values").VLiteral<"OR", "required">], "optional", never>;
@@ -58,7 +131,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.d.ts
  export declare const adapterArgsValidator: import("convex/values").VObject<{
      select?: string[] | undefined;
      limit?: number | undefined;
-@@ -21,6 +23,7 @@
+@@ -21,6 +23,7 @@ export declare const adapterArgsValidator: import("convex/values").VObject<{
          direction: "asc" | "desc";
      } | undefined;
      where?: {
@@ -66,7 +139,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.d.ts
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -30,11 +33,13 @@
+@@ -30,11 +33,13 @@ export declare const adapterArgsValidator: import("convex/values").VObject<{
  }, {
      model: import("convex/values").VString<string, "required">;
      where: import("convex/values").VArray<{
@@ -80,7 +153,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.d.ts
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -44,7 +49,8 @@
+@@ -44,7 +49,8 @@ export declare const adapterArgsValidator: import("convex/values").VObject<{
          operator: import("convex/values").VUnion<"lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined, [import("convex/values").VLiteral<"lt", "required">, import("convex/values").VLiteral<"lte", "required">, import("convex/values").VLiteral<"gt", "required">, import("convex/values").VLiteral<"gte", "required">, import("convex/values").VLiteral<"eq", "required">, import("convex/values").VLiteral<"in", "required">, import("convex/values").VLiteral<"not_in", "required">, import("convex/values").VLiteral<"ne", "required">, import("convex/values").VLiteral<"contains", "required">, import("convex/values").VLiteral<"starts_with", "required">, import("convex/values").VLiteral<"ends_with", "required">], "optional", never>;
          value: import("convex/values").VUnion<string | number | boolean | string[] | number[] | null, [import("convex/values").VString<string, "required">, import("convex/values").VFloat64<number, "required">, import("convex/values").VBoolean<boolean, "required">, import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "required">, import("convex/values").VArray<number[], import("convex/values").VFloat64<number, "required">, "required">, import("convex/values").VNull<null, "required">], "required", never>;
          connector: import("convex/values").VUnion<"AND" | "OR" | undefined, [import("convex/values").VLiteral<"AND", "required">, import("convex/values").VLiteral<"OR", "required">], "optional", never>;
@@ -101,7 +174,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.d.ts
 diff --git a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.js b/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.js
 --- a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.js
 +++ b/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.js
-@@ -8,6 +8,7 @@
+@@ -8,6 +8,7 @@ export const adapterWhereValidator = v.object({
      operator: v.optional(v.union(v.literal("lt"), v.literal("lte"), v.literal("gt"), v.literal("gte"), v.literal("eq"), v.literal("in"), v.literal("not_in"), v.literal("ne"), v.literal("contains"), v.literal("starts_with"), v.literal("ends_with"))),
      value: v.union(v.string(), v.number(), v.boolean(), v.array(v.string()), v.array(v.number()), v.null()),
      connector: v.optional(v.union(v.literal("AND"), v.literal("OR"))),
@@ -109,7 +182,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.js b
  });
  export const adapterArgsValidator = v.object({
      model: v.string(),
-@@ -44,8 +45,9 @@
+@@ -44,8 +45,9 @@ const findIndex = (schema, args) => {
          throw new Error(`OR connector not supported with multiple where statements in findIndex, split up the where statements before calling findIndex: ${JSON.stringify(args.where)}`);
      }
      const where = args.where?.filter((w) => {
@@ -121,7 +194,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.js b
              w.field !== "_id");
      });
      if (!where?.length && !args.sortBy) {
-@@ -132,6 +134,10 @@
+@@ -132,6 +134,10 @@ const findIndex = (schema, args) => {
          },
      };
  };
@@ -132,7 +205,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.js b
  export const checkUniqueFields = async (ctx, schema, betterAuthSchema, table, input, doc) => {
      if (!hasUniqueFields(betterAuthSchema, table, input)) {
          return;
-@@ -208,17 +214,31 @@
+@@ -208,17 +214,31 @@ filterWhere) => {
              return val > wVal;
          };
          const filter = (w) => {
@@ -168,7 +241,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.js b
                  }
                  case "lt": {
                      return isLessThan(value, w.value);
-@@ -233,16 +253,34 @@
+@@ -233,16 +253,34 @@ filterWhere) => {
                      return value === w.value || isGreaterThan(value, w.value);
                  }
                  case "ne": {
@@ -207,7 +280,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.js b
                  }
              }
          };
-@@ -302,9 +340,11 @@
+@@ -302,9 +340,11 @@ const generateQuery = (ctx, schema, args) => {
          }
          return filterByWhere(doc, args.where, 
          // Index used for all eq and range clauses, apply remaining clauses
@@ -222,7 +295,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.js b
      });
      return filteredQuery;
  };
-@@ -325,8 +365,10 @@
+@@ -325,8 +365,10 @@ export const paginate = async (ctx, schema, betterAuthSchema, args) => {
      }
      // If any where clause is "eq" (or missing operator) on a unique field,
      // we can only return a single document, so we get it and use any other
@@ -235,7 +308,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.js b
          (isUniqueField(betterAuthSchema, args.model, w.field) ||
              w.field === "_id"));
      if (uniqueWhere) {
-@@ -363,8 +405,10 @@
+@@ -363,8 +405,10 @@ export const paginate = async (ctx, schema, betterAuthSchema, args) => {
      // Large queries using "in" clause will crash, but these are only currently
      // possible with the organization plugin listing all members with a high
      // limit. For cases like this we need to create proper convex queries in
@@ -259,7 +332,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/adapter-utils.js.m
 diff --git a/node_modules/@convex-dev/better-auth/dist/client/create-api.d.ts b/node_modules/@convex-dev/better-auth/dist/client/create-api.d.ts
 --- a/node_modules/@convex-dev/better-auth/dist/client/create-api.d.ts
 +++ b/node_modules/@convex-dev/better-auth/dist/client/create-api.d.ts
-@@ -18,6 +18,7 @@
+@@ -18,6 +18,7 @@ export declare const createApi: <Schema extends SchemaDefinition<any, any>>(sche
          join?: any;
          select?: string[] | undefined;
          where?: {
@@ -267,7 +340,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/create-api.d.ts b/
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -35,6 +36,7 @@
+@@ -35,6 +36,7 @@ export declare const createApi: <Schema extends SchemaDefinition<any, any>>(sche
              direction: "asc" | "desc";
          } | undefined;
          where?: {
@@ -275,7 +348,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/create-api.d.ts b/
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -54,6 +56,7 @@
+@@ -54,6 +56,7 @@ export declare const createApi: <Schema extends SchemaDefinition<any, any>>(sche
          onUpdateHandle?: string | undefined;
          input: {
              where?: {
@@ -283,7 +356,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/create-api.d.ts b/
                  operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
                  connector?: "AND" | "OR" | undefined;
                  value: string | number | boolean | string[] | number[] | null;
-@@ -71,6 +74,7 @@
+@@ -71,6 +74,7 @@ export declare const createApi: <Schema extends SchemaDefinition<any, any>>(sche
          onUpdateHandle?: string | undefined;
          input: {
              where?: {
@@ -291,7 +364,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/create-api.d.ts b/
                  operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
                  connector?: "AND" | "OR" | undefined;
                  value: string | number | boolean | string[] | number[] | null;
-@@ -103,6 +107,7 @@
+@@ -103,6 +107,7 @@ export declare const createApi: <Schema extends SchemaDefinition<any, any>>(sche
          onDeleteHandle?: string | undefined;
          input: {
              where?: {
@@ -299,7 +372,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/create-api.d.ts b/
                  operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
                  connector?: "AND" | "OR" | undefined;
                  value: string | number | boolean | string[] | number[] | null;
-@@ -115,6 +120,7 @@
+@@ -115,6 +120,7 @@ export declare const createApi: <Schema extends SchemaDefinition<any, any>>(sche
          onDeleteHandle?: string | undefined;
          input: {
              where?: {
@@ -318,7 +391,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/create-api.d.ts.ma
 diff --git a/node_modules/@convex-dev/better-auth/dist/client/create-api.js b/node_modules/@convex-dev/better-auth/dist/client/create-api.js
 --- a/node_modules/@convex-dev/better-auth/dist/client/create-api.js
 +++ b/node_modules/@convex-dev/better-auth/dist/client/create-api.js
-@@ -9,6 +9,7 @@
+@@ -9,6 +9,7 @@ const whereValidator = (schema, tableName) => v.object({
      operator: v.optional(v.union(v.literal("lt"), v.literal("lte"), v.literal("gt"), v.literal("gte"), v.literal("eq"), v.literal("in"), v.literal("not_in"), v.literal("ne"), v.literal("contains"), v.literal("starts_with"), v.literal("ends_with"))),
      value: v.union(v.string(), v.number(), v.boolean(), v.array(v.string()), v.array(v.number()), v.null()),
      connector: v.optional(v.union(v.literal("AND"), v.literal("OR"))),
@@ -337,7 +410,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/client/create-api.js.map 
 diff --git a/node_modules/@convex-dev/better-auth/dist/component/adapter.d.ts b/node_modules/@convex-dev/better-auth/dist/component/adapter.d.ts
 --- a/node_modules/@convex-dev/better-auth/dist/component/adapter.d.ts
 +++ b/node_modules/@convex-dev/better-auth/dist/component/adapter.d.ts
-@@ -13,6 +13,7 @@
+@@ -13,6 +13,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      join?: any;
      select?: string[] | undefined;
      where?: {
@@ -345,7 +418,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/adapter.d.ts b/
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -29,6 +30,7 @@
+@@ -29,6 +30,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
          direction: "asc" | "desc";
      } | undefined;
      where?: {
@@ -353,7 +426,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/adapter.d.ts b/
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -47,6 +49,7 @@
+@@ -47,6 +49,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onUpdateHandle?: string | undefined;
      input: {
          where?: {
@@ -361,7 +434,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/adapter.d.ts b/
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -63,6 +66,7 @@
+@@ -63,6 +66,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onUpdateHandle?: string | undefined;
      input: {
          where?: {
@@ -369,7 +442,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/adapter.d.ts b/
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -94,6 +98,7 @@
+@@ -94,6 +98,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onDeleteHandle?: string | undefined;
      input: {
          where?: {
@@ -377,7 +450,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/adapter.d.ts b/
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -105,6 +110,7 @@
+@@ -105,6 +110,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onDeleteHandle?: string | undefined;
      input: {
          where?: {
@@ -404,7 +477,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/adapterTest.d.t
 diff --git a/node_modules/@convex-dev/better-auth/dist/component/adapterTest.js b/node_modules/@convex-dev/better-auth/dist/component/adapterTest.js
 --- a/node_modules/@convex-dev/better-auth/dist/component/adapterTest.js
 +++ b/node_modules/@convex-dev/better-auth/dist/component/adapterTest.js
-@@ -78,7 +78,7 @@
+@@ -78,7 +78,7 @@ const renameUserTableProfileApi = profileApi("adapterRenameUserTable");
  const organizationJoinsProfileApi = profileApi("adapterOrganizationJoins");
  export const runTests = action(async (ctx, _args) => {
      const testUtilsImport = "@better-auth/test-utils/adapter";
@@ -413,7 +486,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/adapterTest.js 
      const adapterFactoryImport = "../test/adapter-factory/index.js";
      const { coreNormalTestSuite, coreAuthFlowTestSuite, additionalFieldsNormalTestSuite, additionalFieldsAuthFlowTestSuite, pluginTableNormalTestSuite, renameFieldAndJoinTestSuite, renameModelUserCustomTestSuite, renameModelUserTableTestSuite, multiJoinsMissingRowsTestSuite, convexCustomTestSuite, } = await import(adapterFactoryImport);
      const baseProfileClient = createClient(baseProfileApi, {
-@@ -120,6 +120,7 @@
+@@ -120,6 +120,7 @@ export const runTests = action(async (ctx, _args) => {
              transactionsTestSuite({ disableTests: { ALL: true } }),
              coreAuthFlowTestSuite(),
              convexCustomTestSuite(),
@@ -432,7 +505,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/adapterTest.js.
 diff --git a/node_modules/@convex-dev/better-auth/dist/component/schema.d.ts b/node_modules/@convex-dev/better-auth/dist/component/schema.d.ts
 --- a/node_modules/@convex-dev/better-auth/dist/component/schema.d.ts
 +++ b/node_modules/@convex-dev/better-auth/dist/component/schema.d.ts
-@@ -114,6 +114,7 @@
+@@ -114,6 +114,7 @@ export declare const tables: {
          identifier: ["identifier", "_creationTime"];
      }, {}, {}>;
      twoFactor: import("convex/server").TableDefinition<import("convex/values").VObject<{
@@ -440,7 +513,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/schema.d.ts b/n
          userId: string;
          secret: string;
          backupCodes: string;
-@@ -121,7 +122,8 @@
+@@ -121,7 +122,8 @@ export declare const tables: {
          secret: import("convex/values").VString<string, "required">;
          backupCodes: import("convex/values").VString<string, "required">;
          userId: import("convex/values").VString<string, "required">;
@@ -450,7 +523,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/schema.d.ts b/n
          userId: ["userId", "_creationTime"];
      }, {}, {}>;
      oauthApplication: import("convex/server").TableDefinition<import("convex/values").VObject<{
-@@ -326,6 +328,7 @@
+@@ -326,6 +328,7 @@ declare const schema: import("convex/server").SchemaDefinition<{
          identifier: ["identifier", "_creationTime"];
      }, {}, {}>;
      twoFactor: import("convex/server").TableDefinition<import("convex/values").VObject<{
@@ -458,7 +531,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/schema.d.ts b/n
          userId: string;
          secret: string;
          backupCodes: string;
-@@ -333,7 +336,8 @@
+@@ -333,7 +336,8 @@ declare const schema: import("convex/server").SchemaDefinition<{
          secret: import("convex/values").VString<string, "required">;
          backupCodes: import("convex/values").VString<string, "required">;
          userId: import("convex/values").VString<string, "required">;
@@ -479,7 +552,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/schema.d.ts.map
 diff --git a/node_modules/@convex-dev/better-auth/dist/component/schema.js b/node_modules/@convex-dev/better-auth/dist/component/schema.js
 --- a/node_modules/@convex-dev/better-auth/dist/component/schema.js
 +++ b/node_modules/@convex-dev/better-auth/dist/component/schema.js
-@@ -74,6 +74,7 @@
+@@ -74,6 +74,7 @@ export const tables = {
          secret: v.string(),
          backupCodes: v.string(),
          userId: v.string(),
@@ -498,7 +571,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/schema.js.map b
 diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterAdditionalFields.d.ts b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterAdditionalFields.d.ts
 --- a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterAdditionalFields.d.ts
 +++ b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterAdditionalFields.d.ts
-@@ -13,6 +13,7 @@
+@@ -13,6 +13,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      join?: any;
      select?: string[] | undefined;
      where?: {
@@ -506,7 +579,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -29,6 +30,7 @@
+@@ -29,6 +30,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
          direction: "asc" | "desc";
      } | undefined;
      where?: {
@@ -514,7 +587,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -47,6 +49,7 @@
+@@ -47,6 +49,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onUpdateHandle?: string | undefined;
      input: {
          where?: {
@@ -522,7 +595,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -63,6 +66,7 @@
+@@ -63,6 +66,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onUpdateHandle?: string | undefined;
      input: {
          where?: {
@@ -530,7 +603,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -94,6 +98,7 @@
+@@ -94,6 +98,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onDeleteHandle?: string | undefined;
      input: {
          where?: {
@@ -538,7 +611,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -105,6 +110,7 @@
+@@ -105,6 +110,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onDeleteHandle?: string | undefined;
      input: {
          where?: {
@@ -557,7 +630,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
 diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterOrganizationJoins.d.ts b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterOrganizationJoins.d.ts
 --- a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterOrganizationJoins.d.ts
 +++ b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterOrganizationJoins.d.ts
-@@ -13,6 +13,7 @@
+@@ -13,6 +13,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      join?: any;
      select?: string[] | undefined;
      where?: {
@@ -565,7 +638,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -29,6 +30,7 @@
+@@ -29,6 +30,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
          direction: "asc" | "desc";
      } | undefined;
      where?: {
@@ -573,7 +646,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -47,6 +49,7 @@
+@@ -47,6 +49,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onUpdateHandle?: string | undefined;
      input: {
          where?: {
@@ -581,7 +654,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -63,6 +66,7 @@
+@@ -63,6 +66,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onUpdateHandle?: string | undefined;
      input: {
          where?: {
@@ -589,7 +662,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -94,6 +98,7 @@
+@@ -94,6 +98,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onDeleteHandle?: string | undefined;
      input: {
          where?: {
@@ -597,7 +670,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -105,6 +110,7 @@
+@@ -105,6 +110,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onDeleteHandle?: string | undefined;
      input: {
          where?: {
@@ -616,7 +689,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
 diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterPluginTable.d.ts b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterPluginTable.d.ts
 --- a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterPluginTable.d.ts
 +++ b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterPluginTable.d.ts
-@@ -13,6 +13,7 @@
+@@ -13,6 +13,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      join?: any;
      select?: string[] | undefined;
      where?: {
@@ -624,7 +697,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -29,6 +30,7 @@
+@@ -29,6 +30,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
          direction: "asc" | "desc";
      } | undefined;
      where?: {
@@ -632,7 +705,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -47,6 +49,7 @@
+@@ -47,6 +49,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onUpdateHandle?: string | undefined;
      input: {
          where?: {
@@ -640,7 +713,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -63,6 +66,7 @@
+@@ -63,6 +66,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onUpdateHandle?: string | undefined;
      input: {
          where?: {
@@ -648,7 +721,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -94,6 +98,7 @@
+@@ -94,6 +98,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onDeleteHandle?: string | undefined;
      input: {
          where?: {
@@ -656,7 +729,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -105,6 +110,7 @@
+@@ -105,6 +110,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onDeleteHandle?: string | undefined;
      input: {
          where?: {
@@ -675,7 +748,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
 diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterRenameField.d.ts b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterRenameField.d.ts
 --- a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterRenameField.d.ts
 +++ b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterRenameField.d.ts
-@@ -13,6 +13,7 @@
+@@ -13,6 +13,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      join?: any;
      select?: string[] | undefined;
      where?: {
@@ -683,7 +756,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -29,6 +30,7 @@
+@@ -29,6 +30,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
          direction: "asc" | "desc";
      } | undefined;
      where?: {
@@ -691,7 +764,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -47,6 +49,7 @@
+@@ -47,6 +49,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onUpdateHandle?: string | undefined;
      input: {
          where?: {
@@ -699,7 +772,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -63,6 +66,7 @@
+@@ -63,6 +66,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onUpdateHandle?: string | undefined;
      input: {
          where?: {
@@ -707,7 +780,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -94,6 +98,7 @@
+@@ -94,6 +98,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onDeleteHandle?: string | undefined;
      input: {
          where?: {
@@ -715,7 +788,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -105,6 +110,7 @@
+@@ -105,6 +110,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onDeleteHandle?: string | undefined;
      input: {
          where?: {
@@ -734,7 +807,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
 diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterRenameUserCustom.d.ts b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterRenameUserCustom.d.ts
 --- a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterRenameUserCustom.d.ts
 +++ b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterRenameUserCustom.d.ts
-@@ -13,6 +13,7 @@
+@@ -13,6 +13,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      join?: any;
      select?: string[] | undefined;
      where?: {
@@ -742,7 +815,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -29,6 +30,7 @@
+@@ -29,6 +30,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
          direction: "asc" | "desc";
      } | undefined;
      where?: {
@@ -750,7 +823,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -47,6 +49,7 @@
+@@ -47,6 +49,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onUpdateHandle?: string | undefined;
      input: {
          where?: {
@@ -758,7 +831,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -63,6 +66,7 @@
+@@ -63,6 +66,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onUpdateHandle?: string | undefined;
      input: {
          where?: {
@@ -766,7 +839,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -94,6 +98,7 @@
+@@ -94,6 +98,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onDeleteHandle?: string | undefined;
      input: {
          where?: {
@@ -774,7 +847,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -105,6 +110,7 @@
+@@ -105,6 +110,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onDeleteHandle?: string | undefined;
      input: {
          where?: {
@@ -793,7 +866,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
 diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterRenameUserTable.d.ts b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterRenameUserTable.d.ts
 --- a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterRenameUserTable.d.ts
 +++ b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/adapterRenameUserTable.d.ts
-@@ -13,6 +13,7 @@
+@@ -13,6 +13,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      join?: any;
      select?: string[] | undefined;
      where?: {
@@ -801,7 +874,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -29,6 +30,7 @@
+@@ -29,6 +30,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
          direction: "asc" | "desc";
      } | undefined;
      where?: {
@@ -809,7 +882,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
          operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
          connector?: "AND" | "OR" | undefined;
          value: string | number | boolean | string[] | number[] | null;
-@@ -47,6 +49,7 @@
+@@ -47,6 +49,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onUpdateHandle?: string | undefined;
      input: {
          where?: {
@@ -817,7 +890,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -63,6 +66,7 @@
+@@ -63,6 +66,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onUpdateHandle?: string | undefined;
      input: {
          where?: {
@@ -825,7 +898,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -94,6 +98,7 @@
+@@ -94,6 +98,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onDeleteHandle?: string | undefined;
      input: {
          where?: {
@@ -833,7 +906,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
              operator?: "lt" | "lte" | "gt" | "gte" | "eq" | "in" | "not_in" | "ne" | "contains" | "starts_with" | "ends_with" | undefined;
              connector?: "AND" | "OR" | undefined;
              value: string | number | boolean | string[] | number[] | null;
-@@ -105,6 +110,7 @@
+@@ -105,6 +110,7 @@ export declare const create: import("convex/server").RegisteredMutation<"public"
      onDeleteHandle?: string | undefined;
      input: {
          where?: {
@@ -852,7 +925,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/ad
 diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/schema.profile-additional-fields.d.ts b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/schema.profile-additional-fields.d.ts
 --- a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/schema.profile-additional-fields.d.ts
 +++ b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/schema.profile-additional-fields.d.ts
-@@ -118,6 +118,7 @@
+@@ -118,6 +118,7 @@ declare const schema: import("convex/server").SchemaDefinition<{
          identifier: ["identifier", "_creationTime"];
      }, {}, {}>;
      twoFactor: import("convex/server").TableDefinition<import("convex/values").VObject<{
@@ -860,7 +933,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/sc
          userId: string;
          secret: string;
          backupCodes: string;
-@@ -125,7 +126,8 @@
+@@ -125,7 +126,8 @@ declare const schema: import("convex/server").SchemaDefinition<{
          secret: import("convex/values").VString<string, "required">;
          backupCodes: import("convex/values").VString<string, "required">;
          userId: import("convex/values").VString<string, "required">;
@@ -881,7 +954,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/sc
 diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/schema.profile-plugin-table.d.ts b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/schema.profile-plugin-table.d.ts
 --- a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/schema.profile-plugin-table.d.ts
 +++ b/node_modules/@convex-dev/better-auth/dist/component/testProfiles/schema.profile-plugin-table.d.ts
-@@ -341,6 +341,7 @@
+@@ -341,6 +341,7 @@ declare const schema: import("convex/server").SchemaDefinition<{
          identifier: ["identifier", "_creationTime"];
      }, {}, {}>;
      twoFactor: import("convex/server").TableDefinition<import("convex/values").VObject<{
@@ -889,7 +962,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/component/testProfiles/sc
          userId: string;
          secret: string;
          backupCodes: string;
-@@ -348,7 +349,8 @@
+@@ -348,7 +349,8 @@ declare const schema: import("convex/server").SchemaDefinition<{
          secret: import("convex/values").VString<string, "required">;
          backupCodes: import("convex/values").VString<string, "required">;
          userId: import("convex/values").VString<string, "required">;
@@ -950,7 +1023,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/convex/client.js.
 diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.d.ts b/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.d.ts
 --- a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.d.ts
 +++ b/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.d.ts
-@@ -103,6 +103,7 @@
+@@ -103,6 +103,7 @@ export declare const convex: (opts: {
      options?: BetterAuthOptions;
  }) => {
      id: "convex";
@@ -964,12 +1037,12 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.d.ts
 @@ -1 +1 @@
 -{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/plugins/convex/index.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAoB,OAAO,EAAE,IAAI,EAAE,MAAM,aAAa,CAAC;AACnE,OAAO,KAAK,EAAE,iBAAiB,EAAE,MAAM,qBAAqB,CAAC;AAW7D,OAAO,KAAK,EAAE,UAAU,EAAgB,MAAM,eAAe,CAAC;AAE9D,eAAO,MAAM,eAAe,eAAe,CAAC;AA6D5C,eAAO,MAAM,MAAM,GAAI,MAAM;IAC3B;;;;;;;;;;;;;;;;;;;;;;;;OAwBG;IACH,UAAU,EAAE,UAAU,CAAC;IACvB;;;;OAIG;IACH,GAAG,CAAC,EAAE;QACJ,iBAAiB,CAAC,EAAE,MAAM,CAAC;QAC3B,aAAa,CAAC,EAAE,CAAC,OAAO,EAAE;YACxB,IAAI,EAAE,IAAI,GAAG,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAC;YACjC,OAAO,EAAE,OAAO,GAAG,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAC;SACxC,KAAK,OAAO,CAAC,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAC,GAAG,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,GAAG,SAAS,CAAC;KACtE,CAAC;IACF;;OAEG;IACH,oBAAoB,CAAC,EAAE,MAAM,CAAC;IAC9B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;OAsCG;IACH,IAAI,CAAC,EAAE,MAAM,CAAC;IACd;;;;;;;;;OASG;IACH,gCAAgC,CAAC,EAAE,OAAO,CAAC;IAC3C;;;OAGG;IACH,OAAO,CAAC,EAAE,iBAAiB,CAAC;CAC7B;;;;;;;;;;;;;;;;;;;;;2DACyB,CAAC;;;;4CAED,CAAC;;;;;;;;;;;qCAOsB,CAAC;qCAG3C,CAAC;;;;;;;;;iCAMgB,CAAC;;;;;;;;;;;qCAWvB,CAAD;qCACoB,CAAC;;;;;;;;;iCAQX,CAAC;;;;;;;;;;;qCASH,CAAC;qCAEA,CAAV;;;;;;;;;iCAMY,CAAF;;;;;;;;;;;;;;6EAyBC,CAAC;;;;;;;;;;;;;;4BAUuB,CAAC;;;;;;;;;;;;;;;;;;;mCAiBxB,CAAJ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;iCA5NG,CAAC;iCACwB,CAAA;;;;;;;;;6BAM+B,CAAC;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;CA4iBnE,CAAC"}
 \ No newline at end of file
-+{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/plugins/convex/index.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAoB,OAAO,EAAE,IAAI,EAAE,MAAM,aAAa,CAAC;AACnE,OAAO,KAAK,EAAE,iBAAiB,EAAE,MAAM,qBAAqB,CAAC;AAW7D,OAAO,KAAK,EAAE,UAAU,EAAgB,MAAM,eAAe,CAAC;AAG9D,eAAO,MAAM,eAAe,eAAe,CAAC;AA6D5C,eAAO,MAAM,MAAM,GAAI,MAAM;IAC3B;;;;;;;;;;;;;;;;;;;;;;;;OAwBG;IACH,UAAU,EAAE,UAAU,CAAC;IACvB;;;;OAIG;IACH,GAAG,CAAC,EAAE;QACJ,iBAAiB,CAAC,EAAE,MAAM,CAAC;QAC3B,aAAa,CAAC,EAAE,CAAC,OAAO,EAAE;YACxB,IAAI,EAAE,IAAI,GAAG,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAC;YACjC,OAAO,EAAE,OAAO,GAAG,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAC;SACxC,KAAK,OAAO,CAAC,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAC,GAAG,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,GAAG,SAAS,CAAC;KACtE,CAAC;IACF;;OAEG;IACH,oBAAoB,CAAC,EAAE,MAAM,CAAC;IAC9B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;OAsCG;IACH,IAAI,CAAC,EAAE,MAAM,CAAC;IACd;;;;;;;;;OASG;IACH,gCAAgC,CAAC,EAAE,OAAO,CAAC;IAC3C;;;OAGG;IACH,OAAO,CAAC,EAAE,iBAAiB,CAAC;CAC7B;;;;;;;;;;;;;;;;;;;;;;2DADoB,CAAC;;;;4CAGiC,CAAC;;;;;;;;;;;qCAO7C,CAAC;qCAEI,CAAC;;;;;;;;;iCAOU,CAAC;;;;;;;;;;;qCAStB,CAAL;qCACuB,CAAC;;;;;;;;;iCASb,CAAC;;;;;;;;;;;qCAOQ,CAAC;qCAEZ,CAAC;;;;;;;;;iCAQiC,CAAC;;;;;;;;;;;;;;6EAsBzC,CAAF;;;;;;;;;;;;;;4BAYgI,CAAC;;;;;;;;;;;;;;;;;;;mCAoB3H,CADJ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;iCA5NC,CAAA;iCACO,CAAC;;;;;;;;;6BAOU,CAAC;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;CAojBvB,CAAC"}
++{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/plugins/convex/index.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAoB,OAAO,EAAE,IAAI,EAAE,MAAM,aAAa,CAAC;AACnE,OAAO,KAAK,EAAE,iBAAiB,EAAE,MAAM,qBAAqB,CAAC;AAW7D,OAAO,KAAK,EAAE,UAAU,EAAgB,MAAM,eAAe,CAAC;AAG9D,eAAO,MAAM,eAAe,eAAe,CAAC;AA6D5C,eAAO,MAAM,MAAM,GAAI,MAAM;IAC3B;;;;;;;;;;;;;;;;;;;;;;;;OAwBG;IACH,UAAU,EAAE,UAAU,CAAC;IACvB;;;;OAIG;IACH,GAAG,CAAC,EAAE;QACJ,iBAAiB,CAAC,EAAE,MAAM,CAAC;QAC3B,aAAa,CAAC,EAAE,CAAC,OAAO,EAAE;YACxB,IAAI,EAAE,IAAI,GAAG,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAC;YACjC,OAAO,EAAE,OAAO,GAAG,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAC;SACxC,KAAK,OAAO,CAAC,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAC,GAAG,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,GAAG,SAAS,CAAC;KACtE,CAAC;IACF;;OAEG;IACH,oBAAoB,CAAC,EAAE,MAAM,CAAC;IAC9B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;OAsCG;IACH,IAAI,CAAC,EAAE,MAAM,CAAC;IACd;;;;;;;;;OASG;IACH,gCAAgC,CAAC,EAAE,OAAO,CAAC;IAC3C;;;OAGG;IACH,OAAO,CAAC,EAAE,iBAAiB,CAAC;CAC7B;;;;;;;;;;;;;;;;;;;;;;2DADoB,CAAC;;;;4CAGiC,CAAC;;;;;;;;;;;qCAO7C,CAAC;qCAEI,CAAC;;;;;;;;;iCAOU,CAAC;;;;;;;;;;;qCAStB,CAAL;qCACuB,CAAC;;;;;;;;;iCASb,CAAC;;;;;;;;;;;qCAOQ,CAAC;qCAEZ,CAAC;;;;;;;;;iCAQiC,CAAC;;;;;;;;;;;;;;6EAsBzC,CAAF;;;;;;;;;;;;;;4BAYgI,CAAC;;;;;;;;;;;;;;;;;;;mCAoB3H,CADJ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;iCA9NqC,CAAC;iCAE5B,CAAC;;;;;;;;;6BAOT,CAAC;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;CAqjBN,CAAC"}
 \ No newline at end of file
 diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js b/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js
 --- a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js
 +++ b/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js
-@@ -3,6 +3,7 @@
+@@ -3,6 +3,7 @@ import { bearer as bearerPlugin } from "better-auth/plugins/bearer";
  import { jwt as jwtPlugin } from "better-auth/plugins/jwt";
  import { oidcProvider as oidcProviderPlugin } from "better-auth/plugins/oidc-provider";
  import { omit } from "convex-helpers";
@@ -977,7 +1050,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js b
  export const JWT_COOKIE_NAME = "convex_jwt";
  const normalizeAfterHooks = (hooks) => {
      return hooks.map((hook) => ({
-@@ -47,6 +48,7 @@
+@@ -47,6 +48,7 @@ export const convex = (opts) => {
              issuer: `${process.env.CONVEX_SITE_URL}`,
              jwks_uri: `${process.env.CONVEX_SITE_URL}${opts.options?.basePath ?? "/api/auth"}/convex/jwks`,
          },
@@ -985,7 +1058,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js b
      });
      const providerConfig = parseAuthConfig(opts.authConfig, opts);
      const jwtOptions = {
-@@ -117,6 +119,7 @@
+@@ -117,6 +119,7 @@ export const convex = (opts) => {
      };
      return {
          id: "convex",
@@ -993,7 +1066,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js b
          init: (ctx) => {
              const { options, logger: _logger } = ctx;
              if (options.basePath !== "/api/auth" && !opts.options?.basePath) {
-@@ -189,6 +192,7 @@
+@@ -189,6 +192,7 @@ export const convex = (opts) => {
                                  ...ctx,
                                  headers: {},
                                  method: "GET",
@@ -1001,7 +1074,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js b
                                  returnHeaders: false,
                                  returnStatus: false,
                              });
-@@ -230,6 +234,7 @@
+@@ -230,6 +234,7 @@ export const convex = (opts) => {
              }, async (ctx) => {
                  const response = await oidcProvider.endpoints.getOpenIdConfig({
                      ...ctx,
@@ -1009,7 +1082,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js b
                      returnHeaders: false,
                      returnStatus: false,
                  });
-@@ -313,6 +318,7 @@
+@@ -313,6 +318,7 @@ export const convex = (opts) => {
              }, async (ctx) => {
                  const response = await jwt.endpoints.getJwks({
                      ...ctx,
@@ -1017,7 +1090,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js b
                      returnHeaders: false,
                      returnStatus: false,
                  });
-@@ -335,6 +341,7 @@
+@@ -335,6 +341,7 @@ export const convex = (opts) => {
                  await jwtPlugin(jwtOptions).endpoints.getJwks({
                      ...ctx,
                      method: "GET",
@@ -1025,7 +1098,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js b
                  });
                  const jwks = await ctx.context.adapter.findMany({
                      model: "jwks",
-@@ -368,6 +375,7 @@
+@@ -368,6 +375,7 @@ export const convex = (opts) => {
                  await jwtPlugin(jwtOptions).endpoints.getJwks({
                      ...ctx,
                      method: "GET",
@@ -1033,7 +1106,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js b
                  });
                  const jwks = await ctx.context.adapter.findMany({
                      model: "jwks",
-@@ -410,6 +418,7 @@
+@@ -410,6 +418,7 @@ export const convex = (opts) => {
                  const runEndpoint = async () => {
                      const response = await jwt.endpoints.getToken({
                          ...ctx,
@@ -1052,7 +1125,27 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js.m
 diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/client.d.ts b/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/client.d.ts
 --- a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/client.d.ts
 +++ b/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/client.d.ts
-@@ -23,6 +23,7 @@
+@@ -1,17 +1,8 @@
+ import type { ClientStore } from "better-auth";
++import { parseSetCookieHeader } from "better-auth/cookies";
+ import type { BetterFetchOption } from "@better-fetch/fetch";
+ import type { crossDomain } from "./index.js";
+-interface CookieAttributes {
+-    value: string;
+-    expires?: Date;
+-    "max-age"?: number;
+-    domain?: string;
+-    path?: string;
+-    secure?: boolean;
+-    httpOnly?: boolean;
+-    sameSite?: "Strict" | "Lax" | "None";
+-}
+-export declare function parseSetCookieHeader(header: string): Map<string, CookieAttributes>;
++export { parseSetCookieHeader };
+ export declare function getSetCookie(header: string, prevCookie?: string): string;
+ export declare function getCookie(cookie: string): string;
+ export declare const crossDomainClient: (opts?: {
+@@ -23,6 +14,7 @@ export declare const crossDomainClient: (opts?: {
      disableCache?: boolean;
  }) => {
      id: "cross-domain";
@@ -1060,23 +1153,47 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/clie
      $InferServerPlugin: ReturnType<typeof crossDomain>;
      getActions(_: import("@better-fetch/fetch").BetterFetch, $store: ClientStore): {
          /**
+@@ -128,5 +120,4 @@ export declare const crossDomainClient: (opts?: {
+         }>;
+     }[];
+ };
+-export {};
+ //# sourceMappingURL=client.d.ts.map
+\ No newline at end of file
 diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/client.d.ts.map b/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/client.d.ts.map
 --- a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/client.d.ts.map
 +++ b/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/client.d.ts.map
 @@ -1 +1 @@
 -{"version":3,"file":"client.d.ts","sourceRoot":"","sources":["../../../src/plugins/cross-domain/client.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAA0B,WAAW,EAAE,MAAM,aAAa,CAAC;AACvE,OAAO,KAAK,EAAE,iBAAiB,EAAE,MAAM,qBAAqB,CAAC;AAC7D,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,YAAY,CAAC;AAE9C,UAAU,gBAAgB;IACxB,KAAK,EAAE,MAAM,CAAC;IACd,OAAO,CAAC,EAAE,IAAI,CAAC;IACf,SAAS,CAAC,EAAE,MAAM,CAAC;IACnB,MAAM,CAAC,EAAE,MAAM,CAAC;IAChB,IAAI,CAAC,EAAE,MAAM,CAAC;IACd,MAAM,CAAC,EAAE,OAAO,CAAC;IACjB,QAAQ,CAAC,EAAE,OAAO,CAAC;IACnB,QAAQ,CAAC,EAAE,QAAQ,GAAG,KAAK,GAAG,MAAM,CAAC;CACtC;AAED,wBAAgB,oBAAoB,CAClC,MAAM,EAAE,MAAM,GACb,GAAG,CAAC,MAAM,EAAE,gBAAgB,CAAC,CAkB/B;AAOD,wBAAgB,YAAY,CAAC,MAAM,EAAE,MAAM,EAAE,UAAU,CAAC,EAAE,MAAM,UA4B/D;AAED,wBAAgB,SAAS,CAAC,MAAM,EAAE,MAAM,UAcvC;AAED,eAAO,MAAM,iBAAiB,GAC5B,OAAM;IACJ,OAAO,CAAC,EAAE;QACR,OAAO,EAAE,CAAC,GAAG,EAAE,MAAM,EAAE,KAAK,EAAE,MAAM,KAAK,GAAG,CAAC;QAC7C,OAAO,EAAE,CAAC,GAAG,EAAE,MAAM,KAAK,MAAM,GAAG,IAAI,CAAC;KACzC,CAAC;IACF,aAAa,CAAC,EAAE,MAAM,CAAC;IACvB,YAAY,CAAC,EAAE,OAAO,CAAC;CACnB;;wBAUsB,UAAU,CAAC,OAAO,WAAW,CAAC;;QAIpD;;;;;;;;;;;;;;WAcG;;QAKH;;;;;;;;;;WAUG;;QAIH;;;;;;;WAOG;8BACiB,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;6BAqGu5W,CAAC;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;qBA7Bh7W,iBAAiB;;;CA4BlD,CAAC"}
 \ No newline at end of file
-+{"version":3,"file":"client.d.ts","sourceRoot":"","sources":["../../../src/plugins/cross-domain/client.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAA0B,WAAW,EAAE,MAAM,aAAa,CAAC;AACvE,OAAO,KAAK,EAAE,iBAAiB,EAAE,MAAM,qBAAqB,CAAC;AAC7D,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,YAAY,CAAC;AAG9C,UAAU,gBAAgB;IACxB,KAAK,EAAE,MAAM,CAAC;IACd,OAAO,CAAC,EAAE,IAAI,CAAC;IACf,SAAS,CAAC,EAAE,MAAM,CAAC;IACnB,MAAM,CAAC,EAAE,MAAM,CAAC;IAChB,IAAI,CAAC,EAAE,MAAM,CAAC;IACd,MAAM,CAAC,EAAE,OAAO,CAAC;IACjB,QAAQ,CAAC,EAAE,OAAO,CAAC;IACnB,QAAQ,CAAC,EAAE,QAAQ,GAAG,KAAK,GAAG,MAAM,CAAC;CACtC;AAED,wBAAgB,oBAAoB,CAClC,MAAM,EAAE,MAAM,GACb,GAAG,CAAC,MAAM,EAAE,gBAAgB,CAAC,CAkB/B;AAOD,wBAAgB,YAAY,CAAC,MAAM,EAAE,MAAM,EAAE,UAAU,CAAC,EAAE,MAAM,UA4B/D;AAED,wBAAgB,SAAS,CAAC,MAAM,EAAE,MAAM,UAcvC;AAED,eAAO,MAAM,iBAAiB,GAC5B,OAAM;IACJ,OAAO,CAAC,EAAE;QACR,OAAO,EAAE,CAAC,GAAG,EAAE,MAAM,EAAE,KAAK,EAAE,MAAM,KAAK,GAAG,CAAC;QAC7C,OAAO,EAAE,CAAC,GAAG,EAAE,MAAM,KAAK,MAAM,GAAG,IAAI,CAAC;KACzC,CAAC;IACF,aAAa,CAAC,EAAE,MAAM,CAAC;IACvB,YAAY,CAAC,EAAE,OAAO,CAAC;CACnB;;;wBAWsB,UAAU,CAAC,OAAO,WAAW,CAAC;;QAIpD;;;;;;;;;;;;;;WAcG;;QAKH;;;;;;;;;;WAUG;;QAIH;;;;;;;WAOG;8BACiB,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;6BAqGq1W,CAAC;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;qBA7B92W,iBAAiB;;;CA4BlD,CAAC"}
++{"version":3,"file":"client.d.ts","sourceRoot":"","sources":["../../../src/plugins/cross-domain/client.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAA0B,WAAW,EAAE,MAAM,aAAa,CAAC;AACvE,OAAO,EAAE,oBAAoB,EAAE,MAAM,qBAAqB,CAAC;AAC3D,OAAO,KAAK,EAAE,iBAAiB,EAAE,MAAM,qBAAqB,CAAC;AAC7D,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,YAAY,CAAC;AAG9C,OAAO,EAAE,oBAAoB,EAAE,CAAC;AAOhC,wBAAgB,YAAY,CAAC,MAAM,EAAE,MAAM,EAAE,UAAU,CAAC,EAAE,MAAM,UA4B/D;AAED,wBAAgB,SAAS,CAAC,MAAM,EAAE,MAAM,UAcvC;AAED,eAAO,MAAM,iBAAiB,GAC5B,OAAM;IACJ,OAAO,CAAC,EAAE;QACR,OAAO,EAAE,CAAC,GAAG,EAAE,MAAM,EAAE,KAAK,EAAE,MAAM,KAAK,GAAG,CAAC;QAC7C,OAAO,EAAE,CAAC,GAAG,EAAE,MAAM,KAAK,MAAM,GAAG,IAAI,CAAC;KACzC,CAAC;IACF,aAAa,CAAC,EAAE,MAAM,CAAC;IACvB,YAAY,CAAC,EAAE,OAAO,CAAC;CACnB;;;wBAWsB,UAAU,CAAC,OAAO,WAAW,CAAC;;QAIpD;;;;;;;;;;;;;;WAcG;;QAKH;;;;;;;;;;WAUG;;QAIH;;;;;;;WAOG;8BACiB,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;6BAqGkiY,CAAC;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;qBA7B3jY,iBAAiB;;;CA4BlD,CAAC"}
 \ No newline at end of file
 diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/client.js b/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/client.js
 --- a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/client.js
 +++ b/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/client.js
-@@ -1,3 +1,4 @@
+@@ -1,18 +1,6 @@
+-export function parseSetCookieHeader(header) {
+-    const cookieMap = new Map();
+-    const cookies = header.split(", ");
+-    cookies.forEach((cookie) => {
+-        const [nameValue, ...attributes] = cookie.split("; ");
+-        const [name, value] = nameValue.split("=");
+-        const cookieObj = { value };
+-        attributes.forEach((attr) => {
+-            const [attrName, attrValue] = attr.split("=");
+-            cookieObj[attrName.toLowerCase()] = attrValue;
+-        });
+-        cookieMap.set(name, cookieObj);
+-    });
+-    return cookieMap;
+-}
++import { parseSetCookieHeader } from "better-auth/cookies";
 +import { VERSION } from "../../version.js";
- export function parseSetCookieHeader(header) {
-     const cookieMap = new Map();
-     const cookies = header.split(", ");
-@@ -66,6 +67,7 @@
++export { parseSetCookieHeader };
+ export function getSetCookie(header, prevCookie) {
+     const parsed = parseSetCookieHeader(header);
+     let toSetCookie = {};
+@@ -66,6 +54,7 @@ export const crossDomainClient = (opts = {}) => {
      const storage = opts?.storage || (typeof window !== "undefined" ? localStorage : undefined);
      return {
          id: "cross-domain",
@@ -1090,12 +1207,12 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/clie
 @@ -1 +1 @@
 -{"version":3,"file":"client.js","sourceRoot":"","sources":["../../../src/plugins/cross-domain/client.ts"],"names":[],"mappings":"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"}
 \ No newline at end of file
-+{"version":3,"file":"client.js","sourceRoot":"","sources":["../../../src/plugins/cross-domain/client.ts"],"names":[],"mappings":"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"}
++{"version":3,"file":"client.js","sourceRoot":"","sources":["../../../src/plugins/cross-domain/client.ts"],"names":[],"mappings":"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"}
 \ No newline at end of file
 diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/index.d.ts b/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/index.d.ts
 --- a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/index.d.ts
 +++ b/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/index.d.ts
-@@ -3,6 +3,7 @@
+@@ -3,6 +3,7 @@ export declare const crossDomain: ({ siteUrl }: {
      siteUrl: string;
  }) => {
      id: "cross-domain";
@@ -1114,7 +1231,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/inde
 diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/index.js b/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/index.js
 --- a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/index.js
 +++ b/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/index.js
-@@ -3,6 +3,7 @@
+@@ -3,6 +3,7 @@ import { generateRandomString } from "better-auth/crypto";
  import { createAuthEndpoint, createAuthMiddleware } from "better-auth/api";
  import { oneTimeToken as oneTimeTokenPlugin } from "better-auth/plugins/one-time-token";
  import { z } from "zod";
@@ -1122,7 +1239,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/inde
  export const crossDomain = ({ siteUrl }) => {
      const oneTimeToken = oneTimeTokenPlugin();
      const rewriteCallbackURL = (callbackURL) => {
-@@ -19,6 +20,7 @@
+@@ -19,6 +20,7 @@ export const crossDomain = ({ siteUrl }) => {
      };
      return {
          id: "cross-domain",
@@ -1130,7 +1247,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/inde
          // TODO: remove this in the next minor release, it doesn't
          // actually affect ctx.trustedOrigins. cors allowedOrigins
          // is using it, via options.trustedOrigins, though, so it's
-@@ -161,6 +163,7 @@
+@@ -161,6 +163,7 @@ export const crossDomain = ({ siteUrl }) => {
              }, async (ctx) => {
                  const response = await oneTimeToken.endpoints.verifyOneTimeToken({
                      ...ctx,
@@ -1146,7 +1263,7 @@ diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/cross-domain/inde
 \ No newline at end of file
 +{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../src/plugins/cross-domain/index.ts"],"names":[],"mappings":"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"}
 \ No newline at end of file
-diff --git a/node_modules/@convex-dev/better-auth/dist/version.d.ts b/node_modules/@convex-dev/better-auth/dist/version.d.ts
+diff --git a/pr323-head/dist/version.d.ts b/node_modules/@convex-dev/better-auth/dist/version.d.ts
 new file mode 100644
 --- /dev/null
 +++ b/node_modules/@convex-dev/better-auth/dist/version.d.ts
@@ -1154,14 +1271,14 @@ new file mode 100644
 +export declare const VERSION = "0.12.0";
 +//# sourceMappingURL=version.d.ts.map
 \ No newline at end of file
-diff --git a/node_modules/@convex-dev/better-auth/dist/version.d.ts.map b/node_modules/@convex-dev/better-auth/dist/version.d.ts.map
+diff --git a/pr323-head/dist/version.d.ts.map b/node_modules/@convex-dev/better-auth/dist/version.d.ts.map
 new file mode 100644
 --- /dev/null
 +++ b/node_modules/@convex-dev/better-auth/dist/version.d.ts.map
 @@ -0,0 +1 @@
 +{"version":3,"file":"version.d.ts","sourceRoot":"","sources":["../src/version.ts"],"names":[],"mappings":"AAAA,eAAO,MAAM,OAAO,WAAW,CAAC"}
 \ No newline at end of file
-diff --git a/node_modules/@convex-dev/better-auth/dist/version.js b/node_modules/@convex-dev/better-auth/dist/version.js
+diff --git a/pr323-head/dist/version.js b/node_modules/@convex-dev/better-auth/dist/version.js
 new file mode 100644
 --- /dev/null
 +++ b/node_modules/@convex-dev/better-auth/dist/version.js
@@ -1169,7 +1286,7 @@ new file mode 100644
 +export const VERSION = "0.12.0";
 +//# sourceMappingURL=version.js.map
 \ No newline at end of file
-diff --git a/node_modules/@convex-dev/better-auth/dist/version.js.map b/node_modules/@convex-dev/better-auth/dist/version.js.map
+diff --git a/pr323-head/dist/version.js.map b/node_modules/@convex-dev/better-auth/dist/version.js.map
 new file mode 100644
 --- /dev/null
 +++ b/node_modules/@convex-dev/better-auth/dist/version.js.map
