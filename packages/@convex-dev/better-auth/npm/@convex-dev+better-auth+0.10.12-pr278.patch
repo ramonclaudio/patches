@@ -1,10 +1,10 @@
 diff --git a/node_modules/@convex-dev/better-auth/package.json b/node_modules/@convex-dev/better-auth/package.json
-index 84474602..87b5dc74 100644
+index 959158dbf5ae465ce61707b69d8a5928487bf0e0..e03105e6ee4417d16876806ba47263633a9f0775 100644
 --- a/node_modules/@convex-dev/better-auth/package.json
 +++ b/node_modules/@convex-dev/better-auth/package.json
-@@ -104,8 +104,7 @@
+@@ -105,8 +105,7 @@
    "peerDependencies": {
-     "better-auth": "1.4.9",
+     "better-auth": ">=1.4.9 <1.5.0",
      "convex": "^1.25.0",
 -    "react": "^18.3.1 || ^19.0.0",
 -    "react-dom": "^18.3.1 || ^19.0.0"
