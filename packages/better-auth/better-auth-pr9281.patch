@@ -1,0 +1,335 @@
+diff --git a/.changeset/fix-instrumentation-pure-entry.md b/.changeset/fix-instrumentation-pure-entry.md
+new file mode 100644
+index 00000000000..7a4588200d8
+--- /dev/null
++++ b/.changeset/fix-instrumentation-pure-entry.md
+@@ -0,0 +1,5 @@
++---
++"@better-auth/core": patch
++---
++
++fix(core): serve noop `./instrumentation` on `browser`/`edge` conditions, matching `./async_hooks`
+diff --git a/packages/core/package.json b/packages/core/package.json
+index d65484ea6a4..0b2fbad22e5 100644
+--- a/packages/core/package.json
++++ b/packages/core/package.json
+@@ -102,6 +102,12 @@
+     "./instrumentation": {
+       "dev-source": "./src/instrumentation/index.ts",
+       "types": "./dist/instrumentation/index.d.mts",
++      "node": "./dist/instrumentation/index.mjs",
++      "deno": "./dist/instrumentation/index.mjs",
++      "bun": "./dist/instrumentation/index.mjs",
++      "edge": "./dist/instrumentation/pure.index.mjs",
++      "workerd": "./dist/instrumentation/index.mjs",
++      "browser": "./dist/instrumentation/pure.index.mjs",
+       "default": "./dist/instrumentation/index.mjs"
+     }
+   },
+diff --git a/packages/core/src/instrumentation/api.ts b/packages/core/src/instrumentation/api.ts
+index 3f78b884307..08386d7223a 100644
+--- a/packages/core/src/instrumentation/api.ts
++++ b/packages/core/src/instrumentation/api.ts
+@@ -1,52 +1,5 @@
+-import type { Span, Tracer } from "@opentelemetry/api";
+-
+-type OpenTelemetryAPI = Pick<
+-	typeof import("@opentelemetry/api"),
+-	"trace" | "SpanStatusCode"
+->;
+-
+-function createNoopSpan(): Span {
+-	return {
+-		end(): void {},
+-		setAttribute(_key: string, _value: unknown): void {},
+-		setStatus(_status: unknown): void {},
+-		recordException(_exception: unknown): void {},
+-	} as Span;
+-}
+-
+-function createNoopTracer(noopSpanInstance: Span): Tracer {
+-	function startActiveSpan<F extends (span: Span) => unknown>(
+-		_name: string,
+-		_options: { attributes?: Record<string, string | number | boolean> },
+-		fn: F,
+-	): ReturnType<F> {
+-		return fn(noopSpanInstance) as ReturnType<F>;
+-	}
+-
+-	return { startActiveSpan } as Tracer;
+-}
+-
+-function createNoopTraceAPI() {
+-	const noopTracer = createNoopTracer(createNoopSpan());
+-	return {
+-		getTracer(_name?: string, _version?: string) {
+-			return noopTracer;
+-		},
+-	};
+-}
+-
+-function createNoopOpenTelemetryAPI(): OpenTelemetryAPI {
+-	return {
+-		SpanStatusCode: {
+-			UNSET: 0,
+-			OK: 1,
+-			ERROR: 2,
+-		},
+-		trace: createNoopTraceAPI(),
+-	} as OpenTelemetryAPI;
+-}
+-
+-const noopOpenTelemetryAPI = createNoopOpenTelemetryAPI();
++import type { OpenTelemetryAPI } from "./noop";
++import { noopOpenTelemetryAPI } from "./noop";
+ 
+ let openTelemetryAPIPromise: Promise<void> | undefined;
+ let openTelemetryAPI: OpenTelemetryAPI | undefined;
+diff --git a/packages/core/src/instrumentation/noop.test.ts b/packages/core/src/instrumentation/noop.test.ts
+new file mode 100644
+index 00000000000..caba3478152
+--- /dev/null
++++ b/packages/core/src/instrumentation/noop.test.ts
+@@ -0,0 +1,62 @@
++import { describe, expect, it } from "vitest";
++import { noopOpenTelemetryAPI } from "./noop";
++
++// @see https://github.com/better-auth/better-auth/issues/8765
++describe("instrumentation noop", () => {
++	it("exposes a SpanStatusCode enum matching @opentelemetry/api", () => {
++		expect(noopOpenTelemetryAPI.SpanStatusCode).toMatchObject({
++			UNSET: 0,
++			OK: 1,
++			ERROR: 2,
++		});
++	});
++
++	it("exposes a trace API with getTracer and getActiveSpan", () => {
++		expect(typeof noopOpenTelemetryAPI.trace.getTracer).toBe("function");
++		expect(
++			(
++				noopOpenTelemetryAPI.trace as { getActiveSpan?: () => unknown }
++			).getActiveSpan?.(),
++		).toBeUndefined();
++	});
++
++	it("returns a span whose mutators are safe no-ops", () => {
++		const span = noopOpenTelemetryAPI.trace
++			.getTracer("t")
++			.startActiveSpan("noop", {}, (s) => s);
++		expect(() => span.end()).not.toThrow();
++		expect(() => span.setAttribute("k", "v")).not.toThrow();
++	});
++
++	it("honors all three startActiveSpan overloads", () => {
++		const tracer = noopOpenTelemetryAPI.trace.getTracer("t");
++
++		// (name, fn)
++		const r1 = tracer.startActiveSpan("two-arg", (s) => {
++			expect(s).toBeDefined();
++			return 1 as const;
++		});
++		expect(r1).toBe(1);
++
++		// (name, options, fn)
++		const r2 = tracer.startActiveSpan("three-arg", { attributes: {} }, (s) => {
++			expect(s).toBeDefined();
++			return 2 as const;
++		});
++		expect(r2).toBe(2);
++
++		// (name, options, context, fn)
++		const r3 = (
++			tracer.startActiveSpan as unknown as (
++				name: string,
++				options: unknown,
++				context: unknown,
++				fn: (span: unknown) => unknown,
++			) => unknown
++		)("four-arg", {}, {}, (s) => {
++			expect(s).toBeDefined();
++			return 3 as const;
++		});
++		expect(r3).toBe(3);
++	});
++});
+diff --git a/packages/core/src/instrumentation/noop.ts b/packages/core/src/instrumentation/noop.ts
+new file mode 100644
+index 00000000000..2be28e35238
+--- /dev/null
++++ b/packages/core/src/instrumentation/noop.ts
+@@ -0,0 +1,74 @@
++import type { Span, Tracer } from "@opentelemetry/api";
++
++export type OpenTelemetryAPI = Pick<
++	typeof import("@opentelemetry/api"),
++	"trace" | "SpanStatusCode"
++>;
++
++function createNoopSpan(): Span {
++	const span = {
++		end(): void {},
++		setAttribute(_key: string, _value: unknown): void {},
++		setStatus(_status: unknown): void {},
++		recordException(_exception: unknown): void {},
++		updateName(_name: string) {
++			return span;
++		},
++	} as unknown as Span;
++	return span;
++}
++
++function createNoopTracer(noopSpan: Span): Tracer {
++	// OpenTelemetry `Tracer.startActiveSpan` has three overloads:
++	//   (name, fn)
++	//   (name, options, fn)
++	//   (name, options, context, fn)
++	// The callback is always the last argument; fish it out by arity so a
++	// 2-arg call (options omitted) doesn't try to invoke `undefined`.
++	function startActiveSpan<F extends (span: Span) => unknown>(
++		_name: string,
++		fn: F,
++	): ReturnType<F>;
++	function startActiveSpan<F extends (span: Span) => unknown>(
++		_name: string,
++		_options: { attributes?: Record<string, string | number | boolean> },
++		fn: F,
++	): ReturnType<F>;
++	function startActiveSpan<F extends (span: Span) => unknown>(
++		_name: string,
++		_options: { attributes?: Record<string, string | number | boolean> },
++		_context: unknown,
++		fn: F,
++	): ReturnType<F>;
++	function startActiveSpan(_name: string, ...rest: Array<unknown>): unknown {
++		const fn = rest[rest.length - 1] as (span: Span) => unknown;
++		return fn(noopSpan);
++	}
++	return { startActiveSpan } as Tracer;
++}
++
++function createNoopTraceAPI() {
++	const noopTracer = createNoopTracer(createNoopSpan());
++	return {
++		getTracer(_name?: string, _version?: string) {
++			return noopTracer;
++		},
++		getActiveSpan(): Span | undefined {
++			return undefined;
++		},
++	};
++}
++
++function createNoopOpenTelemetryAPI(): OpenTelemetryAPI {
++	return {
++		SpanStatusCode: {
++			UNSET: 0,
++			OK: 1,
++			ERROR: 2,
++		},
++		trace: createNoopTraceAPI(),
++	} as OpenTelemetryAPI;
++}
++
++export const noopOpenTelemetryAPI: OpenTelemetryAPI =
++	createNoopOpenTelemetryAPI();
+diff --git a/packages/core/src/instrumentation/pure.index.ts b/packages/core/src/instrumentation/pure.index.ts
+new file mode 100644
+index 00000000000..d6d2dade70a
+--- /dev/null
++++ b/packages/core/src/instrumentation/pure.index.ts
+@@ -0,0 +1,31 @@
++/**
++ * Noop variant of `./instrumentation` for runtimes where the dynamic
++ * `import("@opentelemetry/api")` in `./api` throws synchronously instead of
++ * rejecting its returned promise. Convex's V8 isolate is the reproducer: bare
++ * specifiers are rejected at resolve time in `get-convex/convex-backend`
++ * `crates/isolate/src/request_scope.rs`, so the `.catch()` in
++ * `getOpenTelemetryAPI` never runs and every `withSpan` call surfaces an
++ * uncaught error.
++ *
++ * Public surface must stay identical to `./index` (enforced by `pure.test.ts`).
++ */
++
++export * from "./attributes";
++
++export function withSpan<T>(
++	name: string,
++	attributes: Record<string, string | number | boolean>,
++	fn: () => T,
++): T;
++export function withSpan<T>(
++	name: string,
++	attributes: Record<string, string | number | boolean>,
++	fn: () => Promise<T>,
++): Promise<T>;
++export function withSpan<T>(
++	_name: string,
++	_attributes: Record<string, string | number | boolean>,
++	fn: () => T | Promise<T>,
++): T | Promise<T> {
++	return fn();
++}
+diff --git a/packages/core/src/instrumentation/pure.test.ts b/packages/core/src/instrumentation/pure.test.ts
+new file mode 100644
+index 00000000000..da7372b7803
+--- /dev/null
++++ b/packages/core/src/instrumentation/pure.test.ts
+@@ -0,0 +1,45 @@
++import { describe, expect, it } from "vitest";
++import { withSpan } from "./pure.index";
++
++// @see https://github.com/better-auth/better-auth/issues/8765
++describe("instrumentation (pure entry)", () => {
++	it("returns the result of a sync fn", () => {
++		expect(withSpan("test.sync", { k: 1 }, () => 42)).toBe(42);
++	});
++
++	it("returns the result of an async fn", async () => {
++		await expect(
++			withSpan("test.async", { k: 1 }, async () => {
++				await Promise.resolve();
++				return "ok";
++			}),
++		).resolves.toBe("ok");
++	});
++
++	it("propagates sync throws", () => {
++		expect(() =>
++			withSpan("test.sync.err", {}, () => {
++				throw new Error("boom");
++			}),
++		).toThrow("boom");
++	});
++
++	it("propagates async rejections", async () => {
++		await expect(
++			withSpan("test.async.err", {}, async () => {
++				throw new Error("boom");
++			}),
++		).rejects.toThrow("boom");
++	});
++
++	it("does not reference `@opentelemetry/api` at runtime", async () => {
++		const mod = await import("./pure.index");
++		expect(mod.withSpan.toString()).not.toContain("opentelemetry");
++	});
++
++	it("does not export symbols beyond the public surface of ./index", async () => {
++		const pure = await import("./pure.index");
++		const main = await import("./index");
++		expect(Object.keys(pure).sort()).toEqual(Object.keys(main).sort());
++	});
++});
+diff --git a/packages/core/tsdown.config.ts b/packages/core/tsdown.config.ts
+index 79c721595de..bf29f990591 100644
+--- a/packages/core/tsdown.config.ts
++++ b/packages/core/tsdown.config.ts
+@@ -23,6 +23,7 @@ export default defineConfig({
+ 		"!./src/utils/*.test.ts",
+ 		"./src/error/index.ts",
+ 		"./src/instrumentation/index.ts",
++		"./src/instrumentation/pure.index.ts",
+ 	],
+ 	deps: {
+ 		neverBundle: ["@better-auth/core/async_hooks"],
