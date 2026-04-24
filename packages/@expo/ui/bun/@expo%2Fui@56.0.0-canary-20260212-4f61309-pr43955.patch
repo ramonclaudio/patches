@@ -1,5 +1,4 @@
 diff --git a/build/swift-ui/modifiers/index.d.ts b/build/swift-ui/modifiers/index.d.ts
-index 9cf6e4bd00373c..6381d421872879 100644
 --- a/build/swift-ui/modifiers/index.d.ts
 +++ b/build/swift-ui/modifiers/index.d.ts
 @@ -476,6 +476,21 @@ export declare const defaultScrollAnchor: (anchor: UnitPointValue | null) => Mod
@@ -34,7 +33,6 @@ index 9cf6e4bd00373c..6381d421872879 100644
   * Main ViewModifier type that supports both built-in and 3rd party modifiers.
   * 3rd party modifiers should return ModifierConfig objects with their own type strings.
 diff --git a/build/swift-ui/modifiers/index.d.ts.map b/build/swift-ui/modifiers/index.d.ts.map
-index edf1cfd7d3e55a..888088188ca471 100644
 --- a/build/swift-ui/modifiers/index.d.ts.map
 +++ b/build/swift-ui/modifiers/index.d.ts.map
 @@ -1 +1 @@
@@ -44,7 +42,6 @@ index edf1cfd7d3e55a..888088188ca471 100644
 \ No newline at end of file
 diff --git a/ios/Modifiers/ScrollTargetBehaviorModifier.swift b/ios/Modifiers/ScrollTargetBehaviorModifier.swift
 new file mode 100644
-index 00000000000000..07af5faf882c27
 --- /dev/null
 +++ b/ios/Modifiers/ScrollTargetBehaviorModifier.swift
 @@ -0,0 +1,26 @@
@@ -76,7 +73,6 @@ index 00000000000000..07af5faf882c27
 +}
 diff --git a/ios/Modifiers/ScrollTargetLayoutModifier.swift b/ios/Modifiers/ScrollTargetLayoutModifier.swift
 new file mode 100644
-index 00000000000000..9a5270d19125f3
 --- /dev/null
 +++ b/ios/Modifiers/ScrollTargetLayoutModifier.swift
 @@ -0,0 +1,14 @@
@@ -95,7 +91,6 @@ index 00000000000000..9a5270d19125f3
 +  }
 +}
 diff --git a/ios/Modifiers/ViewModifierRegistry.swift b/ios/Modifiers/ViewModifierRegistry.swift
-index d5e60cd713ae8a..75d425eb7cd41b 100644
 --- a/ios/Modifiers/ViewModifierRegistry.swift
 +++ b/ios/Modifiers/ViewModifierRegistry.swift
 @@ -1826,6 +1826,14 @@ extension ViewModifierRegistry {
@@ -114,7 +109,6 @@ index d5e60cd713ae8a..75d425eb7cd41b 100644
        return try PickerStyleModifier(from: params, appContext: appContext)
      }
 diff --git a/src/swift-ui/modifiers/index.ts b/src/swift-ui/modifiers/index.ts
-index 3b55915a4a7528..1e05757b864f3d 100644
 --- a/src/swift-ui/modifiers/index.ts
 +++ b/src/swift-ui/modifiers/index.ts
 @@ -607,6 +607,24 @@ export const defaultScrollAnchorForRole = (

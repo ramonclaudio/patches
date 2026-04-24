@@ -1,5 +1,4 @@
 diff --git a/build/swift-ui/modifiers/index.d.ts b/build/swift-ui/modifiers/index.d.ts
-index 5791635f093d2d..e23d17ac41b1ee 100644
 --- a/build/swift-ui/modifiers/index.d.ts
 +++ b/build/swift-ui/modifiers/index.d.ts
 @@ -453,6 +453,15 @@ export declare const scrollDismissesKeyboard: (mode: "automatic" | "never" | "in
@@ -28,7 +27,6 @@ index 5791635f093d2d..e23d17ac41b1ee 100644
   * Main ViewModifier type that supports both built-in and 3rd party modifiers.
   * 3rd party modifiers should return ModifierConfig objects with their own type strings.
 diff --git a/build/swift-ui/modifiers/index.d.ts.map b/build/swift-ui/modifiers/index.d.ts.map
-index 8e1067ae99fadc..b3993d16411265 100644
 --- a/build/swift-ui/modifiers/index.d.ts.map
 +++ b/build/swift-ui/modifiers/index.d.ts.map
 @@ -1 +1 @@
@@ -38,7 +36,6 @@ index 8e1067ae99fadc..b3993d16411265 100644
 \ No newline at end of file
 diff --git a/ios/Modifiers/DefaultScrollAnchorModifier.swift b/ios/Modifiers/DefaultScrollAnchorModifier.swift
 new file mode 100644
-index 00000000000000..27924f3e45e40c
 --- /dev/null
 +++ b/ios/Modifiers/DefaultScrollAnchorModifier.swift
 @@ -0,0 +1,16 @@
@@ -59,7 +56,6 @@ index 00000000000000..27924f3e45e40c
 +  }
 +}
 diff --git a/ios/Modifiers/ViewModifierRegistry.swift b/ios/Modifiers/ViewModifierRegistry.swift
-index aaf4082ff5d837..233539c6da46af 100644
 --- a/ios/Modifiers/ViewModifierRegistry.swift
 +++ b/ios/Modifiers/ViewModifierRegistry.swift
 @@ -1842,6 +1842,10 @@ extension ViewModifierRegistry {
@@ -74,7 +70,6 @@ index aaf4082ff5d837..233539c6da46af 100644
        return try ProgressViewStyleModifier(from: params, appContext: appContext)
      }
 diff --git a/src/swift-ui/modifiers/index.ts b/src/swift-ui/modifiers/index.ts
-index f8bbcf430c328c..a4f1efb938deee 100644
 --- a/src/swift-ui/modifiers/index.ts
 +++ b/src/swift-ui/modifiers/index.ts
 @@ -567,6 +567,28 @@ export const scrollDismissesKeyboard = (

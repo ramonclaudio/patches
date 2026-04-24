@@ -1,17 +1,4 @@
-diff --git a/node_modules/expo-router/CHANGELOG.md b/node_modules/expo-router/CHANGELOG.md
-index 302610905957a0..d5e7106fc92ac4 100644
---- a/node_modules/expo-router/CHANGELOG.md
-+++ b/node_modules/expo-router/CHANGELOG.md
-@@ -30,6 +30,7 @@
- - [Android] Fix @expo/ui divider in toolbar. ([#44209](https://github.com/expo/expo/pull/44209) by [@jakex7](https://github.com/jakex7))
- - Fix `Stack.Screen.Title` string/number concatenation. ([#44213](https://github.com/expo/expo/pull/44213) by [@jakex7](https://github.com/jakex7))
- - [android] Use `tint` prop name instead of `tintColor` for Jetpack Compose icons ([#44427](https://github.com/expo/expo/pull/44427) by [@hassankhan](https://github.com/hassankhan))
-+- Fix `Stack.Toolbar`, `Stack.Header`, `Stack.Screen.Title`, `Stack.SearchBar`, and `Stack.Screen.BackButton` retriggering composition registration on every parent render when their props include unstable references (inline styles, inline callbacks, JSX children). On stateful screens this previously cascaded into a `Maximum update depth exceeded` crash. Adds `useStableCompositionOption` which absorbs the memoization burden by structurally fingerprinting its input, and migrates all five callers to use it. ([#44563](https://github.com/expo/expo/pull/44563) by [@ramonclaudio](https://github.com/ramonclaudio))
- 
- ### 💡 Others
- 
 diff --git a/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.d.ts b/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.d.ts
-index 010285be14c76b..46b723a5994dff 100644
 --- a/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.d.ts
 +++ b/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.d.ts
 @@ -31,7 +31,19 @@ export declare function useCompositionRegistry(): {
@@ -36,7 +23,6 @@ index 010285be14c76b..46b723a5994dff 100644
  export declare function useCompositionOption(options: Partial<NativeStackNavigationOptions>): void;
  export {};
 diff --git a/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.d.ts.map b/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.d.ts.map
-index db241a9ddec95d..284b13e9f94326 100644
 --- a/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.d.ts.map
 +++ b/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.d.ts.map
 @@ -1 +1 @@
@@ -45,7 +31,6 @@ index db241a9ddec95d..284b13e9f94326 100644
 +{"version":3,"file":"CompositionOptionsContext.d.ts","sourceRoot":"","sources":["../../../../src/fork/native-stack/composition-options/CompositionOptionsContext.tsx"],"names":[],"mappings":"AAIA,OAAO,KAAK,EAAE,uBAAuB,EAAE,mBAAmB,EAAE,MAAM,SAAS,CAAC;AAE5E,OAAO,KAAK,EAAE,4BAA4B,EAAE,MAAM,wCAAwC,CAAC;AAG3F,gBAAgB;AAChB,eAAO,MAAM,kBAAkB,yDAAsD,CAAC;AAEtF,KAAK,cAAc,GACf;IACE,IAAI,EAAE,KAAK,CAAC;IACZ,QAAQ,EAAE,MAAM,CAAC;IACjB,OAAO,EAAE,OAAO,CAAC,4BAA4B,CAAC,CAAC;CAChD,GACD;IAAE,IAAI,EAAE,OAAO,CAAC;IAAC,QAAQ,EAAE,MAAM,CAAC;IAAC,OAAO,EAAE,OAAO,CAAC,4BAA4B,CAAC,CAAA;CAAE,CAAC;AAExF,gBAAgB;AAChB,wBAAgB,eAAe,CAC7B,KAAK,EAAE,mBAAmB,EAC1B,MAAM,EAAE,cAAc,GACrB,mBAAmB,CAuBrB;AAED;;;;;;GAMG;AACH,wBAAgB,sBAAsB;;;wBAGD,MAAM,WAAW,OAAO,CAAC,4BAA4B,CAAC;0BAIpD,MAAM,WAAW,OAAO,CAAC,4BAA4B,CAAC;;EAS5F;AAED;;;;;;;;;;;;;;;;;GAiBG;AACH,wBAAgB,oBAAoB,CAAC,OAAO,EAAE,OAAO,CAAC,4BAA4B,CAAC,QAiBlF"}
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.js b/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.js
-index 7861d83038f67d..5373b2a428908a 100644
 --- a/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.js
 +++ b/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.js
 @@ -56,7 +56,19 @@ function useCompositionRegistry() {
@@ -70,7 +55,6 @@ index 7861d83038f67d..5373b2a428908a 100644
  function useCompositionOption(options) {
      const context = (0, react_1.use)(exports.CompositionContext);
 diff --git a/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.js.map b/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.js.map
-index e28df514b9ce69..d6543145daae37 100644
 --- a/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.js.map
 +++ b/node_modules/expo-router/build/fork/native-stack/composition-options/CompositionOptionsContext.js.map
 @@ -1 +1 @@
@@ -79,7 +63,6 @@ index e28df514b9ce69..d6543145daae37 100644
 +{"version":3,"file":"CompositionOptionsContext.js","sourceRoot":"","sources":["../../../../src/fork/native-stack/composition-options/CompositionOptionsContext.tsx"],"names":[],"mappings":"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","sourcesContent":["'use client';\n\nimport { createContext, use, useCallback, useMemo, useReducer } from 'react';\n\nimport type { CompositionContextValue, CompositionRegistry } from './types';\nimport { useRoute } from '../../../react-navigation/native';\nimport type { NativeStackNavigationOptions } from '../../../react-navigation/native-stack';\nimport { useSafeLayoutEffect } from '../../../views/useSafeLayoutEffect';\n\n/** @internal */\nexport const CompositionContext = createContext<CompositionContextValue | null>(null);\n\ntype RegistryAction =\n  | {\n      type: 'set';\n      routeKey: string;\n      options: Partial<NativeStackNavigationOptions>;\n    }\n  | { type: 'unset'; routeKey: string; options: Partial<NativeStackNavigationOptions> };\n\n/** @internal */\nexport function registryReducer(\n  state: CompositionRegistry,\n  action: RegistryAction\n): CompositionRegistry {\n  if (action.type === 'set') {\n    const { routeKey, options } = action;\n    if (state[routeKey]?.includes(options)) {\n      return state;\n    }\n    return { ...state, [routeKey]: [...(state[routeKey] ?? []), options] };\n  }\n\n  if (action.type === 'unset') {\n    const { routeKey, options } = action;\n    const existing = state[routeKey];\n    const filtered = existing?.filter((o) => o !== options);\n    if (!existing || filtered?.length === existing.length) {\n      return state;\n    }\n    if (filtered.length === 0) {\n      const { [routeKey]: _, ...newState } = state;\n      return newState;\n    }\n    return { ...state, [routeKey]: filtered };\n  }\n  return state;\n}\n\n/**\n * Provides the composition registry to descendant composition components.\n *\n * Uses useReducer with immutable object updates for React Compiler compatibility.\n * Each set/unset call produces a new object reference, which the compiler can\n * track as a reactive dependency.\n */\nexport function useCompositionRegistry() {\n  const [registry, dispatch] = useReducer(registryReducer, {} as CompositionRegistry);\n\n  const set = useCallback((routeKey: string, options: Partial<NativeStackNavigationOptions>) => {\n    dispatch({ type: 'set', routeKey, options });\n  }, []);\n\n  const unset = useCallback((routeKey: string, options: Partial<NativeStackNavigationOptions>) => {\n    dispatch({ type: 'unset', routeKey, options });\n  }, []);\n\n  const contextValue = useMemo(\n    () => ({ set, unset }) satisfies CompositionContextValue,\n    [set, unset]\n  );\n  return { registry, contextValue };\n}\n\n/**\n * Hook used by composition components to register their options in the composition registry.\n *\n * Registers options on mount/update via useSafeLayoutEffect, and unregisters on unmount.\n *\n * The `options` argument MUST be referentially stable across renders that\n * do not intend to re-register. The hook compares by identity, not by\n * structure: passing a fresh object every render causes the effect to\n * re-fire on every parent render, which dispatches into the registry, which\n * re-renders the navigator, which re-renders the parent screen, and so on.\n * On a screen with state this loops until React aborts with\n * \"Maximum update depth exceeded\".\n *\n * For callers whose options derive from JSX children, inline style objects,\n * inline color values, or inline event handlers, prefer\n * `useStableCompositionOption`. It absorbs the memoization burden by\n * structurally fingerprinting its input.\n */\nexport function useCompositionOption(options: Partial<NativeStackNavigationOptions>) {\n  const context = use(CompositionContext);\n  if (!context) {\n    throw new Error(\n      'useCompositionOption must be used within a RouterCompositionOptionsProvider. This is likely a bug in Expo Router.'\n    );\n  }\n\n  const route = useRoute();\n  const { set, unset } = context;\n\n  useSafeLayoutEffect(() => {\n    set(route.key, options);\n    return () => {\n      unset(route.key, options);\n    };\n  }, [route.key, set, unset, options]);\n}\n"]}
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/fork/native-stack/composition-options/index.d.ts b/node_modules/expo-router/build/fork/native-stack/composition-options/index.d.ts
-index ea5c2feeb54c29..0d6b25557d5f32 100644
 --- a/node_modules/expo-router/build/fork/native-stack/composition-options/index.d.ts
 +++ b/node_modules/expo-router/build/fork/native-stack/composition-options/index.d.ts
 @@ -1,4 +1,5 @@
@@ -90,7 +73,6 @@ index ea5c2feeb54c29..0d6b25557d5f32 100644
  //# sourceMappingURL=index.d.ts.map
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/fork/native-stack/composition-options/index.d.ts.map b/node_modules/expo-router/build/fork/native-stack/composition-options/index.d.ts.map
-index e1c94d54f93e3b..69b4d4c57cb692 100644
 --- a/node_modules/expo-router/build/fork/native-stack/composition-options/index.d.ts.map
 +++ b/node_modules/expo-router/build/fork/native-stack/composition-options/index.d.ts.map
 @@ -1 +1 @@
@@ -99,7 +81,6 @@ index e1c94d54f93e3b..69b4d4c57cb692 100644
 +{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../../src/fork/native-stack/composition-options/index.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,MAAM,gBAAgB,CAAC;AAC9C,OAAO,EACL,kBAAkB,EAClB,sBAAsB,EACtB,oBAAoB,GACrB,MAAM,6BAA6B,CAAC;AACrC,OAAO,EAAE,0BAA0B,EAAE,MAAM,8BAA8B,CAAC;AAC1E,YAAY,EAAE,mBAAmB,EAAE,uBAAuB,EAAE,MAAM,SAAS,CAAC"}
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/fork/native-stack/composition-options/index.js b/node_modules/expo-router/build/fork/native-stack/composition-options/index.js
-index 2e8af9aac4c163..66650861ed9046 100644
 --- a/node_modules/expo-router/build/fork/native-stack/composition-options/index.js
 +++ b/node_modules/expo-router/build/fork/native-stack/composition-options/index.js
 @@ -1,10 +1,12 @@
@@ -118,7 +99,6 @@ index 2e8af9aac4c163..66650861ed9046 100644
  //# sourceMappingURL=index.js.map
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/fork/native-stack/composition-options/index.js.map b/node_modules/expo-router/build/fork/native-stack/composition-options/index.js.map
-index cb6eea2a081335..ba8c43d6b808cb 100644
 --- a/node_modules/expo-router/build/fork/native-stack/composition-options/index.js.map
 +++ b/node_modules/expo-router/build/fork/native-stack/composition-options/index.js.map
 @@ -1 +1 @@
@@ -128,7 +108,6 @@ index cb6eea2a081335..ba8c43d6b808cb 100644
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/fork/native-stack/composition-options/useStableCompositionOption.d.ts b/node_modules/expo-router/build/fork/native-stack/composition-options/useStableCompositionOption.d.ts
 new file mode 100644
-index 00000000000000..176dd5844740ab
 --- /dev/null
 +++ b/node_modules/expo-router/build/fork/native-stack/composition-options/useStableCompositionOption.d.ts
 @@ -0,0 +1,39 @@
@@ -174,7 +153,6 @@ index 00000000000000..176dd5844740ab
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/fork/native-stack/composition-options/useStableCompositionOption.d.ts.map b/node_modules/expo-router/build/fork/native-stack/composition-options/useStableCompositionOption.d.ts.map
 new file mode 100644
-index 00000000000000..e4c852ede28947
 --- /dev/null
 +++ b/node_modules/expo-router/build/fork/native-stack/composition-options/useStableCompositionOption.d.ts.map
 @@ -0,0 +1 @@
@@ -182,7 +160,6 @@ index 00000000000000..e4c852ede28947
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/fork/native-stack/composition-options/useStableCompositionOption.js b/node_modules/expo-router/build/fork/native-stack/composition-options/useStableCompositionOption.js
 new file mode 100644
-index 00000000000000..ad72b902bcf4ef
 --- /dev/null
 +++ b/node_modules/expo-router/build/fork/native-stack/composition-options/useStableCompositionOption.js
 @@ -0,0 +1,120 @@
@@ -309,14 +286,12 @@ index 00000000000000..ad72b902bcf4ef
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/fork/native-stack/composition-options/useStableCompositionOption.js.map b/node_modules/expo-router/build/fork/native-stack/composition-options/useStableCompositionOption.js.map
 new file mode 100644
-index 00000000000000..651893e3f00171
 --- /dev/null
 +++ b/node_modules/expo-router/build/fork/native-stack/composition-options/useStableCompositionOption.js.map
 @@ -0,0 +1 @@
 +{"version":3,"file":"useStableCompositionOption.js","sourceRoot":"","sources":["../../../../src/fork/native-stack/composition-options/useStableCompositionOption.tsx"],"names":[],"mappings":"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","sourcesContent":["'use client';\n\nimport { isValidElement, useMemo, type ReactElement } from 'react';\n\nimport { useCompositionOption } from './CompositionOptionsContext';\nimport type { NativeStackNavigationOptions } from '../../../react-navigation/native-stack';\n\n/**\n * Variant of `useCompositionOption` that absorbs the memoization burden by\n * structurally fingerprinting `input`. Use this when the caller's options\n * derive from data that may contain unstable references across renders:\n * JSX children (a fresh array on every parent render), inline style\n * objects, inline color values, inline event handlers, etc.\n *\n * The fingerprint walks `input` recursively and skips function values, so\n * inline `onPress`/`onChangeText` callbacks do not retrigger registration.\n * Function values still flow through the BUILT options object via the\n * `build` callback, so the rendered output uses the closure that was\n * active at the time of the last meaningful change. Handlers that need\n * to read live state should close over a ref, or be stabilized with\n * `useCallback` so the helper sees a single identity.\n *\n * The build callback runs only when the fingerprint changes, so callers\n * do not need their own `useMemo`.\n *\n * @example\n * ```tsx\n * useStableCompositionOption(\n *   { children, placement, asChild },\n *   (input) => appendStackToolbarPropsToOptions({}, input)\n * );\n * ```\n */\nexport function useStableCompositionOption<TInput>(\n  input: TInput,\n  build: (input: TInput) => Partial<NativeStackNavigationOptions>\n): void {\n  const fingerprint = fingerprintValue(input);\n  // eslint-disable-next-line react-hooks/exhaustive-deps\n  const options = useMemo(() => build(input), [fingerprint]);\n  useCompositionOption(options);\n}\n\n/**\n * Maximum recursion depth for the fingerprint walker. React composition\n * trees rarely exceed 6 levels; 10 leaves headroom and bounds runtime.\n *\n * @internal\n */\nconst MAX_FINGERPRINT_DEPTH = 10;\n\n/**\n * Produces a stable structural string for any value. Two inputs that\n * produce the same string can be safely treated as equivalent for the\n * purposes of `useCompositionOption` registration. Function-typed values\n * are intentionally skipped — see `useStableCompositionOption` for the\n * rationale.\n *\n * @internal\n */\nexport function fingerprintValue(value: unknown, depth = 0): string {\n  if (depth > MAX_FINGERPRINT_DEPTH) return '~';\n  if (value === null) return 'null';\n  if (value === undefined) return 'undef';\n  const t = typeof value;\n  if (t === 'function') return 'fn';\n  if (t === 'string') return `s:${value as string}`;\n  if (t === 'number') return `n:${value as number}`;\n  if (t === 'boolean') return `b:${value as boolean}`;\n  if (t === 'bigint') return `bi:${value as bigint}`;\n  if (t === 'symbol') return `sy:${(value as symbol).toString()}`;\n  if (t !== 'object') return '?';\n  if (isValidElement(value)) return fingerprintElement(value, depth + 1);\n  if (Array.isArray(value)) {\n    return `[${value.map((v) => fingerprintValue(v, depth + 1)).join(',')}]`;\n  }\n  // React refs from `useRef()` look like `{ current: T }` on `Object.prototype`.\n  // Walking them is unsafe because `current` can hold a DOM node, a class\n  // instance, or a circular structure. Skip them.\n  if (isLikelyRefObject(value)) return 'ref';\n  const obj = value as Record<string, unknown>;\n  const keys = Object.keys(obj).sort();\n  const bits: string[] = [];\n  for (const k of keys) {\n    const v = obj[k];\n    if (typeof v === 'function' || v === undefined) continue;\n    bits.push(`${k}:${fingerprintValue(v, depth + 1)}`);\n  }\n  return `{${bits.join(',')}}`;\n}\n\nfunction fingerprintElement(node: ReactElement, depth: number): string {\n  const { type, key } = node;\n  const named = type as { displayName?: string; name?: string };\n  const name = typeof type === 'string' ? type : (named.displayName ?? named.name ?? '?');\n  const props = (node.props ?? {}) as Record<string, unknown>;\n  const keys = Object.keys(props).sort();\n  const bits: string[] = [];\n  for (const k of keys) {\n    const v = props[k];\n    if (typeof v === 'function' || v === undefined) continue;\n    bits.push(`${k}:${fingerprintValue(v, depth + 1)}`);\n  }\n  return `e:${name}#${key ?? ''}{${bits.join(',')}}`;\n}\n\nfunction isLikelyRefObject(value: object): boolean {\n  if (Object.getPrototypeOf(value) !== Object.prototype) return false;\n  const keys = Object.keys(value);\n  return keys.length === 1 && keys[0] === 'current';\n}\n"]}
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/layouts/stack-utils/StackHeaderComponent.d.ts.map b/node_modules/expo-router/build/layouts/stack-utils/StackHeaderComponent.d.ts.map
-index b39788f665591d..8c0dffbdb56828 100644
 --- a/node_modules/expo-router/build/layouts/stack-utils/StackHeaderComponent.d.ts.map
 +++ b/node_modules/expo-router/build/layouts/stack-utils/StackHeaderComponent.d.ts.map
 @@ -1 +1 @@
@@ -325,7 +300,6 @@ index b39788f665591d..8c0dffbdb56828 100644
 +{"version":3,"file":"StackHeaderComponent.d.ts","sourceRoot":"","sources":["../../../src/layouts/stack-utils/StackHeaderComponent.tsx"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,SAAS,EAAE,MAAM,OAAO,CAAC;AACvC,OAAO,EAAc,KAAK,UAAU,EAAE,KAAK,SAAS,EAAE,MAAM,cAAc,CAAC;AAC3E,OAAO,KAAK,EAAE,4BAA4B,EAAE,MAAM,sBAAsB,CAAC;AAGzE,OAAO,EAAE,4BAA4B,EAAE,MAAM,qCAAqC,CAAC;AAEnF,MAAM,WAAW,gBAAgB;IAC/B;;OAEG;IACH,QAAQ,CAAC,EAAE,SAAS,CAAC;IACrB;;;;OAIG;IACH,MAAM,CAAC,EAAE,OAAO,CAAC;IACjB;;;;;OAKG;IACH,OAAO,CAAC,EAAE,OAAO,CAAC;IAClB;;;;;;;;;OASG;IACH,WAAW,CAAC,EAAE,OAAO,CAAC;IACtB;;;;;OAKG;IACH,UAAU,CAAC,EAAE,4BAA4B,CAAC,YAAY,CAAC,CAAC;IACxD;;;;;OAKG;IACH,KAAK,CAAC,EAAE,SAAS,CAAC;QAChB,KAAK,CAAC,EAAE,UAAU,CAAC;QACnB,eAAe,CAAC,EAAE,4BAA4B,CAAC,iBAAiB,CAAC,CAAC;QAClE,WAAW,CAAC,EAAE,SAAS,GAAG,aAAa,CAAC;KACzC,CAAC,CAAC;IACH;;;;;;OAMG;IACH,UAAU,CAAC,EAAE,SAAS,CAAC;QACrB,eAAe,CAAC,EAAE,4BAA4B,CAAC,2BAA2B,CAAC,CAAC;QAC5E,WAAW,CAAC,EAAE,SAAS,GAAG,aAAa,CAAC;KACzC,CAAC,CAAC;CACJ;AAED;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GAyCG;AACH,wBAAgB,oBAAoB,CAAC,EACnC,QAAQ,EACR,MAAM,EACN,OAAO,EACP,WAAW,EACX,UAAU,EACV,KAAK,EACL,UAAU,GACX,EAAE,gBAAgB,QAUlB;AAED,wBAAgB,+BAA+B,CAC7C,OAAO,EAAE,4BAA4B,EACrC,KAAK,EAAE,gBAAgB,GACtB,4BAA4B,CAiD9B"}
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/layouts/stack-utils/StackHeaderComponent.js b/node_modules/expo-router/build/layouts/stack-utils/StackHeaderComponent.js
-index 95dcdb608ade01..f74a5f38ba71c3 100644
 --- a/node_modules/expo-router/build/layouts/stack-utils/StackHeaderComponent.js
 +++ b/node_modules/expo-router/build/layouts/stack-utils/StackHeaderComponent.js
 @@ -2,7 +2,6 @@
@@ -350,7 +324,6 @@ index 95dcdb608ade01..f74a5f38ba71c3 100644
  }
  function appendStackHeaderPropsToOptions(options, props) {
 diff --git a/node_modules/expo-router/build/layouts/stack-utils/StackHeaderComponent.js.map b/node_modules/expo-router/build/layouts/stack-utils/StackHeaderComponent.js.map
-index 38e4430015d30f..f770608b569f9f 100644
 --- a/node_modules/expo-router/build/layouts/stack-utils/StackHeaderComponent.js.map
 +++ b/node_modules/expo-router/build/layouts/stack-utils/StackHeaderComponent.js.map
 @@ -1 +1 @@
@@ -359,7 +332,6 @@ index 38e4430015d30f..f770608b569f9f 100644
 +{"version":3,"file":"StackHeaderComponent.js","sourceRoot":"","sources":["../../../src/layouts/stack-utils/StackHeaderComponent.tsx"],"names":[],"mappings":";;AA6GA,oDAkBC;AAED,0EAoDC;AApLD,+CAA2E;AAG3E,qFAAyF;AA+DzF;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GAyCG;AACH,SAAgB,oBAAoB,CAAC,EACnC,QAAQ,EACR,MAAM,EACN,OAAO,EACP,WAAW,EACX,UAAU,EACV,KAAK,EACL,UAAU,GACO;IACjB,IAAA,gDAA0B;IACxB,8CAA8C;IAC9C,EAAE,QAAQ,EAAE,MAAM,EAAE,OAAO,EAAE,WAAW,EAAE,UAAU,EAAE,KAAK,EAAE,UAAU,EAGtE,EACD,CAAC,KAAK,EAAE,EAAE,CAAC,+BAA+B,CAAC,EAAE,EAAE,KAAK,CAAC,CACtD,CAAC;IACF,OAAO,IAAI,CAAC;AACd,CAAC;AAED,SAAgB,+BAA+B,CAC7C,OAAqC,EACrC,KAAuB;IAEvB,MAAM,cAAc,GAAG,yBAAU,CAAC,OAAO,CAAC,KAAK,CAAC,KAAK,CAAC,CAAC;IACvD,MAAM,mBAAmB,GAAG,yBAAU,CAAC,OAAO,CAAC,KAAK,CAAC,UAAU,CAAC,CAAC;IAEjE,IAAI,KAAK,CAAC,MAAM,EAAE,CAAC;QACjB,OAAO,EAAE,GAAG,OAAO,EAAE,WAAW,EAAE,KAAK,EAAE,CAAC;IAC5C,CAAC;IAED,IAAI,KAAK,CAAC,OAAO,EAAE,CAAC;QAClB,OAAO,EAAE,GAAG,OAAO,EAAE,MAAM,EAAE,GAAG,EAAE,CAAC,KAAK,CAAC,QAAQ,EAAE,CAAC;IACtD,CAAC;IAED,IAAI,KAAK,CAAC,QAAQ,IAAI,CAAC,KAAK,CAAC,OAAO,EAAE,CAAC;QACrC,OAAO,CAAC,IAAI,CAAC,4EAA4E,CAAC,CAAC;IAC7F,CAAC;IAED,6CAA6C;IAC7C,2CAA2C;IAC3C,sDAAsD;IACtD,yEAAyE;IACzE,MAAM,uBAAuB,GAAG,cAAc,EAAE,eAAe,KAAK,aAAa,CAAC;IAClF,MAAM,aAAa,GAAG,KAAK,CAAC,UAAU,KAAK,SAAS,CAAC;IACrD,MAAM,mBAAmB,GACvB,KAAK,CAAC,WAAW,KAAK,IAAI;QAC1B,CAAC,KAAK,CAAC,WAAW,KAAK,KAAK,IAAI,CAAC,uBAAuB,IAAI,aAAa,CAAC,CAAC,CAAC;IAE9E,gEAAgE;IAChE,IAAI,KAAK,CAAC,UAAU,IAAI,KAAK,CAAC,WAAW,KAAK,KAAK,EAAE,CAAC;QACpD,OAAO,CAAC,IAAI,CAAC,kEAAkE,CAAC,CAAC;IACnF,CAAC;IAED,OAAO;QACL,GAAG,OAAO;QACV,WAAW,EAAE,CAAC,KAAK,CAAC,MAAM;QAC1B,gBAAgB,EAAE,KAAK,CAAC,UAAU;QAClC,GAAG,CAAC,mBAAmB,IAAI,EAAE,iBAAiB,EAAE,IAAI,EAAE,CAAC;QACvD,GAAG,CAAC,KAAK,CAAC,WAAW,KAAK,KAAK,IAAI,EAAE,iBAAiB,EAAE,KAAK,EAAE,CAAC;QAChE,GAAG,CAAC,cAAc,EAAE,KAAK,IAAI,EAAE,eAAe,EAAE,cAAc,CAAC,KAAe,EAAE,CAAC;QACjF,WAAW,EAAE;YACX,eAAe,EAAE,cAAc,EAAE,eAAqC;SACvE;QACD,gBAAgB,EAAE;YAChB,eAAe,EAAE,mBAAmB,EAAE,eAAqC;SAC5E;QACD,GAAG,CAAC,cAAc,EAAE,WAAW,KAAK,aAAa,IAAI,EAAE,mBAAmB,EAAE,KAAK,EAAE,CAAC;QACpF,GAAG,CAAC,mBAAmB,EAAE,WAAW,KAAK,aAAa,IAAI;YACxD,6BAA6B,EAAE,KAAK;SACrC,CAAC;KACH,CAAC;AACJ,CAAC","sourcesContent":["import { type ReactNode } from 'react';\nimport { StyleSheet, type ColorValue, type StyleProp } from 'react-native';\nimport type { ScreenStackHeaderConfigProps } from 'react-native-screens';\n\nimport { useStableCompositionOption } from '../../fork/native-stack/composition-options';\nimport { NativeStackNavigationOptions } from '../../react-navigation/native-stack';\n\nexport interface StackHeaderProps {\n  /**\n   * Child elements for custom header when `asChild` is true.\n   */\n  children?: ReactNode;\n  /**\n   * Whether to hide the header completely. When set to `true`, the header will not be rendered.\n   *\n   * @default false\n   */\n  hidden?: boolean;\n  /**\n   * When `true`, renders children as a custom header component, replacing the default header entirely.\n   * Use this to implement fully custom header layouts.\n   *\n   * @default false\n   */\n  asChild?: boolean;\n  /**\n   * Whether the header should be transparent.\n   * When `true`, the header is absolutely positioned and content scrolls underneath.\n   *\n   * Auto-enabled when:\n   * - `style.backgroundColor` is 'transparent'\n   * - `blurEffect` is set (required for blur to work)\n   *\n   * @default false\n   */\n  transparent?: boolean;\n  /**\n   * The blur effect to apply to the header background on iOS.\n   * Common values include 'regular', 'prominent', 'systemMaterial', etc.\n   *\n   * @platform ios\n   */\n  blurEffect?: ScreenStackHeaderConfigProps['blurEffect'];\n  /**\n   * Style properties for the standard-sized header.\n   * - `color`: Tint color for header elements (similar to tintColor in React Navigation)\n   * - `backgroundColor`: Background color of the header\n   * - `shadowColor`: Set to 'transparent' to hide the header shadow/border\n   */\n  style?: StyleProp<{\n    color?: ColorValue; // tintColor from ReactNavigation\n    backgroundColor?: ScreenStackHeaderConfigProps['backgroundColor'];\n    shadowColor?: undefined | 'transparent';\n  }>;\n  /**\n   * Style properties for the large title header (iOS).\n   * - `backgroundColor`: Background color of the large title header\n   * - `shadowColor`: Set to 'transparent' to hide the large title shadow/border\n   *\n   * @platform ios\n   */\n  largeStyle?: StyleProp<{\n    backgroundColor?: ScreenStackHeaderConfigProps['largeTitleBackgroundColor'];\n    shadowColor?: undefined | 'transparent';\n  }>;\n}\n\n/**\n * The component used to configure header styling for a stack screen.\n *\n * Use this component to set header appearance properties like blur effect, background color,\n * and shadow visibility.\n *\n * @example\n * ```tsx\n * import { Stack } from 'expo-router';\n *\n * export default function Page() {\n *   return (\n *     <>\n *       <Stack.Header\n *         blurEffect=\"systemMaterial\"\n *         style={{ backgroundColor: '#fff' }}\n *       />\n *       <ScreenContent />\n *     </>\n *   );\n * }\n * ```\n *\n * @example\n * When used inside a layout with Stack.Screen:\n * ```tsx\n * import { Stack } from 'expo-router';\n *\n * export default function Layout() {\n *   return (\n *     <Stack>\n *       <Stack.Screen name=\"index\">\n *         <Stack.Header blurEffect=\"systemMaterial\" />\n *       </Stack.Screen>\n *     </Stack>\n *   );\n * }\n * ```\n *\n * > **Note:** If multiple instances of this component are rendered for the same screen,\n * the last one rendered in the component tree takes precedence.\n */\nexport function StackHeaderComponent({\n  children,\n  hidden,\n  asChild,\n  transparent,\n  blurEffect,\n  style,\n  largeStyle,\n}: StackHeaderProps) {\n  useStableCompositionOption(\n    // satisfies ensures every prop is listed here\n    { children, hidden, asChild, transparent, blurEffect, style, largeStyle } satisfies Record<\n      keyof StackHeaderProps,\n      unknown\n    >,\n    (input) => appendStackHeaderPropsToOptions({}, input)\n  );\n  return null;\n}\n\nexport function appendStackHeaderPropsToOptions(\n  options: NativeStackNavigationOptions,\n  props: StackHeaderProps\n): NativeStackNavigationOptions {\n  const flattenedStyle = StyleSheet.flatten(props.style);\n  const flattenedLargeStyle = StyleSheet.flatten(props.largeStyle);\n\n  if (props.hidden) {\n    return { ...options, headerShown: false };\n  }\n\n  if (props.asChild) {\n    return { ...options, header: () => props.children };\n  }\n\n  if (props.children && !props.asChild) {\n    console.warn(`To render a custom header, set the 'asChild' prop to true on Stack.Header.`);\n  }\n\n  // Determine if header should be transparent:\n  // 1. Explicitly set via `transparent` prop\n  // 2. Implicitly via backgroundColor === 'transparent'\n  // 3. Implicitly when blurEffect is set (required for blurEffect to work)\n  const isBackgroundTransparent = flattenedStyle?.backgroundColor === 'transparent';\n  const hasBlurEffect = props.blurEffect !== undefined;\n  const shouldBeTransparent =\n    props.transparent === true ||\n    (props.transparent !== false && (isBackgroundTransparent || hasBlurEffect));\n\n  // Warn if blurEffect is set but transparent is explicitly false\n  if (props.blurEffect && props.transparent === false) {\n    console.warn(`Stack.Header: 'blurEffect' requires 'transparent' to be enabled.`);\n  }\n\n  return {\n    ...options,\n    headerShown: !props.hidden,\n    headerBlurEffect: props.blurEffect,\n    ...(shouldBeTransparent && { headerTransparent: true }),\n    ...(props.transparent === false && { headerTransparent: false }),\n    ...(flattenedStyle?.color && { headerTintColor: flattenedStyle.color as string }),\n    headerStyle: {\n      backgroundColor: flattenedStyle?.backgroundColor as string | undefined,\n    },\n    headerLargeStyle: {\n      backgroundColor: flattenedLargeStyle?.backgroundColor as string | undefined,\n    },\n    ...(flattenedStyle?.shadowColor === 'transparent' && { headerShadowVisible: false }),\n    ...(flattenedLargeStyle?.shadowColor === 'transparent' && {\n      headerLargeTitleShadowVisible: false,\n    }),\n  };\n}\n"]}
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/layouts/stack-utils/StackSearchBar.d.ts.map b/node_modules/expo-router/build/layouts/stack-utils/StackSearchBar.d.ts.map
-index 30df30e7354e47..a62bc271405335 100644
 --- a/node_modules/expo-router/build/layouts/stack-utils/StackSearchBar.d.ts.map
 +++ b/node_modules/expo-router/build/layouts/stack-utils/StackSearchBar.d.ts.map
 @@ -1 +1 @@
@@ -368,7 +340,6 @@ index 30df30e7354e47..a62bc271405335 100644
 +{"version":3,"file":"StackSearchBar.d.ts","sourceRoot":"","sources":["../../../src/layouts/stack-utils/StackSearchBar.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,cAAc,EAAE,MAAM,sBAAsB,CAAC;AAG3D,OAAO,EAAE,4BAA4B,EAAE,MAAM,qCAAqC,CAAC;AAKnF,MAAM,WAAW,mBAAoB,SAAQ,cAAc;CAAG;AAE9D;;;;;;;;;;;;;;;;;;;;;;;;;GAyBG;AACH,wBAAgB,cAAc,CAAC,EAC7B,GAAG,EACH,cAAc,EACd,SAAS,EACT,YAAY,EACZ,SAAS,EACT,gBAAgB,EAChB,yBAAyB,EACzB,iBAAiB,EACjB,iBAAiB,EACjB,SAAS,EACT,iBAAiB,EACjB,MAAM,EACN,mBAAmB,EACnB,YAAY,EACZ,OAAO,EACP,OAAO,EACP,MAAM,EACN,mBAAmB,EACnB,WAAW,EACX,SAAS,EACT,uBAAuB,EACvB,SAAS,EACT,aAAa,EACb,eAAe,EACf,wBAAwB,GACzB,EAAE,mBAAmB,QAiCrB;AAED,wBAAgB,kCAAkC,CAChD,OAAO,EAAE,4BAA4B,EACrC,KAAK,EAAE,mBAAmB,GACzB,4BAA4B,CAQ9B"}
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/layouts/stack-utils/StackSearchBar.js b/node_modules/expo-router/build/layouts/stack-utils/StackSearchBar.js
-index 33f9a6b9146c1d..b46046c31f6b32 100644
 --- a/node_modules/expo-router/build/layouts/stack-utils/StackSearchBar.js
 +++ b/node_modules/expo-router/build/layouts/stack-utils/StackSearchBar.js
 @@ -2,7 +2,6 @@
@@ -425,7 +396,6 @@ index 33f9a6b9146c1d..b46046c31f6b32 100644
  }
  function appendStackSearchBarPropsToOptions(options, props) {
 diff --git a/node_modules/expo-router/build/layouts/stack-utils/StackSearchBar.js.map b/node_modules/expo-router/build/layouts/stack-utils/StackSearchBar.js.map
-index dc0aede26dea7b..d57a0412f658c9 100644
 --- a/node_modules/expo-router/build/layouts/stack-utils/StackSearchBar.js.map
 +++ b/node_modules/expo-router/build/layouts/stack-utils/StackSearchBar.js.map
 @@ -1 +1 @@
@@ -434,7 +404,6 @@ index dc0aede26dea7b..d57a0412f658c9 100644
 +{"version":3,"file":"StackSearchBar.js","sourceRoot":"","sources":["../../../src/layouts/stack-utils/StackSearchBar.tsx"],"names":[],"mappings":";;AAoCA,wCA2DC;AAED,gFAWC;AA1GD,qFAAyF;AAQzF;;;;;;;;;;;;;;;;;;;;;;;;;GAyBG;AACH,SAAgB,cAAc,CAAC,EAC7B,GAAG,EACH,cAAc,EACd,SAAS,EACT,YAAY,EACZ,SAAS,EACT,gBAAgB,EAChB,yBAAyB,EACzB,iBAAiB,EACjB,iBAAiB,EACjB,SAAS,EACT,iBAAiB,EACjB,MAAM,EACN,mBAAmB,EACnB,YAAY,EACZ,OAAO,EACP,OAAO,EACP,MAAM,EACN,mBAAmB,EACnB,WAAW,EACX,SAAS,EACT,uBAAuB,EACvB,SAAS,EACT,aAAa,EACb,eAAe,EACf,wBAAwB,GACJ;IACpB,IAAA,gDAA0B;IACxB,8CAA8C;IAC9C;QACE,GAAG;QACH,cAAc;QACd,SAAS;QACT,YAAY;QACZ,SAAS;QACT,gBAAgB;QAChB,yBAAyB;QACzB,iBAAiB;QACjB,iBAAiB;QACjB,SAAS;QACT,iBAAiB;QACjB,MAAM;QACN,mBAAmB;QACnB,YAAY;QACZ,OAAO;QACP,OAAO;QACP,MAAM;QACN,mBAAmB;QACnB,WAAW;QACX,SAAS;QACT,uBAAuB;QACvB,SAAS;QACT,aAAa;QACb,eAAe;QACf,wBAAwB;KAC4B,EACtD,CAAC,KAAK,EAAE,EAAE,CAAC,kCAAkC,CAAC,EAAE,EAAE,KAAK,CAAC,CACzD,CAAC;IACF,OAAO,IAAI,CAAC;AACd,CAAC;AAED,SAAgB,kCAAkC,CAChD,OAAqC,EACrC,KAA0B;IAE1B,OAAO;QACL,GAAG,OAAO;QACV,WAAW,EAAE,IAAI;QACjB,sBAAsB,EAAE;YACtB,GAAG,KAAK;SACT;KACF,CAAC;AACJ,CAAC","sourcesContent":["import type { SearchBarProps } from 'react-native-screens';\n\nimport { useStableCompositionOption } from '../../fork/native-stack/composition-options';\nimport { NativeStackNavigationOptions } from '../../react-navigation/native-stack';\n\n// TODO: Discuss adding SearchBarSlot to react-native-screens header items\n// and exposing it as Stack.Header.SearchBarPreferredSlot\n// https://linear.app/expo/issue/ENG-18555\nexport interface StackSearchBarProps extends SearchBarProps {}\n\n/**\n * A search bar component that integrates with the native stack header.\n *\n * > **Note:** Using `Stack.SearchBar` will automatically make the header visible\n * (`headerShown: true`), as the search bar is rendered as part of the native header.\n *\n * To display the search bar in the bottom toolbar on iOS 26+, use\n * `Stack.Toolbar.SearchBarSlot` inside `Stack.Toolbar`.\n *\n * @example\n * ```tsx\n * import { Stack } from 'expo-router';\n *\n * export default function Page() {\n *   return (\n *     <>\n *       <Stack.SearchBar\n *         placeholder=\"Search...\"\n *         onChangeText={(text) => console.log(text)}\n *       />\n *      <ScreenContent />\n *     </>\n *   );\n * }\n * ```\n */\nexport function StackSearchBar({\n  ref,\n  autoCapitalize,\n  autoFocus,\n  barTintColor,\n  tintColor,\n  cancelButtonText,\n  disableBackButtonOverride,\n  hideNavigationBar,\n  hideWhenScrolling,\n  inputType,\n  obscureBackground,\n  onBlur,\n  onCancelButtonPress,\n  onChangeText,\n  onClose,\n  onFocus,\n  onOpen,\n  onSearchButtonPress,\n  placeholder,\n  placement,\n  allowToolbarIntegration,\n  textColor,\n  hintTextColor,\n  headerIconColor,\n  shouldShowHintSearchIcon,\n}: StackSearchBarProps) {\n  useStableCompositionOption(\n    // satisfies ensures every prop is listed here\n    {\n      ref,\n      autoCapitalize,\n      autoFocus,\n      barTintColor,\n      tintColor,\n      cancelButtonText,\n      disableBackButtonOverride,\n      hideNavigationBar,\n      hideWhenScrolling,\n      inputType,\n      obscureBackground,\n      onBlur,\n      onCancelButtonPress,\n      onChangeText,\n      onClose,\n      onFocus,\n      onOpen,\n      onSearchButtonPress,\n      placeholder,\n      placement,\n      allowToolbarIntegration,\n      textColor,\n      hintTextColor,\n      headerIconColor,\n      shouldShowHintSearchIcon,\n    } satisfies Record<keyof StackSearchBarProps, unknown>,\n    (input) => appendStackSearchBarPropsToOptions({}, input)\n  );\n  return null;\n}\n\nexport function appendStackSearchBarPropsToOptions(\n  options: NativeStackNavigationOptions,\n  props: StackSearchBarProps\n): NativeStackNavigationOptions {\n  return {\n    ...options,\n    headerShown: true,\n    headerSearchBarOptions: {\n      ...props,\n    },\n  };\n}\n"]}
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenBackButton.d.ts.map b/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenBackButton.d.ts.map
-index 7f457c08a7f789..fdca1729178953 100644
 --- a/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenBackButton.d.ts.map
 +++ b/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenBackButton.d.ts.map
 @@ -1 +1 @@
@@ -443,7 +412,6 @@ index 7f457c08a7f789..fdca1729178953 100644
 +{"version":3,"file":"StackScreenBackButton.d.ts","sourceRoot":"","sources":["../../../../src/layouts/stack-utils/screen/StackScreenBackButton.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,mBAAmB,EAAE,MAAM,cAAc,CAAC;AACxD,OAAO,KAAK,EAAE,4BAA4B,EAAE,MAAM,sBAAsB,CAAC;AAGzE,OAAO,EAAE,4BAA4B,EAAE,MAAM,wCAAwC,CAAC;AAEtF,MAAM,WAAW,0BAA0B;IACzC;;OAEG;IACH,QAAQ,CAAC,EAAE,MAAM,CAAC;IAClB;;OAEG;IACH,KAAK,CAAC,EAAE,4BAA4B,CAAC,sBAAsB,CAAC,CAAC;IAC7D;;;;OAIG;IACH,QAAQ,CAAC,EAAE,OAAO,CAAC;IACnB;;;;OAIG;IACH,WAAW,CAAC,EAAE,4BAA4B,CAAC,uBAAuB,CAAC,CAAC;IACpE;;OAEG;IACH,MAAM,CAAC,EAAE,OAAO,CAAC;IACjB;;OAEG;IACH,GAAG,CAAC,EAAE,mBAAmB,CAAC;CAC3B;AAED;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GAoCG;AACH,wBAAgB,qBAAqB,CAAC,EACpC,QAAQ,EACR,KAAK,EACL,QAAQ,EACR,WAAW,EACX,MAAM,EACN,GAAG,GACJ,EAAE,0BAA0B,QAU5B;AAED,wBAAgB,yCAAyC,CACvD,OAAO,EAAE,4BAA4B,EACrC,KAAK,EAAE,0BAA0B,GAChC,4BAA4B,CAU9B"}
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenBackButton.js b/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenBackButton.js
-index 5e8511bd2d44ef..5431a875c379fe 100644
 --- a/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenBackButton.js
 +++ b/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenBackButton.js
 @@ -2,7 +2,6 @@
@@ -468,7 +436,6 @@ index 5e8511bd2d44ef..5431a875c379fe 100644
  }
  function appendStackScreenBackButtonPropsToOptions(options, props) {
 diff --git a/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenBackButton.js.map b/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenBackButton.js.map
-index 72bc528d040525..425f7b8240d3ff 100644
 --- a/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenBackButton.js.map
 +++ b/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenBackButton.js.map
 @@ -1 +1 @@
@@ -477,7 +444,6 @@ index 72bc528d040525..425f7b8240d3ff 100644
 +{"version":3,"file":"StackScreenBackButton.js","sourceRoot":"","sources":["../../../../src/layouts/stack-utils/screen/StackScreenBackButton.tsx"],"names":[],"mappings":";;AA0EA,sDAiBC;AAED,8FAaC;AAvGD,wFAA4F;AAkC5F;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GAoCG;AACH,SAAgB,qBAAqB,CAAC,EACpC,QAAQ,EACR,KAAK,EACL,QAAQ,EACR,WAAW,EACX,MAAM,EACN,GAAG,GACwB;IAC3B,IAAA,gDAA0B;IACxB,8CAA8C;IAC9C,EAAE,QAAQ,EAAE,KAAK,EAAE,QAAQ,EAAE,WAAW,EAAE,MAAM,EAAE,GAAG,EAGpD,EACD,CAAC,KAAK,EAAE,EAAE,CAAC,yCAAyC,CAAC,EAAE,EAAE,KAAK,CAAC,CAChE,CAAC;IACF,OAAO,IAAI,CAAC;AACd,CAAC;AAED,SAAgB,yCAAyC,CACvD,OAAqC,EACrC,KAAiC;IAEjC,OAAO;QACL,GAAG,OAAO;QACV,eAAe,EAAE,KAAK,CAAC,QAAQ;QAC/B,oBAAoB,EAAE,KAAK,CAAC,KAAK;QACjC,qBAAqB,EAAE,KAAK,CAAC,GAAG;QAChC,2BAA2B,EAAE,KAAK,CAAC,WAAW;QAC9C,2BAA2B,EAAE,KAAK,CAAC,QAAQ;QAC3C,iBAAiB,EAAE,CAAC,KAAK,CAAC,MAAM;KACjC,CAAC;AACJ,CAAC","sourcesContent":["import type { ImageSourcePropType } from 'react-native';\nimport type { ScreenStackHeaderConfigProps } from 'react-native-screens';\n\nimport { useStableCompositionOption } from '../../../fork/native-stack/composition-options';\nimport { NativeStackNavigationOptions } from '../../../react-navigation/native-stack';\n\nexport interface StackScreenBackButtonProps {\n  /**\n   * The title to display for the back button.\n   */\n  children?: string;\n  /**\n   * Style for the back button title.\n   */\n  style?: NativeStackNavigationOptions['headerBackTitleStyle'];\n  /**\n   * Whether to show a context menu when long pressing the back button.\n   *\n   * @platform ios\n   */\n  withMenu?: boolean;\n  /**\n   * The display mode for the back button.\n   *\n   * @platform ios\n   */\n  displayMode?: ScreenStackHeaderConfigProps['backButtonDisplayMode'];\n  /**\n   * Whether to hide the back button.\n   */\n  hidden?: boolean;\n  /**\n   * Custom image source for the back button.\n   */\n  src?: ImageSourcePropType;\n}\n\n/**\n * Component to configure the back button.\n *\n * Can be used inside Stack.Screen in a layout or directly inside a screen component.\n *\n * @example\n * ```tsx\n * import { Stack } from 'expo-router';\n *\n * export default function Layout() {\n *   return (\n *     <Stack>\n *       <Stack.Screen name=\"detail\">\n *         <Stack.Screen.BackButton displayMode=\"minimal\">Back</Stack.Screen.BackButton>\n *       </Stack.Screen>\n *     </Stack>\n *   );\n * }\n * ```\n *\n * @example\n * ```tsx\n * import { Stack } from 'expo-router';\n *\n * export default function Page() {\n *   return (\n *     <>\n *       <Stack.Screen.BackButton hidden />\n *       <ScreenContent />\n *     </>\n *   );\n * }\n * ```\n *\n * > **Note:** If multiple instances of this component are rendered for the same screen,\n * the last one rendered in the component tree takes precedence.\n */\nexport function StackScreenBackButton({\n  children,\n  style,\n  withMenu,\n  displayMode,\n  hidden,\n  src,\n}: StackScreenBackButtonProps) {\n  useStableCompositionOption(\n    // satisfies ensures every prop is listed here\n    { children, style, withMenu, displayMode, hidden, src } satisfies Record<\n      keyof StackScreenBackButtonProps,\n      unknown\n    >,\n    (input) => appendStackScreenBackButtonPropsToOptions({}, input)\n  );\n  return null;\n}\n\nexport function appendStackScreenBackButtonPropsToOptions(\n  options: NativeStackNavigationOptions,\n  props: StackScreenBackButtonProps\n): NativeStackNavigationOptions {\n  return {\n    ...options,\n    headerBackTitle: props.children,\n    headerBackTitleStyle: props.style,\n    headerBackImageSource: props.src,\n    headerBackButtonDisplayMode: props.displayMode,\n    headerBackButtonMenuEnabled: props.withMenu,\n    headerBackVisible: !props.hidden,\n  };\n}\n"]}
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenTitle.d.ts.map b/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenTitle.d.ts.map
-index 19823c23438ab3..58993d315a48fe 100644
 --- a/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenTitle.d.ts.map
 +++ b/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenTitle.d.ts.map
 @@ -1 +1 @@
@@ -486,7 +452,6 @@ index 19823c23438ab3..58993d315a48fe 100644
 +{"version":3,"file":"StackScreenTitle.d.ts","sourceRoot":"","sources":["../../../../src/layouts/stack-utils/screen/StackScreenTitle.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAK,MAAM,OAAO,CAAC;AAC1B,OAAO,EAAE,UAAU,EAAc,KAAK,SAAS,EAAE,KAAK,SAAS,EAAE,MAAM,cAAc,CAAC;AAGtF,OAAO,EAAE,4BAA4B,EAAE,MAAM,wCAAwC,CAAC;AAItF,MAAM,MAAM,qBAAqB,GAAG;IAClC;;;OAGG;IACH,QAAQ,CAAC,EAAE,KAAK,CAAC,SAAS,CAAC;IAC3B;;;;;;;;;OASG;IACH,OAAO,CAAC,EAAE,OAAO,CAAC;IAClB,KAAK,CAAC,EAAE,SAAS,CAAC;QAChB,UAAU,CAAC,EAAE,SAAS,CAAC,YAAY,CAAC,CAAC;QACrC,QAAQ,CAAC,EAAE,SAAS,CAAC,UAAU,CAAC,CAAC;QACjC,UAAU,CAAC,EAAE,OAAO,CAAC,SAAS,CAAC,YAAY,CAAC,EAAE,MAAM,CAAC,CAAC;QACtD,KAAK,CAAC,EAAE,UAAU,CAAC;QACnB,SAAS,CAAC,EAAE,MAAM,GAAG,QAAQ,CAAC;KAC/B,CAAC,CAAC;IACH;;;;OAIG;IACH,UAAU,CAAC,EAAE,SAAS,CAAC;QACrB,UAAU,CAAC,EAAE,SAAS,CAAC,YAAY,CAAC,CAAC;QACrC,QAAQ,CAAC,EAAE,SAAS,CAAC,UAAU,CAAC,CAAC;QACjC,UAAU,CAAC,EAAE,OAAO,CAAC,SAAS,CAAC,YAAY,CAAC,EAAE,MAAM,CAAC,CAAC;QACtD,KAAK,CAAC,EAAE,UAAU,CAAC;KACpB,CAAC,CAAC;IACH;;;;OAIG;IACH,KAAK,CAAC,EAAE,OAAO,CAAC;CACjB,CAAC;AAEF;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GAwDG;AACH,wBAAgB,gBAAgB,CAAC,EAC/B,QAAQ,EACR,OAAO,EACP,KAAK,EACL,UAAU,EACV,KAAK,GACN,EAAE,qBAAqB,QAUvB;AAED,wBAAgB,oCAAoC,CAClD,OAAO,EAAE,4BAA4B,EACrC,KAAK,EAAE,qBAAqB,GAC3B,4BAA4B,CA+C9B"}
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenTitle.js b/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenTitle.js
-index df11135584f921..607d610c3d1c5d 100644
 --- a/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenTitle.js
 +++ b/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenTitle.js
 @@ -1,41 +1,11 @@
@@ -549,7 +514,6 @@ index df11135584f921..607d610c3d1c5d 100644
  }
  function appendStackScreenTitlePropsToOptions(options, props) {
 diff --git a/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenTitle.js.map b/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenTitle.js.map
-index 64f1ea527a90b9..5bbcea76a04a12 100644
 --- a/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenTitle.js.map
 +++ b/node_modules/expo-router/build/layouts/stack-utils/screen/StackScreenTitle.js.map
 @@ -1 +1 @@
@@ -558,7 +522,6 @@ index 64f1ea527a90b9..5bbcea76a04a12 100644
 +{"version":3,"file":"StackScreenTitle.js","sourceRoot":"","sources":["../../../../src/layouts/stack-utils/screen/StackScreenTitle.tsx"],"names":[],"mappings":";;;;;AA4GA,4CAgBC;AAED,oFAkDC;AAhLD,kDAA0B;AAC1B,+CAAsF;AAEtF,wFAA4F;AAE5F,gDAA2E;AAC3E,8CAA2F;AA6C3F;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GAwDG;AACH,SAAgB,gBAAgB,CAAC,EAC/B,QAAQ,EACR,OAAO,EACP,KAAK,EACL,UAAU,EACV,KAAK,GACiB;IACtB,IAAA,gDAA0B;IACxB,8CAA8C;IAC9C,EAAE,QAAQ,EAAE,OAAO,EAAE,KAAK,EAAE,UAAU,EAAE,KAAK,EAG5C,EACD,CAAC,KAAK,EAAE,EAAE,CAAC,oCAAoC,CAAC,EAAE,EAAE,KAAK,CAAC,CAC3D,CAAC;IACF,OAAO,IAAI,CAAC;AACd,CAAC;AAED,SAAgB,oCAAoC,CAClD,OAAqC,EACrC,KAA4B;IAE5B,MAAM,cAAc,GAAG,yBAAU,CAAC,OAAO,CAAC,KAAK,CAAC,KAAK,CAAC,CAAC;IACvD,MAAM,mBAAmB,GAAG,yBAAU,CAAC,OAAO,CAAC,KAAK,CAAC,UAAU,CAAC,CAAC;IAEjE,IAAI,YAAY,GAAiC,KAAK,CAAC,OAAO;QAC5D,CAAC,CAAC,EAAE,WAAW,EAAE,GAAG,EAAE,CAAC,EAAE,CAAC,KAAK,CAAC,QAAQ,CAAC,GAAG,EAAE;QAC9C,CAAC,CAAC,EAAE,KAAK,EAAE,IAAA,gCAAuB,EAAC,KAAK,CAAC,QAAQ,CAAC,EAAE,CAAC;IAEvD,IAAI,KAAK,CAAC,OAAO,IAAI,OAAO,KAAK,CAAC,QAAQ,KAAK,QAAQ,EAAE,CAAC;QACxD,IAAI,OAAO,EAAE,CAAC;YACZ,OAAO,CAAC,IAAI,CACV,wFAAwF,CACzF,CAAC;QACJ,CAAC;QACD,YAAY,GAAG,EAAE,CAAC;IACpB,CAAC;IACD,IAAI,CAAC,KAAK,CAAC,OAAO,IAAI,KAAK,CAAC,QAAQ,IAAI,IAAI,IAAI,CAAC,IAAA,sCAA6B,EAAC,KAAK,CAAC,QAAQ,CAAC,EAAE,CAAC;QAC/F,IAAI,OAAO,EAAE,CAAC;YACZ,OAAO,CAAC,IAAI,CACV,kKAAkK,CACnK,CAAC;QACJ,CAAC;QACD,YAAY,GAAG,EAAE,CAAC;IACpB,CAAC;IAED,OAAO;QACL,GAAG,OAAO;QACV,GAAG,YAAY;QACf,gBAAgB,EAAE,KAAK,CAAC,KAAK;QAC7B,gBAAgB,EAAE,cAAc,EAAE,SAAS;QAC3C,gBAAgB,EAAE;YAChB,GAAG,cAAc;YACjB,GAAG,CAAC,cAAc,EAAE,UAAU;gBAC5B,CAAC,CAAC;oBACE,UAAU,EAAE,IAAA,2CAAmC,EAAC,cAAc,EAAE,UAAU,CAAC;iBAC5E;gBACH,CAAC,CAAC,EAAE,CAAC;SACR;QACD,qBAAqB,EAAE;YACrB,GAAG,mBAAmB;YACtB,GAAG,CAAC,mBAAmB,EAAE,UAAU;gBACjC,CAAC,CAAC;oBACE,UAAU,EAAE,IAAA,2CAAmC,EAAC,mBAAmB,EAAE,UAAU,CAAC;iBACjF;gBACH,CAAC,CAAC,EAAE,CAAC;SACR;KACF,CAAC;AACJ,CAAC","sourcesContent":["import React from 'react';\nimport { ColorValue, StyleSheet, type StyleProp, type TextStyle } from 'react-native';\n\nimport { useStableCompositionOption } from '../../../fork/native-stack/composition-options';\nimport { NativeStackNavigationOptions } from '../../../react-navigation/native-stack';\nimport { convertFontWeightToStringFontWeight } from '../../../utils/style';\nimport { areAllChildrenPrimitiveValues, convertChildrenToString } from '../toolbar/shared';\n\nexport type StackScreenTitleProps = {\n  /**\n   * The title content. Pass a string for a plain text title,\n   * or a custom component when `asChild` is enabled.\n   */\n  children?: React.ReactNode;\n  /**\n   * Use this to render a custom component as the header title.\n   *\n   * @example\n   * ```tsx\n   * <Stack.Screen.Title asChild>\n   *   <MyCustomTitle />\n   * </Stack.Screen.Title>\n   * ```\n   */\n  asChild?: boolean;\n  style?: StyleProp<{\n    fontFamily?: TextStyle['fontFamily'];\n    fontSize?: TextStyle['fontSize'];\n    fontWeight?: Exclude<TextStyle['fontWeight'], number>;\n    color?: ColorValue;\n    textAlign?: 'left' | 'center';\n  }>;\n  /**\n   * Style properties for the large title header.\n   *\n   * @platform ios\n   */\n  largeStyle?: StyleProp<{\n    fontFamily?: TextStyle['fontFamily'];\n    fontSize?: TextStyle['fontSize'];\n    fontWeight?: Exclude<TextStyle['fontWeight'], number>;\n    color?: ColorValue;\n  }>;\n  /**\n   * Enables large title mode.\n   *\n   * @platform ios\n   */\n  large?: boolean;\n};\n\n/**\n * Component to set the screen title.\n *\n * Can be used inside Stack.Screen in a layout or directly inside a screen component.\n *\n * @example\n * String title in a layout:\n * ```tsx\n * import { Stack } from 'expo-router';\n *\n * export default function Layout() {\n *   return (\n *     <Stack>\n *       <Stack.Screen name=\"index\">\n *         <Stack.Screen.Title large>Home</Stack.Screen.Title>\n *       </Stack.Screen>\n *     </Stack>\n *   );\n * }\n * ```\n *\n * @example\n * String title inside a screen:\n * ```tsx\n * import { Stack } from 'expo-router';\n *\n * export default function Page() {\n *   return (\n *     <>\n *       <Stack.Screen.Title>My Page</Stack.Screen.Title>\n *       <ScreenContent />\n *     </>\n *   );\n * }\n * ```\n *\n * @example\n * Custom component as the title using `asChild`:\n * ```tsx\n * import { Stack } from 'expo-router';\n *\n * export default function Layout() {\n *   return (\n *     <Stack>\n *       <Stack.Screen name=\"index\">\n *         <Stack.Screen.Title asChild>\n *           <MyCustomTitle />\n *         </Stack.Screen.Title>\n *       </Stack.Screen>\n *     </Stack>\n *   );\n * }\n * ```\n *\n * > **Note:** If multiple instances of this component are rendered for the same screen,\n * the last one rendered in the component tree takes precedence.\n */\nexport function StackScreenTitle({\n  children,\n  asChild,\n  style,\n  largeStyle,\n  large,\n}: StackScreenTitleProps) {\n  useStableCompositionOption(\n    // satisfies ensures every prop is listed here\n    { children, asChild, style, largeStyle, large } satisfies Record<\n      keyof StackScreenTitleProps,\n      unknown\n    >,\n    (input) => appendStackScreenTitlePropsToOptions({}, input)\n  );\n  return null;\n}\n\nexport function appendStackScreenTitlePropsToOptions(\n  options: NativeStackNavigationOptions,\n  props: StackScreenTitleProps\n): NativeStackNavigationOptions {\n  const flattenedStyle = StyleSheet.flatten(props.style);\n  const flattenedLargeStyle = StyleSheet.flatten(props.largeStyle);\n\n  let titleOptions: NativeStackNavigationOptions = props.asChild\n    ? { headerTitle: () => <>{props.children}</> }\n    : { title: convertChildrenToString(props.children) };\n\n  if (props.asChild && typeof props.children === 'string') {\n    if (__DEV__) {\n      console.warn(\n        \"Stack.Screen.Title: 'asChild' expects a custom component as children, string received.\"\n      );\n    }\n    titleOptions = {};\n  }\n  if (!props.asChild && props.children != null && !areAllChildrenPrimitiveValues(props.children)) {\n    if (__DEV__) {\n      console.warn(\n        'Stack.Screen.Title: Component passed to Stack.Screen.Title without `asChild` enabled. In order to render a custom component as the title, set `asChild` to true.'\n      );\n    }\n    titleOptions = {};\n  }\n\n  return {\n    ...options,\n    ...titleOptions,\n    headerLargeTitle: props.large,\n    headerTitleAlign: flattenedStyle?.textAlign,\n    headerTitleStyle: {\n      ...flattenedStyle,\n      ...(flattenedStyle?.fontWeight\n        ? {\n            fontWeight: convertFontWeightToStringFontWeight(flattenedStyle?.fontWeight),\n          }\n        : {}),\n    },\n    headerLargeTitleStyle: {\n      ...flattenedLargeStyle,\n      ...(flattenedLargeStyle?.fontWeight\n        ? {\n            fontWeight: convertFontWeightToStringFontWeight(flattenedLargeStyle?.fontWeight),\n          }\n        : {}),\n    },\n  };\n}\n"]}
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.d.ts.map b/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.d.ts.map
-index 1b5812c92be3b8..9b1afb1fac3d6e 100644
 --- a/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.d.ts.map
 +++ b/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.d.ts.map
 @@ -1 +1 @@
@@ -567,7 +530,6 @@ index 1b5812c92be3b8..9b1afb1fac3d6e 100644
 +{"version":3,"file":"StackToolbarClient.d.ts","sourceRoot":"","sources":["../../../../src/layouts/stack-utils/toolbar/StackToolbarClient.tsx"],"names":[],"mappings":"AACA,OAAO,EAAW,KAAK,SAAS,EAAE,MAAM,OAAO,CAAC;AAChD,OAAO,KAAK,EAAE,UAAU,EAAE,MAAM,cAAc,CAAC;AAO/C,OAAO,EAKL,KAAK,gBAAgB,EACtB,MAAM,WAAW,CAAC;AAKnB,OAAO,EAAE,4BAA4B,EAAE,MAAM,wCAAwC,CAAC;AAGtF,MAAM,WAAW,iBAAiB;IAChC;;;;OAIG;IACH,QAAQ,CAAC,EAAE,SAAS,CAAC;IACrB;;;;;;;;OAQG;IACH,SAAS,CAAC,EAAE,gBAAgB,CAAC;IAC7B;;;;;;;OAOG;IACH,OAAO,CAAC,EAAE,OAAO,CAAC;IAClB;;;;;;;OAOG;IACH,iBAAiB,CAAC,EAAE,OAAO,CAAC;IAC5B;;;;;OAKG;IACH,SAAS,CAAC,EAAE,UAAU,CAAC;IACvB;;;;OAIG;IACH,eAAe,CAAC,EAAE,UAAU,CAAC;CAC9B;AAED;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GA6DG;AACH,eAAO,MAAM,YAAY;YAAW,iBAAiB;;;;;;;;;;CAWpD,CAAC;AAuDF,wBAAgB,gCAAgC,CAC9C,OAAO,EAAE,4BAA4B,EACrC,KAAK,EAAE,iBAAiB,GACvB,4BAA4B,CAiC9B;AAYD,eAAe,YAAY,CAAC"}
 \ No newline at end of file
 diff --git a/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js b/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js
-index beb70a741d5d88..4e978df85167ec 100644
 --- a/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js
 +++ b/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js
 @@ -104,7 +104,7 @@ const StackToolbarHeader = ({ children, placement, asChild, disableImePadding, t
@@ -590,7 +552,6 @@ index beb70a741d5d88..4e978df85167ec 100644
  };
  function appendStackToolbarPropsToOptions(options, props) {
 diff --git a/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js.map b/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js.map
-index e597242dc5bdf8..2fee517c183e11 100644
 --- a/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js.map
 +++ b/node_modules/expo-router/build/layouts/stack-utils/toolbar/StackToolbarClient.js.map
 @@ -1 +1 @@
@@ -599,7 +560,6 @@ index e597242dc5bdf8..2fee517c183e11 100644
 +{"version":3,"file":"StackToolbarClient.js","sourceRoot":"","sources":["../../../../src/layouts/stack-utils/toolbar/StackToolbarClient.tsx"],"names":[],"mappings":"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","sourcesContent":["'use client';\nimport { useMemo, type ReactNode } from 'react';\nimport type { ColorValue } from 'react-native';\n\nimport { StackToolbarButton } from './StackToolbarButton';\nimport { StackToolbarMenu, StackToolbarMenuAction } from './StackToolbarMenu';\nimport { StackToolbarSearchBarSlot } from './StackToolbarSearchBarSlot';\nimport { StackToolbarSpacer } from './StackToolbarSpacer';\nimport { StackToolbarView } from './StackToolbarView';\nimport {\n  ToolbarColorContext,\n  ToolbarPlacementContext,\n  useToolbarPlacement,\n  type ToolbarColors,\n  type ToolbarPlacement,\n} from './context';\nimport { processHeaderItemsForPlatform } from './processHeaderItemsForPlatform';\nimport { StackToolbarBadge, StackToolbarIcon, StackToolbarLabel } from './toolbar-primitives';\nimport { useStableCompositionOption } from '../../../fork/native-stack/composition-options';\nimport { NativeMenuContext } from '../../../link/NativeMenuContext';\nimport { NativeStackNavigationOptions } from '../../../react-navigation/native-stack';\nimport { RouterToolbarHost } from '../../../toolbar/native';\n\nexport interface StackToolbarProps {\n  /**\n   * Child elements to compose the toolbar. Can include Stack.Toolbar.Button,\n   * Stack.Toolbar.Menu, Stack.Toolbar.View, Stack.Toolbar.Spacer, and\n   * Stack.Toolbar.SearchBarSlot (bottom only) components.\n   */\n  children?: ReactNode;\n  /**\n   * The placement of the toolbar.\n   *\n   * - `'left'`: Renders items in the left area of the header.\n   * - `'right'`: Renders items in the right area of the header.\n   * - `'bottom'`: Renders items in the bottom toolbar (iOS only).\n   *\n   * @default 'bottom'\n   */\n  placement?: ToolbarPlacement;\n  /**\n   * When `true`, renders children as a custom component in the header area,\n   * replacing the default header layout.\n   *\n   * Only applies to `placement=\"left\"` and `placement=\"right\"`.\n   *\n   * @default false\n   */\n  asChild?: boolean;\n  /**\n   * When `true`, disables automatic keyboard (IME) padding on the bottom toolbar.\n   *\n   * Only applies to `placement=\"bottom\"` on Android.\n   *\n   * @default false\n   * @platform android\n   */\n  disableImePadding?: boolean;\n  /**\n   * Tint color applied to toolbar items (buttons, menu icons, text).\n   * Individual items can override this with their own `tintColor` prop.\n   *\n   * @platform android\n   */\n  tintColor?: ColorValue;\n  /**\n   * Background color for the toolbar and its menus.\n   *\n   * @platform android\n   */\n  backgroundColor?: ColorValue;\n}\n\n/**\n * The component used to configure the stack toolbar.\n *\n * - Use `placement=\"left\"` to customize the left side of the header.\n * - Use `placement=\"right\"` to customize the right side of the header.\n * - Use `placement=\"bottom\"` (default) to show a bottom toolbar (iOS only).\n *\n * If multiple instances of this component are rendered for the same screen,\n * the last one rendered in the component tree takes precedence.\n *\n * > **Note:** Using `Stack.Toolbar` with `placement=\"left\"` or `placement=\"right\"` will\n * automatically make the header visible (`headerShown: true`), as the toolbar is rendered\n * as part of the native header.\n *\n * > **Note:** `Stack.Toolbar` with `placement=\"bottom\"` can only be used inside **page**\n * components, not in layout components.\n *\n *\n * @example\n * ```tsx\n * import { Stack } from 'expo-router';\n *\n * export default function Layout() {\n *   return (\n *     <Stack>\n *       <Stack.Screen name=\"index\">\n *         <Stack.Toolbar placement=\"left\">\n *           <Stack.Toolbar.Button icon=\"sidebar.left\" onPress={() => alert('Left button pressed!')} />\n *         </Stack.Toolbar>\n *         <Stack.Toolbar placement=\"right\">\n *           <Stack.Toolbar.Button icon=\"ellipsis.circle\" onPress={() => alert('Right button pressed!')} />\n *         </Stack.Toolbar>\n *       </Stack.Screen>\n *     </Stack>\n *   );\n * }\n * ```\n *\n * @example\n * ```tsx\n * import { Stack } from 'expo-router';\n *\n * export default function Page() {\n *   return (\n *     <>\n *       <Stack.Toolbar placement=\"left\">\n *         <Stack.Toolbar.Button icon=\"sidebar.left\" onPress={() => alert('Left button pressed!')} />\n *       </Stack.Toolbar>\n *       <Stack.Toolbar>\n *         <Stack.Toolbar.Spacer />\n *         <Stack.Toolbar.Button icon=\"magnifyingglass\" onPress={() => {}} />\n *         <Stack.Toolbar.Spacer />\n *       </Stack.Toolbar>\n *       <ScreenContent />\n *     </>\n *   );\n * }\n * ```\n *\n * @experimental\n * @platform ios\n */\nexport const StackToolbar = (props: StackToolbarProps) => {\n  const parentPlacement = useToolbarPlacement();\n  if (parentPlacement) {\n    throw new Error(`Stack.Toolbar cannot be nested inside another Stack.Toolbar.`);\n  }\n\n  if (props.placement === 'bottom' || !props.placement) {\n    return <StackToolbarBottom {...props} />;\n  }\n\n  return <StackToolbarHeader {...props} key={props.placement} />;\n};\n\nconst StackToolbarBottom = ({\n  children,\n  disableImePadding,\n  tintColor,\n  backgroundColor,\n}: StackToolbarProps) => {\n  const colors = useMemo<ToolbarColors>(\n    () => ({ tintColor, backgroundColor }),\n    [tintColor, backgroundColor]\n  );\n  return (\n    <ToolbarPlacementContext.Provider value=\"bottom\">\n      <ToolbarColorContext.Provider value={colors}>\n        <NativeMenuContext value>\n          <RouterToolbarHost withImePadding={!disableImePadding} backgroundColor={backgroundColor}>\n            {children}\n          </RouterToolbarHost>\n        </NativeMenuContext>\n      </ToolbarColorContext.Provider>\n    </ToolbarPlacementContext.Provider>\n  );\n};\n\nconst StackToolbarHeader = ({\n  children,\n  placement,\n  asChild,\n  disableImePadding,\n  tintColor,\n  backgroundColor,\n}: StackToolbarProps) => {\n  if (placement !== 'left' && placement !== 'right') {\n    throw new Error(\n      `Invalid placement \"${placement}\" for Stack.Toolbar. Expected \"left\" or \"right\".`\n    );\n  }\n\n  useStableCompositionOption(\n    // satisfies ensures every prop is listed here\n    {\n      children,\n      placement,\n      asChild,\n      disableImePadding,\n      tintColor,\n      backgroundColor,\n    } satisfies Record<keyof StackToolbarProps, unknown>,\n    (input) => appendStackToolbarPropsToOptions({}, input)\n  );\n\n  return null;\n};\n\nexport function appendStackToolbarPropsToOptions(\n  options: NativeStackNavigationOptions,\n  props: StackToolbarProps\n): NativeStackNavigationOptions {\n  const { children, placement = 'bottom', asChild } = props;\n\n  if (placement === 'bottom') {\n    // Bottom toolbar doesn't modify navigation options\n    return options;\n  }\n\n  const colors: ToolbarColors = {\n    tintColor: props.tintColor,\n    backgroundColor: props.backgroundColor,\n  };\n\n  if (asChild) {\n    const wrappedChildren = (\n      <ToolbarColorContext.Provider value={colors}>{children}</ToolbarColorContext.Provider>\n    );\n    if (placement === 'left') {\n      return {\n        ...options,\n        headerShown: true,\n        headerLeft: () => wrappedChildren,\n      };\n    } else {\n      return {\n        ...options,\n        headerShown: true,\n        headerRight: () => wrappedChildren,\n      };\n    }\n  }\n\n  return { ...options, ...(processHeaderItemsForPlatform(children, placement, colors) ?? {}) };\n}\n\nStackToolbar.Button = StackToolbarButton;\nStackToolbar.Menu = StackToolbarMenu;\nStackToolbar.MenuAction = StackToolbarMenuAction;\nStackToolbar.SearchBarSlot = StackToolbarSearchBarSlot;\nStackToolbar.Spacer = StackToolbarSpacer;\nStackToolbar.View = StackToolbarView;\nStackToolbar.Label = StackToolbarLabel;\nStackToolbar.Icon = StackToolbarIcon;\nStackToolbar.Badge = StackToolbarBadge;\n\nexport default StackToolbar;\n"]}
 \ No newline at end of file
 diff --git a/node_modules/expo-router/src/fork/native-stack/composition-options/CompositionOptionsContext.tsx b/node_modules/expo-router/src/fork/native-stack/composition-options/CompositionOptionsContext.tsx
-index 5aa6a21ac96d98..f6b9b3e5aef591 100644
 --- a/node_modules/expo-router/src/fork/native-stack/composition-options/CompositionOptionsContext.tsx
 +++ b/node_modules/expo-router/src/fork/native-stack/composition-options/CompositionOptionsContext.tsx
 @@ -76,7 +76,19 @@ export function useCompositionRegistry() {
@@ -623,8 +583,231 @@ index 5aa6a21ac96d98..f6b9b3e5aef591 100644
   */
  export function useCompositionOption(options: Partial<NativeStackNavigationOptions>) {
    const context = use(CompositionContext);
+diff --git a/node_modules/expo-router/src/fork/native-stack/composition-options/__tests__/useStableCompositionOption.test.ios.tsx b/node_modules/expo-router/src/fork/native-stack/composition-options/__tests__/useStableCompositionOption.test.ios.tsx
+new file mode 100644
+--- /dev/null
++++ b/node_modules/expo-router/src/fork/native-stack/composition-options/__tests__/useStableCompositionOption.test.ios.tsx
+@@ -0,0 +1,219 @@
++import { renderHook } from '@testing-library/react-native';
++import React from 'react';
++
++import { CompositionContext } from '../CompositionOptionsContext';
++import type { CompositionContextValue } from '../types';
++import { fingerprintValue, useStableCompositionOption } from '../useStableCompositionOption';
++
++jest.mock('../../../../views/useSafeLayoutEffect', () => ({
++  useSafeLayoutEffect: require('react').useLayoutEffect,
++}));
++
++jest.mock('../../../../react-navigation/native', () => {
++  const actual = jest.requireActual(
++    '../../../../react-navigation/native'
++  ) as typeof import('../../../../react-navigation/native');
++  return {
++    ...actual,
++    useRoute: () => ({ key: 'test-route', name: 'test' }),
++  };
++});
++
++function createMockContext(): CompositionContextValue {
++  return {
++    set: jest.fn(),
++    unset: jest.fn(),
++  };
++}
++
++function createWrapper(contextValue: CompositionContextValue | null) {
++  return function Wrapper({ children }: { children: React.ReactNode }) {
++    return React.createElement(CompositionContext.Provider, { value: contextValue }, children);
++  };
++}
++
++describe('fingerprintValue', () => {
++  it('produces stable strings for primitives', () => {
++    expect(fingerprintValue('hello')).toBe('s:hello');
++    expect(fingerprintValue(42)).toBe('n:42');
++    expect(fingerprintValue(true)).toBe('b:true');
++    expect(fingerprintValue(null)).toBe('null');
++    expect(fingerprintValue(undefined)).toBe('undef');
++  });
++
++  it('skips functions', () => {
++    expect(fingerprintValue(() => 1)).toBe('fn');
++    expect(fingerprintValue(function named() {})).toBe('fn');
++  });
++
++  it('produces identical strings for two structurally equal style objects', () => {
++    const a = { backgroundColor: 'red', fontSize: 14 };
++    const b = { backgroundColor: 'red', fontSize: 14 };
++    expect(fingerprintValue(a)).toBe(fingerprintValue(b));
++  });
++
++  it('sorts keys for stable ordering', () => {
++    const a = { fontSize: 14, backgroundColor: 'red' };
++    const b = { backgroundColor: 'red', fontSize: 14 };
++    expect(fingerprintValue(a)).toBe(fingerprintValue(b));
++  });
++
++  it('detects content changes in style objects', () => {
++    const a = { backgroundColor: 'red' };
++    const b = { backgroundColor: 'blue' };
++    expect(fingerprintValue(a)).not.toBe(fingerprintValue(b));
++  });
++
++  it('skips function values inside objects', () => {
++    const a = { onPress: () => 1, label: 'A' };
++    const b = { onPress: () => 2, label: 'A' };
++    expect(fingerprintValue(a)).toBe(fingerprintValue(b));
++  });
++
++  it('skips undefined values', () => {
++    const a = { label: 'A', extra: undefined };
++    const b = { label: 'A' };
++    expect(fingerprintValue(a)).toBe(fingerprintValue(b));
++  });
++
++  it('skips React refs (single-current plain objects)', () => {
++    const a = { current: { someInternal: 'state' } };
++    const b = { current: null };
++    expect(fingerprintValue(a)).toBe('ref');
++    expect(fingerprintValue(b)).toBe('ref');
++  });
++
++  it('walks two-key objects normally (not treated as ref)', () => {
++    const a = { current: 'a', label: 'b' };
++    expect(fingerprintValue(a)).not.toBe('ref');
++  });
++
++  it('recurses into arrays', () => {
++    const a = [1, 'two', { three: 3 }];
++    const b = [1, 'two', { three: 3 }];
++    expect(fingerprintValue(a)).toBe(fingerprintValue(b));
++  });
++
++  it('detects element-type changes in JSX', () => {
++    const a = React.createElement('div', { id: 'x' });
++    const b = React.createElement('span', { id: 'x' });
++    expect(fingerprintValue(a)).not.toBe(fingerprintValue(b));
++  });
++
++  it('detects prop changes in JSX', () => {
++    const a = React.createElement('div', { id: 'x' });
++    const b = React.createElement('div', { id: 'y' });
++    expect(fingerprintValue(a)).not.toBe(fingerprintValue(b));
++  });
++
++  it('treats two structurally identical JSX trees as equal', () => {
++    const a = React.createElement('div', { id: 'x' }, React.createElement('span', null, 'hi'));
++    const b = React.createElement('div', { id: 'x' }, React.createElement('span', null, 'hi'));
++    expect(fingerprintValue(a)).toBe(fingerprintValue(b));
++  });
++
++  it('treats two JSX trees that only differ by handler identity as equal', () => {
++    const a = React.createElement('button', { onClick: () => 1, label: 'X' });
++    const b = React.createElement('button', { onClick: () => 2, label: 'X' });
++    expect(fingerprintValue(a)).toBe(fingerprintValue(b));
++  });
++
++  it('detects JSX key changes', () => {
++    const a = React.createElement('div', { key: 'a' });
++    const b = React.createElement('div', { key: 'b' });
++    expect(fingerprintValue(a)).not.toBe(fingerprintValue(b));
++  });
++
++  it('truncates at the depth limit instead of recursing forever', () => {
++    // Build an 11-level nested object (deeper than MAX_FINGERPRINT_DEPTH=10).
++    let nested: any = { leaf: 1 };
++    for (let i = 0; i < 11; i++) nested = { inner: nested };
++    // Should not throw and should return a string.
++    const fp = fingerprintValue(nested);
++    expect(typeof fp).toBe('string');
++    expect(fp).toContain('~');
++  });
++});
++
++describe('useStableCompositionOption', () => {
++  it('registers options on mount and skips re-registration on unrelated re-render', () => {
++    const context = createMockContext();
++    const { rerender } = renderHook(
++      ({ tick }: { tick: number }) =>
++        useStableCompositionOption({ title: 'Hello', tick }, ({ title }) => ({ title })),
++      {
++        wrapper: createWrapper(context),
++        initialProps: { tick: 0 },
++      }
++    );
++
++    expect(context.set).toHaveBeenCalledTimes(1);
++    expect(context.set).toHaveBeenCalledWith('test-route', { title: 'Hello' });
++
++    // Rerender with the same effective input. The build closure produces the
++    // same options content, so the helper should NOT redispatch.
++    rerender({ tick: 0 });
++    expect(context.set).toHaveBeenCalledTimes(1);
++  });
++
++  it('does not redispatch when only function-typed props change', () => {
++    const context = createMockContext();
++    const { rerender } = renderHook(
++      // Inline arrow on every render: identity churn that the helper must absorb.
++      () =>
++        useStableCompositionOption({ title: 'Hello', onPress: () => 1 }, ({ title }) => ({
++          title,
++        })),
++      { wrapper: createWrapper(context) }
++    );
++
++    expect(context.set).toHaveBeenCalledTimes(1);
++
++    rerender({});
++    rerender({});
++    rerender({});
++
++    // Function identity changed three times. The helper must NOT redispatch.
++    expect(context.set).toHaveBeenCalledTimes(1);
++    expect(context.unset).not.toHaveBeenCalled();
++  });
++
++  it('redispatches when serializable props change', () => {
++    const context = createMockContext();
++    const { rerender } = renderHook(
++      ({ title }: { title: string }) =>
++        useStableCompositionOption({ title }, (input) => ({ title: input.title })),
++      {
++        wrapper: createWrapper(context),
++        initialProps: { title: 'First' },
++      }
++    );
++
++    expect(context.set).toHaveBeenCalledTimes(1);
++
++    rerender({ title: 'Second' });
++
++    expect(context.unset).toHaveBeenCalledTimes(1);
++    expect(context.set).toHaveBeenCalledTimes(2);
++    expect(context.set).toHaveBeenLastCalledWith('test-route', { title: 'Second' });
++  });
++
++  it('does not redispatch when an inline style object has identical content', () => {
++    const context = createMockContext();
++    const { rerender } = renderHook(
++      // Inline style literal: new identity every render, same content.
++      () =>
++        useStableCompositionOption({ style: { backgroundColor: '#fff' } }, (input) => ({
++          headerStyle: input.style as any,
++        })),
++      { wrapper: createWrapper(context) }
++    );
++
++    expect(context.set).toHaveBeenCalledTimes(1);
++
++    rerender({});
++    rerender({});
++
++    expect(context.set).toHaveBeenCalledTimes(1);
++  });
++});
 diff --git a/node_modules/expo-router/src/fork/native-stack/composition-options/index.ts b/node_modules/expo-router/src/fork/native-stack/composition-options/index.ts
-index 985baa309139cb..2c35c4ce1d0085 100644
 --- a/node_modules/expo-router/src/fork/native-stack/composition-options/index.ts
 +++ b/node_modules/expo-router/src/fork/native-stack/composition-options/index.ts
 @@ -4,4 +4,5 @@ export {
@@ -635,7 +818,6 @@ index 985baa309139cb..2c35c4ce1d0085 100644
  export type { CompositionRegistry, CompositionContextValue } from './types';
 diff --git a/node_modules/expo-router/src/fork/native-stack/composition-options/useStableCompositionOption.tsx b/node_modules/expo-router/src/fork/native-stack/composition-options/useStableCompositionOption.tsx
 new file mode 100644
-index 00000000000000..d398606249ef18
 --- /dev/null
 +++ b/node_modules/expo-router/src/fork/native-stack/composition-options/useStableCompositionOption.tsx
 @@ -0,0 +1,111 @@
@@ -751,7 +933,6 @@ index 00000000000000..d398606249ef18
 +  return keys.length === 1 && keys[0] === 'current';
 +}
 diff --git a/node_modules/expo-router/src/layouts/stack-utils/StackHeaderComponent.tsx b/node_modules/expo-router/src/layouts/stack-utils/StackHeaderComponent.tsx
-index e977580108e832..4b601465aa4816 100644
 --- a/node_modules/expo-router/src/layouts/stack-utils/StackHeaderComponent.tsx
 +++ b/node_modules/expo-router/src/layouts/stack-utils/StackHeaderComponent.tsx
 @@ -1,8 +1,8 @@
@@ -793,7 +974,6 @@ index e977580108e832..4b601465aa4816 100644
  }
  
 diff --git a/node_modules/expo-router/src/layouts/stack-utils/StackSearchBar.tsx b/node_modules/expo-router/src/layouts/stack-utils/StackSearchBar.tsx
-index 1c2bf255ac54d5..26f739a458d439 100644
 --- a/node_modules/expo-router/src/layouts/stack-utils/StackSearchBar.tsx
 +++ b/node_modules/expo-router/src/layouts/stack-utils/StackSearchBar.tsx
 @@ -1,7 +1,6 @@
@@ -861,8 +1041,559 @@ index 1c2bf255ac54d5..26f739a458d439 100644
    return null;
  }
  
+diff --git a/node_modules/expo-router/src/layouts/stack-utils/__tests__/StackComposition.renderCount.test.android.tsx b/node_modules/expo-router/src/layouts/stack-utils/__tests__/StackComposition.renderCount.test.android.tsx
+--- a/node_modules/expo-router/src/layouts/stack-utils/__tests__/StackComposition.renderCount.test.android.tsx
++++ b/node_modules/expo-router/src/layouts/stack-utils/__tests__/StackComposition.renderCount.test.android.tsx
+@@ -527,4 +527,152 @@ describe('Stack composition components render count', () => {
+     // BackButton unmounted — backTitle should be cleared
+     expect(lastDetailCall![0].headerConfig?.backTitle).toBeUndefined();
+   });
++
++  // Regression suite for the bug class fixed by useStableCompositionOption.
++  // Each caller below previously dispatched on every parent render when its
++  // useMemo deps included an unstable value (inline style, JSX-array
++  // children, inline callback). On a real device this cascades through the
++  // navigator and crashes with "Maximum update depth exceeded"; in jest the
++  // ScreenStackItem mock severs the cascade so we only see the symptom (one
++  // extra ScreenStackItem call after a setState that didn't change any
++  // composition input). The helper absorbs the memoization so these all
++  // become no-ops. These tests live on both platforms because the helper is
++  // platform-agnostic JS.
++
++  it('Stack.Header with inline style does not retrigger registration on parent state change', () => {
++    function Index() {
++      const [count, setCount] = useState(0);
++      return (
++        <>
++          <Stack.Header style={{ backgroundColor: '#fff' }} />
++          <Text testID="count">{count}</Text>
++          <Button testID="increment" title="+" onPress={() => setCount((c) => c + 1)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('0');
++    jest.clearAllMocks();
++    act(() => {
++      fireEvent.press(screen.getByTestId('increment'));
++    });
++    expect(screen.getByTestId('count')).toHaveTextContent('1');
++    expect(ScreenStackItem).not.toHaveBeenCalled();
++  });
++
++  it('Stack.Screen.Title with inline style does not retrigger registration on parent state change', () => {
++    function Index() {
++      const [count, setCount] = useState(0);
++      return (
++        <>
++          <Stack.Screen.Title style={{ fontSize: 18 }}>Static</Stack.Screen.Title>
++          <Text testID="count">{count}</Text>
++          <Button testID="increment" title="+" onPress={() => setCount((c) => c + 1)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('0');
++    jest.clearAllMocks();
++    act(() => {
++      fireEvent.press(screen.getByTestId('increment'));
++    });
++    expect(screen.getByTestId('count')).toHaveTextContent('1');
++    expect(ScreenStackItem).not.toHaveBeenCalled();
++  });
++
++  it('Stack.Screen.Title with JSX-array children does not retrigger registration on parent state change', () => {
++    function Index() {
++      const [count, setCount] = useState(0);
++      const name = 'Ray';
++      return (
++        <>
++          {/* Two-child JSX produces a new array reference on every render */}
++          <Stack.Screen.Title>Hello {name}</Stack.Screen.Title>
++          <Text testID="count">{count}</Text>
++          <Button testID="increment" title="+" onPress={() => setCount((c) => c + 1)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('0');
++    jest.clearAllMocks();
++    act(() => {
++      fireEvent.press(screen.getByTestId('increment'));
++    });
++    expect(screen.getByTestId('count')).toHaveTextContent('1');
++    expect(ScreenStackItem).not.toHaveBeenCalled();
++  });
++
++  it('Stack.SearchBar with inline onChangeText does not retrigger registration on parent state change', () => {
++    function Index() {
++      const [count, setCount] = useState(0);
++      return (
++        <>
++          <Stack.SearchBar
++            placeholder="Search..."
++            // Inline arrow: new identity every render. Mirrors the docs
++            // example at native-tabs.mdx and is the trigger for the bug class.
++            onChangeText={(_text) => undefined}
++          />
++          <Text testID="count">{count}</Text>
++          <Button testID="increment" title="+" onPress={() => setCount((c) => c + 1)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('0');
++    jest.clearAllMocks();
++    act(() => {
++      fireEvent.press(screen.getByTestId('increment'));
++    });
++    expect(screen.getByTestId('count')).toHaveTextContent('1');
++    expect(ScreenStackItem).not.toHaveBeenCalled();
++  });
++
++  it('Stack.Screen.BackButton with inline style does not retrigger registration on parent state change', () => {
++    function Index() {
++      const [count, setCount] = useState(0);
++      return (
++        <>
++          <Stack.Screen.BackButton style={{ fontSize: 14 }}>Back</Stack.Screen.BackButton>
++          <Text testID="count">{count}</Text>
++          <Button testID="increment" title="+" onPress={() => setCount((c) => c + 1)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('0');
++    jest.clearAllMocks();
++    act(() => {
++      fireEvent.press(screen.getByTestId('increment'));
++    });
++    expect(screen.getByTestId('count')).toHaveTextContent('1');
++    expect(ScreenStackItem).not.toHaveBeenCalled();
++  });
+ });
+diff --git a/node_modules/expo-router/src/layouts/stack-utils/__tests__/StackComposition.renderCount.test.ios.tsx b/node_modules/expo-router/src/layouts/stack-utils/__tests__/StackComposition.renderCount.test.ios.tsx
+--- a/node_modules/expo-router/src/layouts/stack-utils/__tests__/StackComposition.renderCount.test.ios.tsx
++++ b/node_modules/expo-router/src/layouts/stack-utils/__tests__/StackComposition.renderCount.test.ios.tsx
+@@ -273,6 +273,240 @@ describe('Stack composition components render count', () => {
+     expect(ScreenStackItem).not.toHaveBeenCalled();
+   });
+ 
++  it('Stack.Toolbar item structure changes DO trigger re-registration', () => {
++    // Dual of the no-loop test: confirm we don't over-correct. Adding a
++    // toolbar item must still rebuild the header.
++    function Index() {
++      const [showSecond, setShowSecond] = useState(false);
++      return (
++        <>
++          <Stack.Toolbar placement="right">
++            <Stack.Toolbar.Button icon="star" onPress={() => {}} />
++            {showSecond && <Stack.Toolbar.Button icon="ellipsis.circle" onPress={() => {}} />}
++          </Stack.Toolbar>
++          <Button testID="toggle" title="Toggle" onPress={() => setShowSecond((v) => !v)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    // Initial: one button
++    const initialProps = ScreenStackItem.mock.calls[1][0];
++    expect(initialProps.headerConfig?.headerRightBarButtonItems).toHaveLength(1);
++
++    jest.clearAllMocks();
++
++    // Toggle: now two buttons. Structural change, must re-register.
++    act(() => {
++      fireEvent.press(screen.getByTestId('toggle'));
++    });
++
++    expect(ScreenStackItem).toHaveBeenCalled();
++    const updatedProps = ScreenStackItem.mock.calls[ScreenStackItem.mock.calls.length - 1][0];
++    expect(updatedProps.headerConfig?.headerRightBarButtonItems).toHaveLength(2);
++  });
++
++  it('local state changes do not infinite-loop with Stack.Toolbar', () => {
++    // Regression test: JSX `children` is a new array every parent render, so
++    // depending on it directly inside `useCompositionOption` re-dispatched on
++    // every render, which re-rendered the navigator, which re-rendered the
++    // screen, which created new children, an infinite loop.
++    const indexRender = jest.fn();
++
++    function Index() {
++      indexRender();
++      const [count, setCount] = useState(0);
++      return (
++        <>
++          <Stack.Toolbar placement="left">
++            <Stack.Toolbar.Button icon="star" onPress={() => {}} />
++          </Stack.Toolbar>
++          <Stack.Toolbar placement="right">
++            <Stack.Toolbar.Button icon="ellipsis.circle" onPress={() => {}} />
++          </Stack.Toolbar>
++          <Text testID="count">{count}</Text>
++          <Button testID="increment" title="+" onPress={() => setCount((c) => c + 1)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('0');
++
++    // Clear after initial settle
++    jest.clearAllMocks();
++
++    // Increment counter, triggers rerender of screen component
++    act(() => {
++      fireEvent.press(screen.getByTestId('increment'));
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('1');
++
++    // Screen render fn IS called once (state changed, expected)
++    expect(indexRender).toHaveBeenCalledTimes(1);
++
++    // ScreenStackItem should NOT be called: toolbar items are structurally
++    // unchanged so the registered options object stays reference-stable.
++    expect(ScreenStackItem).not.toHaveBeenCalled();
++  });
++
++  it('Stack.Toolbar item reordering DOES trigger re-registration', () => {
++    // Proves the structural fingerprint captures element order. Two buttons
++    // swapped via state must produce a different fingerprint and re-register.
++    // Using an array (not a Fragment) so React.Children.toArray flattens it
++    // into the toolbar's child list correctly.
++    function Index() {
++      const [reversed, setReversed] = useState(false);
++      return (
++        <>
++          <Stack.Toolbar placement="right">
++            {reversed
++              ? [
++                  <Stack.Toolbar.Button key="b" icon="ellipsis.circle" onPress={() => {}} />,
++                  <Stack.Toolbar.Button key="a" icon="star" onPress={() => {}} />,
++                ]
++              : [
++                  <Stack.Toolbar.Button key="a" icon="star" onPress={() => {}} />,
++                  <Stack.Toolbar.Button key="b" icon="ellipsis.circle" onPress={() => {}} />,
++                ]}
++          </Stack.Toolbar>
++          <Button testID="reverse" title="rev" onPress={() => setReversed((v) => !v)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    // Initial: [star, ellipsis.circle]
++    const initialItems = ScreenStackItem.mock.calls[1][0].headerConfig?.headerRightBarButtonItems;
++    expect(initialItems).toHaveLength(2);
++
++    jest.clearAllMocks();
++    act(() => {
++      fireEvent.press(screen.getByTestId('reverse'));
++    });
++
++    // After reverse: re-registration must have fired AND the items array must
++    // be in the swapped order. JSON-comparing the items proves both at once
++    // (re-registration happened and the order actually changed).
++    expect(ScreenStackItem).toHaveBeenCalled();
++    const finalItems =
++      ScreenStackItem.mock.calls[ScreenStackItem.mock.calls.length - 1][0].headerConfig
++        ?.headerRightBarButtonItems;
++    expect(finalItems).toHaveLength(2);
++    expect(JSON.stringify(finalItems)).not.toEqual(JSON.stringify(initialItems));
++  });
++
++  it('Stack.Toolbar visual prop changes DO trigger re-registration', () => {
++    // Proves serializable props are captured in the fingerprint. Same button,
++    // same handler, only the icon string changes via state.
++    function Index() {
++      const [filled, setFilled] = useState(false);
++      return (
++        <>
++          <Stack.Toolbar placement="right">
++            <Stack.Toolbar.Button icon={filled ? 'star.fill' : 'star'} onPress={() => {}} />
++          </Stack.Toolbar>
++          <Button testID="toggle" title="toggle" onPress={() => setFilled((v) => !v)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    jest.clearAllMocks();
++    act(() => {
++      fireEvent.press(screen.getByTestId('toggle'));
++    });
++
++    expect(ScreenStackItem).toHaveBeenCalled();
++  });
++
++  it('Stack.Toolbar nested menu action changes DO trigger re-registration', () => {
++    // Proves the fingerprint recurses into the `children` prop of nested
++    // elements. Adding a MenuAction inside a Menu must change the fingerprint
++    // even though the outer Menu's other props are unchanged.
++    function Index() {
++      const [showExtra, setShowExtra] = useState(false);
++      return (
++        <>
++          <Stack.Toolbar placement="right">
++            <Stack.Toolbar.Menu icon="ellipsis.circle">
++              <Stack.Toolbar.MenuAction onPress={() => {}}>First</Stack.Toolbar.MenuAction>
++              {showExtra && (
++                <Stack.Toolbar.MenuAction onPress={() => {}}>Second</Stack.Toolbar.MenuAction>
++              )}
++            </Stack.Toolbar.Menu>
++          </Stack.Toolbar>
++          <Button testID="toggle" title="toggle" onPress={() => setShowExtra((v) => !v)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    jest.clearAllMocks();
++    act(() => {
++      fireEvent.press(screen.getByTestId('toggle'));
++    });
++
++    expect(ScreenStackItem).toHaveBeenCalled();
++  });
++
++  it('Stack.Toolbar handlers reading state via closure do not retrigger registration', () => {
++    // Strengthens the no-loop test: the in-toolbar `onPress` actually closes
++    // over `count` (a new closure on every render), but function-typed props
++    // are skipped by the fingerprint, so re-registration must NOT fire.
++    function Index() {
++      const [count, setCount] = useState(0);
++      // Closes over `count` so the closure is genuinely a different identity
++      // on every render. The fingerprint must still treat it as unchanged.
++      const handleStarPress = () => count;
++      return (
++        <>
++          <Stack.Toolbar placement="right">
++            <Stack.Toolbar.Button icon="star" onPress={handleStarPress} />
++          </Stack.Toolbar>
++          <Text testID="count">{count}</Text>
++          <Button testID="increment" title="+" onPress={() => setCount((c) => c + 1)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('0');
++    jest.clearAllMocks();
++
++    act(() => {
++      fireEvent.press(screen.getByTestId('increment'));
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('1');
++    expect(ScreenStackItem).not.toHaveBeenCalled();
++  });
++
+   it('changed composition options DO trigger ScreenStackItem update', () => {
+     const indexRender = jest.fn();
+ 
+@@ -520,4 +754,151 @@ describe('Stack composition components render count', () => {
+     // BackButton unmounted — backTitle should be cleared
+     expect(lastDetailCall![0].headerConfig?.backTitle).toBeUndefined();
+   });
++
++  // Regression suite for the bug class fixed by useStableCompositionOption.
++  // Each caller below previously dispatched on every parent render when its
++  // useMemo deps included an unstable value (inline style, JSX-array
++  // children, inline callback). On a real device this cascades through the
++  // navigator and crashes with "Maximum update depth exceeded"; in jest the
++  // ScreenStackItem mock severs the cascade so we only see the symptom (one
++  // extra ScreenStackItem call after a setState that didn't change any
++  // composition input). The helper absorbs the memoization so these all
++  // become no-ops.
++
++  it('Stack.Header with inline style does not retrigger registration on parent state change', () => {
++    function Index() {
++      const [count, setCount] = useState(0);
++      return (
++        <>
++          <Stack.Header style={{ backgroundColor: '#fff' }} />
++          <Text testID="count">{count}</Text>
++          <Button testID="increment" title="+" onPress={() => setCount((c) => c + 1)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('0');
++    jest.clearAllMocks();
++    act(() => {
++      fireEvent.press(screen.getByTestId('increment'));
++    });
++    expect(screen.getByTestId('count')).toHaveTextContent('1');
++    expect(ScreenStackItem).not.toHaveBeenCalled();
++  });
++
++  it('Stack.Screen.Title with inline style does not retrigger registration on parent state change', () => {
++    function Index() {
++      const [count, setCount] = useState(0);
++      return (
++        <>
++          <Stack.Screen.Title style={{ fontSize: 18 }}>Static</Stack.Screen.Title>
++          <Text testID="count">{count}</Text>
++          <Button testID="increment" title="+" onPress={() => setCount((c) => c + 1)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('0');
++    jest.clearAllMocks();
++    act(() => {
++      fireEvent.press(screen.getByTestId('increment'));
++    });
++    expect(screen.getByTestId('count')).toHaveTextContent('1');
++    expect(ScreenStackItem).not.toHaveBeenCalled();
++  });
++
++  it('Stack.Screen.Title with JSX-array children does not retrigger registration on parent state change', () => {
++    function Index() {
++      const [count, setCount] = useState(0);
++      const name = 'Ray';
++      return (
++        <>
++          {/* Two-child JSX produces a new array reference on every render */}
++          <Stack.Screen.Title>Hello {name}</Stack.Screen.Title>
++          <Text testID="count">{count}</Text>
++          <Button testID="increment" title="+" onPress={() => setCount((c) => c + 1)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('0');
++    jest.clearAllMocks();
++    act(() => {
++      fireEvent.press(screen.getByTestId('increment'));
++    });
++    expect(screen.getByTestId('count')).toHaveTextContent('1');
++    expect(ScreenStackItem).not.toHaveBeenCalled();
++  });
++
++  it('Stack.SearchBar with inline onChangeText does not retrigger registration on parent state change', () => {
++    function Index() {
++      const [count, setCount] = useState(0);
++      return (
++        <>
++          <Stack.SearchBar
++            placeholder="Search..."
++            // Inline arrow: new identity every render. Mirrors the docs
++            // example at native-tabs.mdx and is the trigger for the bug class.
++            onChangeText={(_text) => undefined}
++          />
++          <Text testID="count">{count}</Text>
++          <Button testID="increment" title="+" onPress={() => setCount((c) => c + 1)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('0');
++    jest.clearAllMocks();
++    act(() => {
++      fireEvent.press(screen.getByTestId('increment'));
++    });
++    expect(screen.getByTestId('count')).toHaveTextContent('1');
++    expect(ScreenStackItem).not.toHaveBeenCalled();
++  });
++
++  it('Stack.Screen.BackButton with inline style does not retrigger registration on parent state change', () => {
++    function Index() {
++      const [count, setCount] = useState(0);
++      return (
++        <>
++          <Stack.Screen.BackButton style={{ fontSize: 14 }}>Back</Stack.Screen.BackButton>
++          <Text testID="count">{count}</Text>
++          <Button testID="increment" title="+" onPress={() => setCount((c) => c + 1)} />
++        </>
++      );
++    }
++
++    renderRouter({
++      _layout: () => <Stack />,
++      index: Index,
++    });
++
++    expect(screen.getByTestId('count')).toHaveTextContent('0');
++    jest.clearAllMocks();
++    act(() => {
++      fireEvent.press(screen.getByTestId('increment'));
++    });
++    expect(screen.getByTestId('count')).toHaveTextContent('1');
++    expect(ScreenStackItem).not.toHaveBeenCalled();
++  });
+ });
 diff --git a/node_modules/expo-router/src/layouts/stack-utils/screen/StackScreenBackButton.tsx b/node_modules/expo-router/src/layouts/stack-utils/screen/StackScreenBackButton.tsx
-index e14d15b36b52f7..c9e081bc906081 100644
 --- a/node_modules/expo-router/src/layouts/stack-utils/screen/StackScreenBackButton.tsx
 +++ b/node_modules/expo-router/src/layouts/stack-utils/screen/StackScreenBackButton.tsx
 @@ -1,8 +1,7 @@
@@ -903,7 +1634,6 @@ index e14d15b36b52f7..c9e081bc906081 100644
  }
  
 diff --git a/node_modules/expo-router/src/layouts/stack-utils/screen/StackScreenTitle.tsx b/node_modules/expo-router/src/layouts/stack-utils/screen/StackScreenTitle.tsx
-index 0fc8b01db66a53..a925f4539e9219 100644
 --- a/node_modules/expo-router/src/layouts/stack-utils/screen/StackScreenTitle.tsx
 +++ b/node_modules/expo-router/src/layouts/stack-utils/screen/StackScreenTitle.tsx
 @@ -1,7 +1,7 @@
@@ -944,7 +1674,6 @@ index 0fc8b01db66a53..a925f4539e9219 100644
  }
  
 diff --git a/node_modules/expo-router/src/layouts/stack-utils/toolbar/StackToolbarClient.tsx b/node_modules/expo-router/src/layouts/stack-utils/toolbar/StackToolbarClient.tsx
-index 30a1b679159116..d574394cf90ea6 100644
 --- a/node_modules/expo-router/src/layouts/stack-utils/toolbar/StackToolbarClient.tsx
 +++ b/node_modules/expo-router/src/layouts/stack-utils/toolbar/StackToolbarClient.tsx
 @@ -16,7 +16,7 @@ import {

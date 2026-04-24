@@ -1,5 +1,4 @@
 diff --git a/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts b/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts
-index 6381d421872879..00091c71870321 100644
 --- a/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts
 +++ b/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts
 @@ -827,6 +827,13 @@ export declare const gridCellAnchor: (anchor: {
@@ -26,7 +25,6 @@ index 6381d421872879..00091c71870321 100644
   * Main ViewModifier type that supports both built-in and 3rd party modifiers.
   * 3rd party modifiers should return ModifierConfig objects with their own type strings.
 diff --git a/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts.map b/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts.map
-index 888088188ca471..c8726d1e109db6 100644
 --- a/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts.map
 +++ b/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts.map
 @@ -1 +1 @@
@@ -36,7 +34,6 @@ index 888088188ca471..c8726d1e109db6 100644
 \ No newline at end of file
 diff --git a/node_modules/@expo/ui/ios/Modifiers/TextInputAutocapitalizationModifier.swift b/node_modules/@expo/ui/ios/Modifiers/TextInputAutocapitalizationModifier.swift
 new file mode 100644
-index 00000000000000..bad1b9bc13a3cb
 --- /dev/null
 +++ b/node_modules/@expo/ui/ios/Modifiers/TextInputAutocapitalizationModifier.swift
 @@ -0,0 +1,28 @@
@@ -69,7 +66,6 @@ index 00000000000000..bad1b9bc13a3cb
 +  }
 +}
 diff --git a/node_modules/@expo/ui/ios/Modifiers/ViewModifierRegistry.swift b/node_modules/@expo/ui/ios/Modifiers/ViewModifierRegistry.swift
-index 75d425eb7cd41b..74e8eb84f011c4 100644
 --- a/node_modules/@expo/ui/ios/Modifiers/ViewModifierRegistry.swift
 +++ b/node_modules/@expo/ui/ios/Modifiers/ViewModifierRegistry.swift
 @@ -1842,6 +1842,10 @@ extension ViewModifierRegistry {
@@ -84,7 +80,6 @@ index 75d425eb7cd41b..74e8eb84f011c4 100644
        return try DatePickerStyleModifier(from: params, appContext: appContext)
      }
 diff --git a/node_modules/@expo/ui/src/swift-ui/modifiers/index.ts b/node_modules/@expo/ui/src/swift-ui/modifiers/index.ts
-index 1e05757b864f3d..c650c174e5fb26 100644
 --- a/node_modules/@expo/ui/src/swift-ui/modifiers/index.ts
 +++ b/node_modules/@expo/ui/src/swift-ui/modifiers/index.ts
 @@ -1017,6 +1017,16 @@ export const submitLabel = (

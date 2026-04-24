@@ -1,5 +1,4 @@
 diff --git a/build/swift-ui/modifiers/index.d.ts b/build/swift-ui/modifiers/index.d.ts
-index 00091c71870321..a4681baf20c0a4 100644
 --- a/build/swift-ui/modifiers/index.d.ts
 +++ b/build/swift-ui/modifiers/index.d.ts
 @@ -834,6 +834,14 @@ export declare const submitLabel: (submitLabel: "continue" | "done" | "go" | "jo
@@ -27,7 +26,6 @@ index 00091c71870321..a4681baf20c0a4 100644
   * Main ViewModifier type that supports both built-in and 3rd party modifiers.
   * 3rd party modifiers should return ModifierConfig objects with their own type strings.
 diff --git a/build/swift-ui/modifiers/index.d.ts.map b/build/swift-ui/modifiers/index.d.ts.map
-index c8726d1e109db6..738c06dddbb483 100644
 --- a/build/swift-ui/modifiers/index.d.ts.map
 +++ b/build/swift-ui/modifiers/index.d.ts.map
 @@ -1 +1 @@
@@ -37,7 +35,6 @@ index c8726d1e109db6..738c06dddbb483 100644
 \ No newline at end of file
 diff --git a/ios/Modifiers/TextContentTypeModifier.swift b/ios/Modifiers/TextContentTypeModifier.swift
 new file mode 100644
-index 00000000000000..8dddc2a059b938
 --- /dev/null
 +++ b/ios/Modifiers/TextContentTypeModifier.swift
 @@ -0,0 +1,191 @@
@@ -233,7 +230,6 @@ index 00000000000000..8dddc2a059b938
 +  }
 +}
 diff --git a/ios/Modifiers/ViewModifierRegistry.swift b/ios/Modifiers/ViewModifierRegistry.swift
-index 74e8eb84f011c4..fd562573c96212 100644
 --- a/ios/Modifiers/ViewModifierRegistry.swift
 +++ b/ios/Modifiers/ViewModifierRegistry.swift
 @@ -1846,6 +1846,10 @@ extension ViewModifierRegistry {
@@ -248,7 +244,6 @@ index 74e8eb84f011c4..fd562573c96212 100644
        return try DatePickerStyleModifier(from: params, appContext: appContext)
      }
 diff --git a/src/swift-ui/modifiers/index.ts b/src/swift-ui/modifiers/index.ts
-index c650c174e5fb26..82c961ce4b39da 100644
 --- a/src/swift-ui/modifiers/index.ts
 +++ b/src/swift-ui/modifiers/index.ts
 @@ -1027,6 +1027,62 @@ export const textInputAutocapitalization = (
