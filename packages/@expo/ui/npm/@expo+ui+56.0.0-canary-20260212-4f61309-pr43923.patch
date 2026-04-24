@@ -1,4 +1,5 @@
 diff --git a/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts b/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts
+index e23d17ac41b1ee..3ecc5a49dade72 100644
 --- a/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts
 +++ b/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts
 @@ -453,15 +453,27 @@ export declare const scrollDismissesKeyboard: (mode: "automatic" | "never" | "in
@@ -42,6 +43,7 @@ diff --git a/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts b/node_mo
   * Main ViewModifier type that supports both built-in and 3rd party modifiers.
   * 3rd party modifiers should return ModifierConfig objects with their own type strings.
 diff --git a/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts.map b/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts.map
+index b3993d16411265..1471419538a016 100644
 --- a/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts.map
 +++ b/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts.map
 @@ -1 +1 @@
@@ -51,6 +53,7 @@ diff --git a/node_modules/@expo/ui/build/swift-ui/modifiers/index.d.ts.map b/nod
 \ No newline at end of file
 diff --git a/node_modules/@expo/ui/ios/Modifiers/DefaultScrollAnchorForRoleModifier.swift b/node_modules/@expo/ui/ios/Modifiers/DefaultScrollAnchorForRoleModifier.swift
 new file mode 100644
+index 00000000000000..0c79c0f7bccf14
 --- /dev/null
 +++ b/node_modules/@expo/ui/ios/Modifiers/DefaultScrollAnchorForRoleModifier.swift
 @@ -0,0 +1,32 @@
@@ -87,6 +90,7 @@ new file mode 100644
 +  }
 +}
 diff --git a/node_modules/@expo/ui/ios/Modifiers/DefaultScrollAnchorModifier.swift b/node_modules/@expo/ui/ios/Modifiers/DefaultScrollAnchorModifier.swift
+index 27924f3e45e40c..184d9840031d2a 100644
 --- a/node_modules/@expo/ui/ios/Modifiers/DefaultScrollAnchorModifier.swift
 +++ b/node_modules/@expo/ui/ios/Modifiers/DefaultScrollAnchorModifier.swift
 @@ -4,11 +4,11 @@ import ExpoModulesCore
@@ -104,6 +108,7 @@ diff --git a/node_modules/@expo/ui/ios/Modifiers/DefaultScrollAnchorModifier.swi
        content
      }
 diff --git a/node_modules/@expo/ui/ios/Modifiers/ViewModifierRegistry.swift b/node_modules/@expo/ui/ios/Modifiers/ViewModifierRegistry.swift
+index 233539c6da46af..d7f1bcb2fe7714 100644
 --- a/node_modules/@expo/ui/ios/Modifiers/ViewModifierRegistry.swift
 +++ b/node_modules/@expo/ui/ios/Modifiers/ViewModifierRegistry.swift
 @@ -1846,6 +1846,10 @@ extension ViewModifierRegistry {
@@ -118,6 +123,7 @@ diff --git a/node_modules/@expo/ui/ios/Modifiers/ViewModifierRegistry.swift b/no
        return try ProgressViewStyleModifier(from: params, appContext: appContext)
      }
 diff --git a/node_modules/@expo/ui/src/swift-ui/modifiers/index.ts b/node_modules/@expo/ui/src/swift-ui/modifiers/index.ts
+index a4f1efb938deee..58b349c56221fa 100644
 --- a/node_modules/@expo/ui/src/swift-ui/modifiers/index.ts
 +++ b/node_modules/@expo/ui/src/swift-ui/modifiers/index.ts
 @@ -567,27 +567,43 @@ export const scrollDismissesKeyboard = (

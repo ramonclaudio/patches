@@ -1,8 +1,21 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index cdf399a40412fb..791b2d77b9f6b4 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -31,6 +31,7 @@
+ - [iOS] Add `ObservableState` shared object and `useNativeState` hook for controlling native SwiftUI state from JS. ([#44214](https://github.com/expo/expo/pull/44214) by [@nishan](https://github.com/intergalacticspacehighway))
+ - [iOS] Add shared object worklet support with `.value` property API for `ObservableState`. ([#44215](https://github.com/expo/expo/pull/44215) by [@nishan](https://github.com/intergalacticspacehighway))
+ - [iOS] Add `WorkletCallback` shared object for synchronous UI thread callbacks. ([#44216](https://github.com/expo/expo/pull/44216) by [@nishan](https://github.com/intergalacticspacehighway))
++- [iOS] Added `scrollPosition` binding, `scrollPositionAnchor`, and `onScrollPositionChangeSync` worklet callback to `ScrollView`, and `id` modifier for identifying scroll targets (iOS 17+). ([#44652](https://github.com/expo/expo/pull/44652) by [@ramonclaudio](https://github.com/ramonclaudio))
+ - [android] Added `TooltipBox`, `PlainTooltip`, and `RichTooltip` components matching native Compose Tooltip API. Supports plain and rich tooltips with slot-based content, programmatic show/dismiss via ref, and `isPersistent`, `hasAction`, `enableUserInput`, `focusable` props. ([#44373](https://github.com/expo/expo/pull/44373) by [@nishan](https://github.com/intergalacticspacehighway))
+ - [android] Added `Badge` and `BadgedBox` components wrapping Jetpack Compose's Badge API for status indicators and count overlays. ([#44139](https://github.com/expo/expo/pull/44139) by [@benjaminkomen](https://github.com/benjaminkomen))
+ - [android] Added `shape`, `border`, `selected`, `checked`, `onClick`, and `onCheckedChange` props to `Surface`, supporting clickable, selectable, and toggleable variants. ([#44079](https://github.com/expo/expo/pull/44079) by [@nishan](https://github.com/intergalacticspacehighway))
 diff --git a/build/swift-ui/ScrollView/index.d.ts b/build/swift-ui/ScrollView/index.d.ts
+index ea4bffe9ea832a..3e3b86494e83ca 100644
 --- a/build/swift-ui/ScrollView/index.d.ts
 +++ b/build/swift-ui/ScrollView/index.d.ts
 @@ -1,3 +1,5 @@
-+import { type ObservableState } from '../../State/useNativeState';
++import { type ObservableState } from '../State/useNativeState';
 +import { type UnitPointValue } from '../modifiers';
  import { type CommonViewModifierProps } from '../types';
  export type ScrollViewProps = {
@@ -69,14 +82,16 @@ diff --git a/build/swift-ui/ScrollView/index.d.ts b/build/swift-ui/ScrollView/in
  //# sourceMappingURL=index.d.ts.map
 \ No newline at end of file
 diff --git a/build/swift-ui/ScrollView/index.d.ts.map b/build/swift-ui/ScrollView/index.d.ts.map
+index c792136beeae88..4c39bd48646232 100644
 --- a/build/swift-ui/ScrollView/index.d.ts.map
 +++ b/build/swift-ui/ScrollView/index.d.ts.map
 @@ -1 +1 @@
 -{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/swift-ui/ScrollView/index.tsx"],"names":[],"mappings":"AAGA,OAAO,EAAE,KAAK,uBAAuB,EAAE,MAAM,UAAU,CAAC;AAExD,MAAM,MAAM,eAAe,GAAG;IAC5B,QAAQ,EAAE,KAAK,CAAC,SAAS,CAAC;IAC1B;;;OAGG;IACH,IAAI,CAAC,EAAE,UAAU,GAAG,YAAY,GAAG,MAAM,CAAC;IAC1C;;;OAGG;IACH,eAAe,CAAC,EAAE,OAAO,CAAC;CAC3B,GAAG,uBAAuB,CAAC;AAO5B,wBAAgB,UAAU,CAAC,KAAK,EAAE,eAAe,+BAShD"}
 \ No newline at end of file
-+{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/swift-ui/ScrollView/index.tsx"],"names":[],"mappings":"AAEA,OAAO,EAAE,KAAK,eAAe,EAAE,MAAM,4BAA4B,CAAC;AAGlE,OAAO,EAAE,KAAK,cAAc,EAAE,MAAM,cAAc,CAAC;AAEnD,OAAO,EAAE,KAAK,uBAAuB,EAAE,MAAM,UAAU,CAAC;AAExD,MAAM,MAAM,eAAe,GAAG;IAC5B,QAAQ,EAAE,KAAK,CAAC,SAAS,CAAC;IAC1B;;;OAGG;IACH,IAAI,CAAC,EAAE,UAAU,GAAG,YAAY,GAAG,MAAM,CAAC;IAC1C;;;OAGG;IACH,eAAe,CAAC,EAAE,OAAO,CAAC;IAC1B;;;;;;;;;;;;;;;;;;;;;;OAsBG;IACH,cAAc,CAAC,EAAE,eAAe,CAAC,MAAM,GAAG,IAAI,CAAC,CAAC;IAChD;;;;;;;OAOG;IACH,oBAAoB,CAAC,EAAE,cAAc,CAAC;IACtC;;;;;;;;;;;;;;;;;;OAkBG;IACH,0BAA0B,CAAC,EAAE,CAAC,EAAE,EAAE,MAAM,GAAG,IAAI,KAAK,IAAI,CAAC;CAC1D,GAAG,uBAAuB,CAAC;AAe5B,wBAAgB,UAAU,CAAC,KAAK,EAAE,eAAe,+BAahD"}
++{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/swift-ui/ScrollView/index.tsx"],"names":[],"mappings":"AAEA,OAAO,EAAE,KAAK,eAAe,EAAE,MAAM,yBAAyB,CAAC;AAG/D,OAAO,EAAE,KAAK,cAAc,EAAE,MAAM,cAAc,CAAC;AAEnD,OAAO,EAAE,KAAK,uBAAuB,EAAE,MAAM,UAAU,CAAC;AAExD,MAAM,MAAM,eAAe,GAAG;IAC5B,QAAQ,EAAE,KAAK,CAAC,SAAS,CAAC;IAC1B;;;OAGG;IACH,IAAI,CAAC,EAAE,UAAU,GAAG,YAAY,GAAG,MAAM,CAAC;IAC1C;;;OAGG;IACH,eAAe,CAAC,EAAE,OAAO,CAAC;IAC1B;;;;;;;;;;;;;;;;;;;;;;OAsBG;IACH,cAAc,CAAC,EAAE,eAAe,CAAC,MAAM,GAAG,IAAI,CAAC,CAAC;IAChD;;;;;;;OAOG;IACH,oBAAoB,CAAC,EAAE,cAAc,CAAC;IACtC;;;;;;;;;;;;;;;;;;OAkBG;IACH,0BAA0B,CAAC,EAAE,CAAC,EAAE,EAAE,MAAM,GAAG,IAAI,KAAK,IAAI,CAAC;CAC1D,GAAG,uBAAuB,CAAC;AAe5B,wBAAgB,UAAU,CAAC,KAAK,EAAE,eAAe,+BAahD"}
 \ No newline at end of file
 diff --git a/build/swift-ui/modifiers/index.d.ts b/build/swift-ui/modifiers/index.d.ts
+index ae9d67bc991b4d..6bd6d0f0e4f97c 100644
 --- a/build/swift-ui/modifiers/index.d.ts
 +++ b/build/swift-ui/modifiers/index.d.ts
 @@ -455,7 +455,7 @@ export declare const scrollDismissesKeyboard: (mode: "automatic" | "never" | "in
@@ -111,6 +126,7 @@ diff --git a/build/swift-ui/modifiers/index.d.ts b/build/swift-ui/modifiers/inde
   * Main ViewModifier type that supports both built-in and 3rd party modifiers.
   * 3rd party modifiers should return ModifierConfig objects with their own type strings.
 diff --git a/build/swift-ui/modifiers/index.d.ts.map b/build/swift-ui/modifiers/index.d.ts.map
+index bc17153ba9f736..0cc5f16aebbbd9 100644
 --- a/build/swift-ui/modifiers/index.d.ts.map
 +++ b/build/swift-ui/modifiers/index.d.ts.map
 @@ -1 +1 @@
@@ -120,6 +136,7 @@ diff --git a/build/swift-ui/modifiers/index.d.ts.map b/build/swift-ui/modifiers/
 \ No newline at end of file
 diff --git a/ios/Modifiers/IDModifier.swift b/ios/Modifiers/IDModifier.swift
 new file mode 100644
+index 00000000000000..bdfc24d6069b40
 --- /dev/null
 +++ b/ios/Modifiers/IDModifier.swift
 @@ -0,0 +1,12 @@
@@ -136,6 +153,7 @@ new file mode 100644
 +  }
 +}
 diff --git a/ios/Modifiers/ViewModifierRegistry.swift b/ios/Modifiers/ViewModifierRegistry.swift
+index 55a47655159366..f67bb7b5461cc0 100644
 --- a/ios/Modifiers/ViewModifierRegistry.swift
 +++ b/ios/Modifiers/ViewModifierRegistry.swift
 @@ -1826,6 +1826,10 @@ extension ViewModifierRegistry {
@@ -150,6 +168,7 @@ diff --git a/ios/Modifiers/ViewModifierRegistry.swift b/ios/Modifiers/ViewModifi
        return try PickerStyleModifier(from: params, appContext: appContext)
      }
 diff --git a/ios/ScrollViewComponent.swift b/ios/ScrollViewComponent.swift
+index 3d658f39a69e67..f86779cd052a26 100644
 --- a/ios/ScrollViewComponent.swift
 +++ b/ios/ScrollViewComponent.swift
 @@ -6,6 +6,9 @@ import ExpoModulesCore
@@ -218,14 +237,15 @@ diff --git a/ios/ScrollViewComponent.swift b/ios/ScrollViewComponent.swift
 +  }
 +}
 diff --git a/src/swift-ui/ScrollView/index.tsx b/src/swift-ui/ScrollView/index.tsx
+index 786409fa28223d..08ebe10283b961 100644
 --- a/src/swift-ui/ScrollView/index.tsx
 +++ b/src/swift-ui/ScrollView/index.tsx
 @@ -1,5 +1,9 @@
  import { requireNativeView } from 'expo';
  
-+import { type ObservableState } from '../../State/useNativeState';
-+import { useWorkletProp } from '../../State/useWorkletProp';
-+import { getStateId } from '../../State/utils';
++import { type ObservableState } from '../State/useNativeState';
++import { useWorkletProp } from '../State/useWorkletProp';
++import { getStateId } from '../State/utils';
 +import { type UnitPointValue } from '../modifiers';
  import { createViewModifierEventListener } from '../modifiers/utils';
  import { type CommonViewModifierProps } from '../types';
@@ -319,6 +339,7 @@ diff --git a/src/swift-ui/ScrollView/index.tsx b/src/swift-ui/ScrollView/index.t
    );
  }
 diff --git a/src/swift-ui/modifiers/index.ts b/src/swift-ui/modifiers/index.ts
+index 5fc601d2c716b6..62799c0f7744fc 100644
 --- a/src/swift-ui/modifiers/index.ts
 +++ b/src/swift-ui/modifiers/index.ts
 @@ -569,7 +569,7 @@ export const scrollDismissesKeyboard = (
