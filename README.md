@@ -67,7 +67,7 @@ Merged upstream. Bump the dep (or wait for the next canary), then delete the pat
 ## Closed
 
 <details>
-<summary>PRs that didn't merge as filed. Most catalyzed a different upstream fix. A few are still stale.</summary>
+<summary>PRs that didn't merge as filed but catalyzed an upstream fix or got rebuilt by the maintainer.</summary>
 
 | Package | Was | Format | Fix | Status |
 | :--- | :--- | :--- | :--- | :--- |
@@ -80,17 +80,13 @@ Merged upstream. Bump the dep (or wait for the next canary), then delete the pat
 | [`@tobilu/qmd`](packages/@tobilu/qmd/) | `1.0.7` | Bun, npm (patch-package), pnpm | `dist/` was gitignored and not committed at release time, so `npm install github:tobi/qmd#vX.Y.Z` failed. No compiled output in the tag. | `1.1.0+`, [tobi/qmd#197](https://github.com/tobi/qmd/pull/197). Closed mine after upstream rebuilt the fix differently |
 | [`@astrojs/compiler`](packages/withastro/compiler-rs/) | n/a | Source (git apply) | Added `-x` to the `x86_64-unknown-linux-gnu` build for glibc compat. First take. | closed [withastro/compiler-rs#21](https://github.com/withastro/compiler-rs/pull/21). Refiled as [#22](https://github.com/withastro/compiler-rs/pull/22), which merged |
 | [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.11.4` | Bun, npm (patch-package), pnpm | On session rotation (`changePassword({ revokeOtherSessions: true })`, cross-domain handoff, custom plugin endpoints), the Convex client was holding a JWT bound to the dead session. `fetchAccessToken` rebuilds on `[sessionId]` but the cached token state was only cleared in the logout-only effect. So when `sessionId` flipped with `session` still truthy, the rebuilt closure read the same stale token and Convex's `setConfig` short-circuited on it. Patch clears `cachedToken` and `pendingTokenRef` on `sessionId` change. | closed mine, [get-convex/better-auth#329](https://github.com/get-convex/better-auth/pull/329). Superseded by [better-auth/better-auth#9345](https://github.com/better-auth/better-auth/pull/9345), which fixes the upstream root cause instead of patching the symptom client-side |
-| [`expo-router`](packages/expo-router/) | `56.0.0-canary-20260423-c31bd8e` | Bun, npm (patch-package), pnpm | All 5 Stack composition components (`Toolbar`, `Header`, `Screen.Title`, `SearchBar`, `Screen.BackButton`) infinite-rerendered when their props had unstable references. Patch added a `useStableCompositionOption` helper that fingerprints structurally. Fix for [expo/expo#44561](https://github.com/expo/expo/issues/44561). | closed mine, [expo/expo#44563](https://github.com/expo/expo/pull/44563). Upstream likely fixed the symptom between filing and now, will refile if it returns |
-| [`expo-router`](packages/expo/) | n/a | Source (git apply) | Renamed `RNSBottomTabs*` class refs to `RNSTabs*` to match `react-native-screens`. | closed ([expo/expo#43484](https://github.com/expo/expo/pull/43484)) |
-| [`convex`](packages/convex/) | n/a | Source (git apply) | Adds a `signal` param to `NextjsOptions` for React 19.2 `cacheSignal()` abort support. | closed ([get-convex/convex-js#95](https://github.com/get-convex/convex-js/pull/95)) |
-| [`@tobilu/qmd`](packages/@tobilu/qmd/) | n/a | Source (git apply) | Tool name, param names, and ghost params in `mcp-setup.md` were out of sync with the `inputSchema` in `src/mcp.ts`. | still stale, [tobi/qmd#95](https://github.com/tobi/qmd/pull/95). Closed mine, corrections documented in the PR body |
 
 </details>
 
 ## Filed
 
 <details>
-<summary>Issues I tracked down and reported. Most got fixed, often by my own follow-up PR or by the maintainer once they saw the trace.</summary>
+<summary>Issues I tracked down. All got fixed, by the maintainer or by my own follow-up PR.</summary>
 
 | Issue | Package | Status | Notes |
 | :--- | :--- | :--- | :--- |
@@ -101,13 +97,6 @@ Merged upstream. Bump the dep (or wait for the next canary), then delete the pat
 | [get-convex/better-auth#345](https://github.com/get-convex/better-auth/issues/345) | `@convex-dev/better-auth` | fixed (my PR) | `better-auth` 1.6.6's dynamic `@opentelemetry/api` import was throwing synchronously on every Convex auth request inside the V8 isolate (`deno_core::resolve_import` rejects bare specifiers at resolve time, not at the import promise). Fixed by my own PR [#323](https://github.com/get-convex/better-auth/pull/323), released as `0.12.0` after [better-auth/better-auth#9281](https://github.com/better-auth/better-auth/pull/9281) shipped the noop instrumentation entry in `1.6.7`. |
 | [get-convex/better-auth#219](https://github.com/get-convex/better-auth/issues/219) | `@convex-dev/better-auth` | fixed (my PR) | Concurrent `fetchAccessToken` calls were racing to `/token`. Fixed by my own PR [#267](https://github.com/get-convex/better-auth/pull/267). |
 | [cursor/cursor#3182](https://github.com/cursor/cursor/issues/3182) | `cursor` | fixed | Couldn't update the spending limit or toggle usage-based pricing on the main dashboard. Fixed upstream. (Cursor later disabled their issue tracker.) |
-| [anthropics/claude-code#18075](https://github.com/anthropics/claude-code/issues/18075) | `claude` | open | Feature request: env var for a custom Chromium browser path. |
-| [oven-sh/bun#29444](https://github.com/oven-sh/bun/issues/29444) | `bun` | open | `bun install` was warning on valid prereleases in peer deps because `satisfies` ignored `includePrerelease`. My PR [#27085](https://github.com/oven-sh/bun/pull/27085) ports the `satisfiesIncludePrerelease` path through to peer dep validation. |
-| [expo/expo#44561](https://github.com/expo/expo/issues/44561) | `expo-router` | closed (no repro) | `Stack.Toolbar` with `placement='left'` or `'right'` infinite-rerendered on any parent re-render. Auto-closed by `expo-bot` for a missing minimal repro template. My workaround [#44563](https://github.com/expo/expo/pull/44563) was later closed without merge after upstream likely fixed the symptom. |
-| [expo/expo#44564](https://github.com/expo/expo/issues/44564) | `expo-router` | closed by me | `useCompositionOption` has an implicit "stable identity" contract that callers violate with inline JSX children. Closed mine as redundant after I documented the concern in the [#44563](https://github.com/expo/expo/pull/44563) PR body. (That PR was later closed without merge.) |
-| [tobi/qmd#198](https://github.com/tobi/qmd/issues/198) | [`@tobilu/qmd`](packages/@tobilu/qmd/) | closed by me | `bun add` was blocking the `node-llama-cpp` postinstall. Harmless warning, qmd still worked. Closed mine as not-a-bug. Upstream later added `pnpm.onlyBuiltDependencies` in [cc32c995](https://github.com/tobi/qmd/commit/cc32c995). |
-| [Textualize/textual#5980](https://github.com/Textualize/textual/issues/5980) | `textual` | closed by me | Emoji with variation selectors were misaligning button layout in Ghostty. Closed mine after the discussion concluded the fix belongs in terminal emulators via mode 2027, not in `textual`. |
-| [anthropics/claude-code#20664](https://github.com/anthropics/claude-code/issues/20664) | `claude` | stale | `--fork-session` wasn't inheriting `CLAUDE_CODE_TASK_LIST_ID` from the parent session. Auto-closed by `github-actions` for inactivity. No human ever responded. |
 
 </details>
 
