@@ -6,7 +6,7 @@
 >
 > [@FFmpeg](https://x.com/FFmpeg/status/1762805900035686805)
 
-I live on canary versions of half my stack (Bun, Expo, Convex, Hydrogen). Stuff breaks. Every time I open a PR upstream I write a patch and use it locally so I'm not blocked while the PR sits in review. Then I publish the patch here so you can drop it into your project and keep iterating without waiting for the PR to merge.
+Every time I open a PR upstream I write a patch and use it locally so I'm not blocked while the PR sits in review. Then I publish the patch here so you can drop it into your project and keep iterating without waiting for the PR to merge.
 
 Once the PR merges, drop the patch and bump the dep like you normally would.
 
