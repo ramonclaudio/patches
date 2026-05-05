@@ -64,25 +64,6 @@ Merged upstream. Bump the dep (or wait for the next canary), then delete the pat
 | [`create-fumadocs-app`](packages/create-fumadocs-app/) | `15.6.4` | Vite and TanStack Router config warnings in the `tanstack-start` template. | `15.6.5` ([fuma-nama/fumadocs#2092](https://github.com/fuma-nama/fumadocs/pull/2092)) |
 | [`@tanstack/db`](packages/tanstack/) | n/a | Wrong example todo app path in the README. | merged ([TanStack/db#17](https://github.com/TanStack/db/pull/17)) |
 
-## Closed
-
-<details>
-<summary>PRs that didn't merge as filed but catalyzed an upstream fix or got rebuilt by the maintainer.</summary>
-
-| Package | Was | Fix | Status |
-| :--- | :--- | :--- | :--- |
-| [`@shopify/mini-oxygen`](packages/@shopify/mini-oxygen/) | `4.0.0` | Vite 7 was throwing `ReferenceError: __vite_ssr_exportName__ is not defined` on every dev request. Missing 6th SSR key, no `getBuiltins()` support, broken `fetchModule` importer, deprecated `root`, peer pinned at Vite 5 and 6. Patch fixed all five and bumped peer to `^7.0.0`. | next release in [Shopify/hydrogen#3617](https://github.com/Shopify/hydrogen/pull/3617). [@frandiox](https://github.com/frandiox) closed mine and rebuilt with the Vite Environment API for 6, 7, and 8 backward compat |
-| ↳ [`@shopify/hydrogen`](packages/@shopify/hydrogen/) | `2026.1.0` | `vite` peer `^5.1.0 \|\| ^6.2.1` replaced with `^7.0.0`. Vite 5 and 6 dropped. | sibling of [#3493](https://github.com/Shopify/hydrogen/pull/3493) |
-| ↳ [`@shopify/hydrogen-react`](packages/@shopify/hydrogen-react/) | `2026.1.0` | `vite` peer widened to `^5.1.0 \|\| ^6.2.1 \|\| ^7.0.0`. | sibling of [#3493](https://github.com/Shopify/hydrogen/pull/3493) |
-| ↳ [`@shopify/cli-hydrogen`](packages/@shopify/cli-hydrogen/) | `11.1.9` | `vite` peer `^5.1.0 \|\| ^6.2.0` replaced with `^7.0.0`. Vite 5 and 6 dropped. | sibling of [#3493](https://github.com/Shopify/hydrogen/pull/3493) |
-| [`react-native-view-shot`](packages/react-native-view-shot/) | `4.0.3` | RN 0.84 with the new arch dropped `RCTScrollView`. The `snapshotContentContainer` check was looking for it and silently bailing. Switched to `UIScrollView`. | `5.0.0-alpha.2` in [gre/react-native-view-shot#587](https://github.com/gre/react-native-view-shot/pull/587). Didn't file a PR, upstream landed the same fix independently |
-| [`@tanstack/start-server-core`](packages/@tanstack/start-server-core/) | `1.167.10` | `start-plugin-core@1.167.19` shipped referencing `pluginAdapters` from `start-server-core`'s `VIRTUAL_MODULES`, but `start-server-core` hadn't released a matching version yet. `vite dev` crashed on every fresh install. Patch added the missing export. | `1.167.11`, [TanStack/router#7146](https://github.com/TanStack/router/pull/7146). Closed mine after Tanner synced the versions manually in `e61c49ce31` |
-| [`@tobilu/qmd`](packages/@tobilu/qmd/) | `1.0.7` | `dist/` was gitignored and not committed at release time, so `npm install github:tobi/qmd#vX.Y.Z` failed. No compiled output in the tag. | `1.1.0+`, [tobi/qmd#197](https://github.com/tobi/qmd/pull/197). Closed mine after upstream rebuilt the fix differently |
-| [`@astrojs/compiler`](packages/withastro/compiler-rs/) | n/a | Added `-x` to the `x86_64-unknown-linux-gnu` build for glibc compat. First take. | closed [withastro/compiler-rs#21](https://github.com/withastro/compiler-rs/pull/21). Refiled as [#22](https://github.com/withastro/compiler-rs/pull/22), which merged |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.11.4` | On session rotation (`changePassword({ revokeOtherSessions: true })`, cross-domain handoff, custom plugin endpoints), the Convex client was holding a JWT bound to the dead session. `fetchAccessToken` rebuilds on `[sessionId]` but the cached token state was only cleared in the logout-only effect. So when `sessionId` flipped with `session` still truthy, the rebuilt closure read the same stale token and Convex's `setConfig` short-circuited on it. Patch clears `cachedToken` and `pendingTokenRef` on `sessionId` change. | closed mine, [get-convex/better-auth#329](https://github.com/get-convex/better-auth/pull/329). Superseded by [better-auth/better-auth#9345](https://github.com/better-auth/better-auth/pull/9345), which fixes the upstream root cause instead of patching the symptom client-side |
-
-</details>
-
 ## Filed
 
 <details>
