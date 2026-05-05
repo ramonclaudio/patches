@@ -18,12 +18,12 @@ PRs still in flight. Every row has a patch in `packages/` you can drop into your
 
 | Package | Version | Fix | PR |
 | :--- | :--- | :--- | :--- |
+| [`expo`](packages/expo/) | n/a | Tried installing `@expo/ui` after upgrading to canary expo per the docs and `bun add @expo/ui@canary` errored with `Workspace dependency "expo" not found`. Canary tarballs were shipping `peerDependencies.expo: "workspace:*"` literal, never substituted. `getPackageByName` does a path lookup at `packages/<name>/package.json`, which misses for `@expo/ui` (lives at `packages/expo-ui/`) and `@expo/app-integrity` (at `packages/expo-app-integrity/`). On a miss, `Workspace.getInfoAsync` records empty peer deps, so `updateWorkspaceProjects` never rewrites `workspace:*`. Patch adds a name-based fallback that scans `cachedPackages` when the path lookup misses. Same root cause as [#44412](https://github.com/expo/expo/pull/44412), different call site. | [expo/expo#45403](https://github.com/expo/expo/pull/45403) |
+| [`better-auth`](packages/better-auth/) | `1.6.9` | Calling `/change-password` with `revokeOtherSessions: true` was wiping out the caller's own session along with everyone else's. JSDoc says "revoke all sessions that are not the current one". Code did the opposite. Convex and other JWT consumers held a token pointing at a deleted row for half a second to a second and a half. Patch copies the filter from `/revoke-other-sessions`, so siblings die but the caller survives. Same family as [#9087](https://github.com/better-auth/better-auth/pull/9087). | [better-auth/better-auth#9345](https://github.com/better-auth/better-auth/pull/9345) |
+| [`@hugeicons/react`](packages/@hugeicons/react/) | `1.1.6` | `@hugeicons/core-free-icons` ships 5,100+ per-icon JS files but only a barrel `index.d.ts`. Subpath imports (`@hugeicons/core-free-icons/Heart`) work at runtime, but TypeScript can't find their types under `node16`, `nodenext`, or `bundler` resolution, so Vite dev pre-bundles the whole barrel. 6.2 MB instead of the 33 KB you actually use. PR ships `dist/types/core-free-icons.d.ts` (a script with `declare module '@hugeicons/core-free-icons/*'` and the `IconSvgObject` union the barrel exports: `[string, { [key: string]: string \| number }][] \| readonly (readonly [string, { readonly [key: string]: string \| number }])[]`) and prepends `/// <reference path="./core-free-icons.d.ts" />` to `dist/types/index.d.ts`, so the ambient declaration is global. (Script `.d.ts` triple-slash-loaded from a module entry is the only shape TS accepts. Inline a `declare module` block into a file with top-level `export` and TS treats it as a module augmentation, scoped to that module, not a global ambient.) npm and pnpm patches mirror the PR exactly. The bun patch ships the script `.d.ts` at `dist/core-free-icons.d.ts` instead and adjusts the triple-slash to `../core-free-icons.d.ts` so `bun patchedDependencies` can apply it without tripping [`oven-sh/bun#13330`](https://github.com/oven-sh/bun/issues/13330). Single-subdir new files apply fine, nested ones fail. | [hugeicons/react#5](https://github.com/hugeicons/react/pull/5) |
 | [`shadcn`](packages/shadcn/) | `4.7.0` | Hit Cmd+Delete on macOS to clear the default in `npx shadcn add` and you end up with a directory called `\x15my-app`. Cmd+Delete sends Ctrl+U, which `prompts` happily writes through as a NAK byte. Patch strips C0 (`0x00`-`0x1F`) and DEL (`0x7F`) before they reach the input. | [shadcn-ui/ui#10364](https://github.com/shadcn-ui/ui/pull/10364) |
 | [`bun`](packages/oven-sh/bun/) | `1.3.13` | Bad YAML in the `update-root-certs` workflow. `labels` was a sequence, the action wanted a multiline string. | [oven-sh/bun#27086](https://github.com/oven-sh/bun/pull/27086) |
 | [`bun`](packages/oven-sh/bun/) | `1.3.13` | Peer dep semver validation was ignoring `includePrerelease`, so valid prereleases triggered noisy warnings on `bun install`. Patch ports the `satisfiesIncludePrerelease` path through to peer dep checks. | [oven-sh/bun#27085](https://github.com/oven-sh/bun/pull/27085) |
-| [`better-auth`](packages/better-auth/) | `1.6.9` | Calling `/change-password` with `revokeOtherSessions: true` was wiping out the caller's own session along with everyone else's. JSDoc says "revoke all sessions that are not the current one". Code did the opposite. Convex and other JWT consumers held a token pointing at a deleted row for half a second to a second and a half. Patch copies the filter from `/revoke-other-sessions`, so siblings die but the caller survives. Same family as [#9087](https://github.com/better-auth/better-auth/pull/9087). | [better-auth/better-auth#9345](https://github.com/better-auth/better-auth/pull/9345) |
-| [`@hugeicons/react`](packages/@hugeicons/react/) | `1.1.6` | `@hugeicons/core-free-icons` ships 5,100+ per-icon JS files but only a barrel `index.d.ts`. Subpath imports (`@hugeicons/core-free-icons/Heart`) work at runtime, but TypeScript can't find their types under `node16`, `nodenext`, or `bundler` resolution, so Vite dev pre-bundles the whole barrel. 6.2 MB instead of the 33 KB you actually use. PR ships `dist/types/core-free-icons.d.ts` (a script with `declare module '@hugeicons/core-free-icons/*'` and the `IconSvgObject` union the barrel exports: `[string, { [key: string]: string \| number }][] \| readonly (readonly [string, { readonly [key: string]: string \| number }])[]`) and prepends `/// <reference path="./core-free-icons.d.ts" />` to `dist/types/index.d.ts`, so the ambient declaration is global. (Script `.d.ts` triple-slash-loaded from a module entry is the only shape TS accepts. Inline a `declare module` block into a file with top-level `export` and TS treats it as a module augmentation, scoped to that module, not a global ambient.) npm and pnpm patches mirror the PR exactly. The bun patch ships the script `.d.ts` at `dist/core-free-icons.d.ts` instead and adjusts the triple-slash to `../core-free-icons.d.ts` so `bun patchedDependencies` can apply it without tripping [`oven-sh/bun#13330`](https://github.com/oven-sh/bun/issues/13330). Single-subdir new files apply fine, nested ones fail. | [hugeicons/react#5](https://github.com/hugeicons/react/pull/5) |
-| [`expo`](packages/expo/) | n/a | Tried installing `@expo/ui` after upgrading to canary expo per the docs and `bun add @expo/ui@canary` errored with `Workspace dependency "expo" not found`. Canary tarballs were shipping `peerDependencies.expo: "workspace:*"` literal, never substituted. `getPackageByName` does a path lookup at `packages/<name>/package.json`, which misses for `@expo/ui` (lives at `packages/expo-ui/`) and `@expo/app-integrity` (at `packages/expo-app-integrity/`). On a miss, `Workspace.getInfoAsync` records empty peer deps, so `updateWorkspaceProjects` never rewrites `workspace:*`. Patch adds a name-based fallback that scans `cachedPackages` when the path lookup misses. Same root cause as [#44412](https://github.com/expo/expo/pull/44412), different call site. | [expo/expo#45403](https://github.com/expo/expo/pull/45403) |
 
 ## Released
 
@@ -31,33 +31,33 @@ Merged upstream. Bump the dep (or wait for the next canary), then delete the pat
 
 | Package | Was | Fix | Fixed in |
 | :--- | :--- | :--- | :--- |
-| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | iOS 17 `scrollPosition(id:anchor:)` binding, `scrollPositionAnchor` prop, `onScrollPositionChangeSync` worklet callback, and the `id(string)` view modifier so SwiftUI can find scroll targets. | `56.0.0-canary-20260505-d2856c3` ([expo/expo#44652](https://github.com/expo/expo/pull/44652)) |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.11.5` | Migrate to `better-auth` 1.6.9. Pin peer to `>=1.6.9 <1.7.0` because 1.6.7 and 1.6.8 crashed the Convex V8 isolate on every `/api/auth/*` call. (`@better-auth/core`'s adapter factory had a bare `@opentelemetry/api` import that blew up at resolve time. [better-auth/better-auth#9340](https://github.com/better-auth/better-auth/pull/9340) routed it through a self-reference so `browser` and `edge` export conditions could resolve to a noop.) Adapter validators now accept `Where.mode` with case-folding, so `api.adapter.findOne` stops throwing `ArgumentValidationError` on insensitive clauses. Pass `asResponse: false` at 7 internal plugin endpoint sites because 1.6 flipped the `shouldReturnResponse` default and was turning `{ token }` responses into `undefined`. Delegate cross-domain `parseSetCookieHeader` to `better-auth/cookies` so cookies with RFC-1123 `Expires` dates stop shattering ([#8301](https://github.com/better-auth/better-auth/pull/8301) postdated my local copy). Adds `twoFactor.verified` schema, exposes `version` on convex and cross-domain plugins, suppresses the `@better-auth/oidc-provider` deprecation warning, picks up [GHSA-xr8f-h2gw-9xh6](https://github.com/better-auth/better-auth/security/advisories/GHSA-xr8f-h2gw-9xh6) in `@better-auth/oauth-provider`. | `0.12.0` ([get-convex/better-auth#323](https://github.com/get-convex/better-auth/pull/323)) |
 | [`better-auth`](packages/better-auth/) | n/a | Adds a `./instrumentation` subpath with `browser` and `edge` export conditions pointing at `pure.index.mjs` (noop), so runtimes that reject bare specifiers at resolve time (Convex V8 isolate, where `deno_core::resolve_import` throws synchronously) can resolve instrumentation without ever loading `@opentelemetry/api`. Pairs with [#9340](https://github.com/better-auth/better-auth/pull/9340), which swaps the adapter factory from a relative `./instrumentation` import to the package self-reference so the conditions actually fire. Chain completed in `1.6.9`. | `1.6.7` ([better-auth/better-auth#9281](https://github.com/better-auth/better-auth/pull/9281)) |
-| [`shadcn/ui`](packages/shadcn-ui/) | n/a | Spinning up `start-app` or `start-monorepo` printed `A notFoundError was encountered on the route with ID "__root__"` on first load. Phantom requests (`/favicon.ico`, Chrome DevTools `/.well-known/appspecific/com.chrome.devtools.json`) hit routes that don't exist and the templates didn't configure a `notFoundComponent`. Patch adds a 404 handler to both root routes, matching the `ErrorBoundary` 404 in `react-router-app` (same `container mx-auto p-4 pt-16` wrapper, same copy). | merged ([shadcn-ui/ui#10369](https://github.com/shadcn-ui/ui/pull/10369)) |
-| [`shadcn/ui`](packages/shadcn-ui/) | n/a | Adds TanStack Start as a fifth dark mode guide alongside Next.js, Vite, Astro, and Remix. New MDX guide with the `ScriptOnce` and Context pattern (SSR-safe `useState`, `suppressHydrationWarning`, `colorScheme`, OS preference listener), index card with the TanStack logo, `meta.json` entry. | merged ([shadcn-ui/ui#10396](https://github.com/shadcn-ui/ui/pull/10396)) |
-| [`better-auth`](packages/better-auth/) | `1.6.2` | Adds `/change-password` and `/revoke-other-sessions` to the default `atomListeners` matcher so `$sessionSignal` fires after session-rotating endpoints. Without it, `useSession()` returned the stale session until reload. | `1.6.5` ([better-auth/better-auth#9087](https://github.com/better-auth/better-auth/pull/9087)) |
-| [`better-auth`](packages/better-auth/) | n/a | Wrong `operationId` on the password reset callback endpoint. Fixed it and cleaned up `forget` to `forgot` across demo apps and tests. | merged ([better-auth/better-auth#9072](https://github.com/better-auth/better-auth/pull/9072)) |
-| [`shadcn/ui`](packages/shadcn-ui/) | n/a | `llms.txt` was 404ing and a few routes were missing from it. | merged ([shadcn-ui/ui#10337](https://github.com/shadcn-ui/ui/pull/10337)) |
 | [`@astrojs/compiler-rs`](packages/withastro/compiler-rs/) | `0.1.7` | Switches `x86_64-unknown-linux-gnu` and `aarch64-unknown-linux-gnu` from `-x` (zigbuild) to `--use-napi-cross`. Zig's per-arch glibc baseline was pinning the shipped binaries to `GLIBC_2.35` on x64 and `GLIBC_2.30` on arm64, which broke Vercel (glibc 2.34), Amazon Linux 2023, AWS Lambda, RHEL and CentOS 7, and Debian 10. `--use-napi-cross` drops both to `GLIBC_2.16` and `GLIBC_2.17`. Supersedes [#22](https://github.com/withastro/compiler-rs/pull/22). | `0.1.8` ([withastro/compiler-rs#25](https://github.com/withastro/compiler-rs/pull/25)) |
-| [`@astrojs/compiler-rs`](packages/withastro/compiler-rs/) | n/a | Added `-x` to the `x86_64-unknown-linux-gnu` build for glibc compat. Insufficient on its own, superseded by [#25](https://github.com/withastro/compiler-rs/pull/25). | merged ([withastro/compiler-rs#22](https://github.com/withastro/compiler-rs/pull/22)) |
-| [`shadcn/ui`](packages/shadcn-ui/) | n/a | Raw `<ComponentsList>` tag was leaking into the copy-to-markdown output. | merged ([shadcn-ui/ui#9484](https://github.com/shadcn-ui/ui/pull/9484)) |
+| [`shadcn/ui`](packages/shadcn-ui/) | n/a | Adds TanStack Start as a fifth dark mode guide alongside Next.js, Vite, Astro, and Remix. New MDX guide with the `ScriptOnce` and Context pattern (SSR-safe `useState`, `suppressHydrationWarning`, `colorScheme`, OS preference listener), index card with the TanStack logo, `meta.json` entry. | merged ([shadcn-ui/ui#10396](https://github.com/shadcn-ui/ui/pull/10396)) |
+| [`shadcn/ui`](packages/shadcn-ui/) | n/a | Spinning up `start-app` or `start-monorepo` printed `A notFoundError was encountered on the route with ID "__root__"` on first load. Phantom requests (`/favicon.ico`, Chrome DevTools `/.well-known/appspecific/com.chrome.devtools.json`) hit routes that don't exist and the templates didn't configure a `notFoundComponent`. Patch adds a 404 handler to both root routes, matching the `ErrorBoundary` 404 in `react-router-app` (same `container mx-auto p-4 pt-16` wrapper, same copy). | merged ([shadcn-ui/ui#10369](https://github.com/shadcn-ui/ui/pull/10369)) |
+| [`better-auth`](packages/better-auth/) | `1.6.2` | Adds `/change-password` and `/revoke-other-sessions` to the default `atomListeners` matcher so `$sessionSignal` fires after session-rotating endpoints. Without it, `useSession()` returned the stale session until reload. | `1.6.5` ([better-auth/better-auth#9087](https://github.com/better-auth/better-auth/pull/9087)) |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | iOS 17 `scrollPosition(id:anchor:)` binding, `scrollPositionAnchor` prop, `onScrollPositionChangeSync` worklet callback, and the `id(string)` view modifier so SwiftUI can find scroll targets. | `56.0.0-canary-20260505-d2856c3` ([expo/expo#44652](https://github.com/expo/expo/pull/44652)) |
+| [`better-auth`](packages/better-auth/) | n/a | Wrong `operationId` on the password reset callback endpoint. Fixed it and cleaned up `forget` to `forgot` across demo apps and tests. | merged ([better-auth/better-auth#9072](https://github.com/better-auth/better-auth/pull/9072)) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.11.5` | Migrate to `better-auth` 1.6.9. Pin peer to `>=1.6.9 <1.7.0` because 1.6.7 and 1.6.8 crashed the Convex V8 isolate on every `/api/auth/*` call. (`@better-auth/core`'s adapter factory had a bare `@opentelemetry/api` import that blew up at resolve time. [better-auth/better-auth#9340](https://github.com/better-auth/better-auth/pull/9340) routed it through a self-reference so `browser` and `edge` export conditions could resolve to a noop.) Adapter validators now accept `Where.mode` with case-folding, so `api.adapter.findOne` stops throwing `ArgumentValidationError` on insensitive clauses. Pass `asResponse: false` at 7 internal plugin endpoint sites because 1.6 flipped the `shouldReturnResponse` default and was turning `{ token }` responses into `undefined`. Delegate cross-domain `parseSetCookieHeader` to `better-auth/cookies` so cookies with RFC-1123 `Expires` dates stop shattering ([#8301](https://github.com/better-auth/better-auth/pull/8301) postdated my local copy). Adds `twoFactor.verified` schema, exposes `version` on convex and cross-domain plugins, suppresses the `@better-auth/oidc-provider` deprecation warning, picks up [GHSA-xr8f-h2gw-9xh6](https://github.com/better-auth/better-auth/security/advisories/GHSA-xr8f-h2gw-9xh6) in `@better-auth/oauth-provider`. | `0.12.0` ([get-convex/better-auth#323](https://github.com/get-convex/better-auth/pull/323)) |
+| [`shadcn/ui`](packages/shadcn-ui/) | n/a | `llms.txt` was 404ing and a few routes were missing from it. | merged ([shadcn-ui/ui#10337](https://github.com/shadcn-ui/ui/pull/10337)) |
 | [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | iOS: `textContentType` modifier for SwiftUI text inputs. | `56.0.0-canary-20260409-6fc2991` ([expo/expo#44548](https://github.com/expo/expo/pull/44548)) |
 | [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | iOS: `textInputAutocapitalization` modifier. | `56.0.0-canary-20260409-6fc2991` ([expo/expo#44547](https://github.com/expo/expo/pull/44547)) |
-| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | iOS: `scrollTargetBehavior` and `scrollTargetLayout` modifiers. | `56.0.0-canary-20260409-6fc2991` ([expo/expo#43955](https://github.com/expo/expo/pull/43955)) |
+| [`@astrojs/compiler-rs`](packages/withastro/compiler-rs/) | n/a | Added `-x` to the `x86_64-unknown-linux-gnu` build for glibc compat. Insufficient on its own, superseded by [#25](https://github.com/withastro/compiler-rs/pull/25). | merged ([withastro/compiler-rs#22](https://github.com/withastro/compiler-rs/pull/22)) |
 | [`@napi-rs/cli`](packages/napi-rs/) | n/a | `--cross-compile` was being ignored when host arch matched target arch. | merged ([napi-rs/napi-rs#3189](https://github.com/napi-rs/napi-rs/pull/3189)) |
-| [`shadcn/ui`](packages/shadcn-ui/) | n/a | Adds `@ramonclaudio-coderabbit` to the registry directory. | merged ([shadcn-ui/ui#9331](https://github.com/shadcn-ui/ui/pull/9331)) |
 | [`expo-modules-core`](packages/expo-modules-core/) | `56.0.0-canary-20260212-4f61309` | iOS: serialize `PersistentFileLog.readEntries` on the dispatch queue to fix a race. | `56.0.0-canary-20260402-87c5ce2` ([expo/expo#43958](https://github.com/expo/expo/pull/43958)) |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | iOS: `scrollTargetBehavior` and `scrollTargetLayout` modifiers. | `56.0.0-canary-20260409-6fc2991` ([expo/expo#43955](https://github.com/expo/expo/pull/43955)) |
 | [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | iOS: `defaultScrollAnchorForRole` modifier. Adds `null` support and a macOS platform tag to `defaultScrollAnchor`, extracts a shared `UnitPointValue` type. | `56.0.0-canary-20260401-5e87ef7` ([expo/expo#43923](https://github.com/expo/expo/pull/43923)) |
 | [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | iOS: `defaultScrollAnchor` modifier. | `56.0.0-canary-20260401-5e87ef7` ([expo/expo#43914](https://github.com/expo/expo/pull/43914)) |
 | [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.12` | Removed a stray `react-dom` peer dep. | `0.10.13` ([get-convex/better-auth#278](https://github.com/get-convex/better-auth/pull/278)) |
 | [`app-store-connect-cli`](packages/rorkai/) | n/a | macOS app screen capture and Mac App Store canvas framing for the `shots` command. | merged ([rorkai/App-Store-Connect-CLI#784](https://github.com/rorkai/App-Store-Connect-CLI/pull/784)) |
 | [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.11` | Concurrent `fetchAccessToken` calls were racing to `/token`. `pendingTokenRef` now deduplicates in-flight requests. | `0.10.12` ([get-convex/better-auth#267](https://github.com/get-convex/better-auth/pull/267)) |
 | [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | Per-axis `scaleEffect({ x, y })` for view modifiers. | `56.0.0-canary-20260305-5163746` ([expo/expo#43228](https://github.com/expo/expo/pull/43228)) |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | The pinned `better-auth` peer at `1.4.9` was blocking newer 1.4.x versions. | `0.10.11` ([get-convex/better-auth#245](https://github.com/get-convex/better-auth/pull/245)) |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Cookie expiry was being compared as a string, the session cache was caching nulls, and `isAuthenticated` was checking the wrong field. | `0.10.11` ([get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218)) |
 | [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260212-4f61309` | `clipShape` and `mask` were missing the `capsule` and `ellipse` shapes. Switched from a raw `String` to a `ShapeType` enum with exhaustive case handling. | `56.0.0-canary-20260305-5163746` ([expo/expo#43158](https://github.com/expo/expo/pull/43158)) |
+| [`shadcn/ui`](packages/shadcn-ui/) | n/a | Raw `<ComponentsList>` tag was leaking into the copy-to-markdown output. | merged ([shadcn-ui/ui#9484](https://github.com/shadcn-ui/ui/pull/9484)) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | The pinned `better-auth` peer at `1.4.9` was blocking newer 1.4.x versions. | `0.10.11` ([get-convex/better-auth#245](https://github.com/get-convex/better-auth/pull/245)) |
+| [`shadcn/ui`](packages/shadcn-ui/) | n/a | Adds `@ramonclaudio-coderabbit` to the registry directory. | merged ([shadcn-ui/ui#9331](https://github.com/shadcn-ui/ui/pull/9331)) |
 | [`convex`](packages/convex/) | `1.31.3` | `WebSocketManager` was crashing in environments where `window` exists but `addEventListener` doesn't. | `1.31.4` ([get-convex/convex-js@baafbf5](https://github.com/get-convex/convex-js/commit/baafbf5bb200d6db81804558fbd01ccce77355fc)) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.10.10` | Cookie expiry was being compared as a string, the session cache was caching nulls, and `isAuthenticated` was checking the wrong field. | `0.10.11` ([get-convex/better-auth#218](https://github.com/get-convex/better-auth/pull/218)) |
 | [`bun`](packages/oven-sh/bun/) | `1.2.20` | `decompress` was missing from `fetch()`'s TypeScript types. | `1.2.21` ([oven-sh/bun#21855](https://github.com/oven-sh/bun/pull/21855)) |
 | [`create-fumadocs-app`](packages/create-fumadocs-app/) | `15.6.4` | Prettier formatting in the `tanstack-start` template's `NotFound.tsx`. | `15.6.5` ([fuma-nama/fumadocs#2095](https://github.com/fuma-nama/fumadocs/pull/2095)) |
 | [`create-fumadocs-app`](packages/create-fumadocs-app/) | `15.6.4` | Vite and TanStack Router config warnings in the `tanstack-start` template. | `15.6.5` ([fuma-nama/fumadocs#2092](https://github.com/fuma-nama/fumadocs/pull/2092)) |
@@ -70,13 +70,11 @@ Merged upstream. Bump the dep (or wait for the next canary), then delete the pat
 
 | Issue | Package | Status | Notes |
 | :--- | :--- | :--- | :--- |
-| [panva/jose#752](https://github.com/panva/jose/issues/752) | [`jose`](packages/jose/) | fixed (my report) | `process.getBuiltinModule` was breaking Edge Runtime and Next.js middleware. Took a few back-and-forths before [@panva](https://github.com/panva) saw the trace. Shipped in [`v6.0.4`](https://github.com/panva/jose/releases/tag/v6.0.4). He thanked me on close. |
-| [shadcn-ui/ui#8892](https://github.com/shadcn-ui/ui/issues/8892) | `shadcn/ui` | fixed (my PR) | Registry directory submission for CodeRabbit. [@shadcn](https://github.com/shadcn) asked me to send a PR. Shipped [#9331](https://github.com/shadcn-ui/ui/pull/9331), which auto-closed this on merge. |
-| [anthropics/claude-code#18181](https://github.com/anthropics/claude-code/issues/18181) | `claude` | fixed (my report) | Manual update wasn't fixing the symlink when `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` was set. [@bcherny](https://github.com/bcherny) replied "Fix incoming" and closed it. |
-| [Shopify/hydrogen#3263](https://github.com/Shopify/hydrogen/issues/3263) | `@shopify/mini-oxygen` | fixed | Vite 7 support in `@shopify/mini-oxygen`. Closed mine after [@frandiox](https://github.com/frandiox) shipped Vite Environment API in [#3617](https://github.com/Shopify/hydrogen/pull/3617), which supersedes my rebase in [#3493](https://github.com/Shopify/hydrogen/pull/3493). |
 | [get-convex/better-auth#345](https://github.com/get-convex/better-auth/issues/345) | `@convex-dev/better-auth` | fixed (my PR) | `better-auth` 1.6.6's dynamic `@opentelemetry/api` import was throwing synchronously on every Convex auth request inside the V8 isolate (`deno_core::resolve_import` rejects bare specifiers at resolve time, not at the import promise). Fixed by my own PR [#323](https://github.com/get-convex/better-auth/pull/323), released as `0.12.0` after [better-auth/better-auth#9281](https://github.com/better-auth/better-auth/pull/9281) shipped the noop instrumentation entry in `1.6.7`. |
+| [anthropics/claude-code#18181](https://github.com/anthropics/claude-code/issues/18181) | `claude` | fixed (my report) | Manual update wasn't fixing the symlink when `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` was set. [@bcherny](https://github.com/bcherny) replied "Fix incoming" and closed it. |
 | [get-convex/better-auth#219](https://github.com/get-convex/better-auth/issues/219) | `@convex-dev/better-auth` | fixed (my PR) | Concurrent `fetchAccessToken` calls were racing to `/token`. Fixed by my own PR [#267](https://github.com/get-convex/better-auth/pull/267). |
-| [cursor/cursor#3182](https://github.com/cursor/cursor/issues/3182) | `cursor` | fixed | Couldn't update the spending limit or toggle usage-based pricing on the main dashboard. Fixed upstream. (Cursor later disabled their issue tracker.) |
+| [shadcn-ui/ui#8892](https://github.com/shadcn-ui/ui/issues/8892) | `shadcn/ui` | fixed (my PR) | Registry directory submission for CodeRabbit. [@shadcn](https://github.com/shadcn) asked me to send a PR. Shipped [#9331](https://github.com/shadcn-ui/ui/pull/9331), which auto-closed this on merge. |
+| [panva/jose#752](https://github.com/panva/jose/issues/752) | [`jose`](packages/jose/) | fixed (my report) | `process.getBuiltinModule` was breaking Edge Runtime and Next.js middleware. Took a few back-and-forths before [@panva](https://github.com/panva) saw the trace. Shipped in [`v6.0.4`](https://github.com/panva/jose/releases/tag/v6.0.4). He thanked me on close. |
 
 </details>
 
@@ -96,15 +94,14 @@ Copy the patch file into your `patches/` dir. Strip the `-prXXX` suffix from the
 > | Bun | `@scope%2Fpkg@version.patch` |
 > | npm (patch-package) | `@scope+pkg+version.patch` |
 > | pnpm | `@scope__pkg@version.patch` |
-> | Yarn | `@scope-pkg-npm-version-hash.patch` (auto-generated) |
 >
-> **Diff paths.** Bun, pnpm, and Yarn use paths relative to the package root. patch-package prefixes with `node_modules/@scope/pkg/`. To convert:
+> **Diff paths.** Bun and pnpm use paths relative to the package root. patch-package prefixes with `node_modules/@scope/pkg/`. To convert:
 >
 > ```bash
-> # patch-package -> Bun/pnpm/Yarn
+> # patch-package -> Bun/pnpm
 > sed 's|node_modules/@scope/pkg/||g' old.patch > new.patch
 >
-> # Bun/pnpm/Yarn -> patch-package
+> # Bun/pnpm -> patch-package
 > sed -e '/^diff --git /s|a/|a/node_modules/@scope/pkg/|' \
 >     -e '/^diff --git /s|b/|b/node_modules/@scope/pkg/|' \
 >     -e 's|^--- a/|--- a/node_modules/@scope/pkg/|' \
@@ -160,25 +157,6 @@ patchedDependencies:
 
 </details>
 
-<details>
-<summary>Yarn (v2+)</summary>
-
-[`yarn patch`](https://yarnpkg.com/cli/patch). Uses the `patch:` protocol in `resolutions`.
-
-```jsonc
-// package.json
-{
-  "resolutions": {
-    "@expo/ui@56.0.0-canary-20260212-4f61309": "patch:@expo/ui@npm%3A56.0.0-canary-20260212-4f61309#~/.yarn/patches/@expo-ui-npm-56.0.0-canary-20260212-4f61309-abc123.patch"
-  }
-}
-```
-
-> [!NOTE]
-> Yarn auto-generates filenames with hashes. Use `yarn patch` and `yarn patch-commit -s`. Don't copy `.patch` files from this repo into `.yarn/patches/` directly.
-
-</details>
-
 ## Multiple patches for the same package
 
 One patch file per PR in this repo. But most package managers only support **one patch per `package@version`**.
@@ -187,11 +165,10 @@ One patch file per PR in this repo. But most package managers only support **one
 | :--- | :--- | :--- |
 | **Bun** | No | One entry per `package@version` in `patchedDependencies`. Combine into one `.patch`. |
 | **pnpm** | No | One entry per exact version in `patchedDependencies`. Combine into one `.patch`. |
-| **Yarn** | No | One `patch:` resolution per package. Combine into one `.patch`. |
 | **npm** (patch-package) | Yes | Use `--append` for sequenced patches: `pkg+ver+001+fix-a.patch`, `pkg+ver+002+fix-b.patch`. |
 
 <details>
-<summary>Combining patches (Bun, pnpm, Yarn)</summary>
+<summary>Combining patches (Bun, pnpm)</summary>
 
 Apply all changes to `node_modules` and let the tool generate one combined diff:
 
@@ -214,7 +191,7 @@ bun patch --commit @expo/ui
 > cat patches/fix-a.patch patches/fix-b.patch > patches/@expo%2Fui@56.0.0-canary-20260212-4f61309.patch
 > ```
 >
-> If any file appears in both patches, use the `bun patch`, `pnpm patch-commit`, or `yarn patch-commit -s` workflow above.
+> If any file appears in both patches, use the `bun patch` or `pnpm patch-commit` workflow above.
 
 </details>
 
@@ -232,7 +209,7 @@ packages/
         <patch-file>.patch
 ```
 
-One dir per package manager. Not every package has patches for every manager. Yarn isn't shipped here, Yarn auto-generates filenames with hashes so users on Yarn run the `yarn patch` workflow against a `bun`/`npm`/`pnpm` patch instead.
+One dir per package manager. Not every package has patches for every manager.
 
 Filenames have a `-prXXX` suffix (e.g. `@expo%2Fui@56.0.0-canary-20260212-4f61309-pr43228.patch`) so you can trace back to the upstream PR. Strip it when copying to your project.
 
