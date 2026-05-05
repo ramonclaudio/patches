@@ -2,16 +2,15 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-I live on canary versions of half my stack (Bun, Expo, Convex, Hydrogen). Stuff breaks. I file the PR upstream, then patch my own apps so I'm not blocked while it sits in review. This repo is where I keep those patches so I can grab them across machines, share them with people hitting the same bugs, and trace each one back to its upstream PR.
-
-Most are ready to drop into `bun`, `npm` (via `patch-package`), or `pnpm`. Source-only patches (CI, docs, non-npm code) are applied with `git apply` in a clone of the upstream repo.
-
 > Talk is cheap, send patches.
 >
 > [@FFmpeg](https://x.com/FFmpeg/status/1762805900035686805)
 
-> [!NOTE]
-> Patches move Open -> Merged -> Released as PRs land and versions ship. Once released, bump the dep and drop the patch.
+I live on canary versions of half my stack (Bun, Expo, Convex, Hydrogen). Stuff breaks. Every time I open a PR upstream I write a patch and use it locally so I'm not blocked while the PR sits in review. Then I publish the patch here so you can drop it into your project and keep iterating without waiting for the PR to merge.
+
+Once the PR merges, drop the patch and bump the dep like you normally would.
+
+This is me sending patches.
 
 ## Open
 
@@ -82,6 +81,8 @@ Merged upstream. Bump the dep (or wait for the next canary), then delete the pat
 </details>
 
 ## Usage
+
+Most patches are ready to drop into `bun`, `npm` (via `patch-package`), or `pnpm`. Source-only patches (CI, docs, non-npm code) get applied with `git apply` against a clone of the upstream repo.
 
 Copy the patch file into your `patches/` dir. Strip the `-prXXX` suffix from the filename so it matches what your package manager expects.
 
