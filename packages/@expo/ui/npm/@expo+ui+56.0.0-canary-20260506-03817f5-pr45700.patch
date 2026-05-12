@@ -1,0 +1,265 @@
+diff --git a/node_modules/@expo/ui/CHANGELOG.md b/node_modules/@expo/ui/CHANGELOG.md
+index 16fd16628704aa6f22eaf2a2cf83c4e4398aa5bd..a4b5f3efaade42e0ae0e86aa0c9d484e56468765 100644
+--- a/node_modules/@expo/ui/CHANGELOG.md
++++ b/node_modules/@expo/ui/CHANGELOG.md
+@@ -6,6 +6,8 @@
+ 
+ ### 🎉 New features
+ 
++- [iOS] Added `Alert` component wrapping SwiftUI's `.alert(_:isPresented:actions:message:)` modifier, with `Alert.Trigger`, `Alert.Actions`, and optional `Alert.Message` slots. Mirrors the existing `ConfirmationDialog` shape so it composes the same way with `Button` actions and `isPresented` bindings. ([#45700](https://github.com/expo/expo/pull/45700) by [@ramonclaudio](https://github.com/ramonclaudio))
++
+ ### 🐛 Bug fixes
+ 
+ ### 💡 Others
+diff --git a/node_modules/@expo/ui/build/swift-ui/Alert/index.d.ts b/node_modules/@expo/ui/build/swift-ui/Alert/index.d.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..a0fdca2fbe7e20ffd2ae08b22d1814f69a4654d6
+GIT binary patch
+literal 1720
+zcmcIlO>f&U487-95FM~4L2KV#bZb`Z&|w{ler&tVip9j*WXX`^q(zbcUh2bbymSF}
+zXb=R6L_d=6Ju;$cwQ=wW?x96E*G;3<cY*6m&Ba2XxiY%7uz`iq4IE}!?&Iv?$ta&r
+zM=*tWuNUBIgmNa)xDqN&s0x+KC?p@@eaI0qgoyaiDLjsVUIEE}nZhlBR9ZQD)ItJf
+z9+QA##7(U`$w8<}cD&D+-5Rl6qA8D33E8Z2LMuxLOmWby|HY(y=<hGlTDHWp$ISzN
+zRSU@tssgT&RW1vk-!#XQ*9vvQNqn`+h!*Y(u+9jz+(GzJBT;4oZ=ppH7FvUrdPhF2
+zOW3Ra;$s1GttB$GgE)hVTAZ`$4}mi0@%#aDSl6hcKwC&9RmL3gT{E>rJItun#Y@if
+z5J8#8TaQ22F@e($u+oB`j5hH8Ulw{cOq4kJ16IO{Ik8A}h60^vFjh~jc}Z<Jjszuk
+zm=}}EC1-K0Br^z$P6fds*ekhV+<Na8$z^-A-AoD)VGhOz#tWbSw)e-TQ@)ymN%rOD
+zXZBfQL&^-=ph&6&=ACooHQ>Uwl06XLBC;Kw3wM@$`Y8l$jfRaQRi63j$UBkSwOF|0
+zPL#k%xa7orZ6=SuX`3_kJUr0Enc3=dj#96aZhjU9eeV${P2ZbV-tVGh8Vd|=Ji~Vv
+zWH#C;uokYS!!V^sJ6*=bF;v)#L2o#-h)_F6=E`%9D`KHVld-myn9=Ubxvo0zmf+MV
+zED5}#wVH?A<6i}Nr61`cX0b&gxR?a$($;+4;yrc2?_r((kB9$)R*W*Ytim`xX<$~&
+zK$@f?{5#M-4(ZZi+&?}l8F3hu4qu{@=)<UVNUNj&mw4RJjOFjZ>dsVnNu<*Dyu1E-
+PDip{2jAzbf4QrnO6W%<u
+
+literal 0
+HcmV?d00001
+
+diff --git a/node_modules/@expo/ui/build/swift-ui/Alert/index.d.ts.map b/node_modules/@expo/ui/build/swift-ui/Alert/index.d.ts.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..4bd97e380df2befe388d1114106eb61ee224e0e9
+GIT binary patch
+literal 763
+zcmdUtPj7-i5XHaCo~Mwu>BT)g7J|eWVvRAT>A~n~NCXTlYTNX?cbKjJF1<J5u*1Ij
+z&AbO+>R_9;s4F#iCbcPcRt;29t?emT2d-75+PZ62_O-4Z-(2ce4c=4`g#KxpRoEVj
+zjeF>d5Iftr&@)_nQtzayWoi2kK9<Y<zNofbDPRQ3ft(T`p%K^AML-w%7h_;dGhjvr
+zFq$=|SnCu?%4ahqxxb21Ak`VnA<|msNTnFk1en|m=utEUrXI@rN7m;(l+Q!Ih3q3_
+znamgKTg@DpOS|Wag|pDz(Mq;cMmJg+Fa0t@TE%z<WPT+B<6`RFoYN3C&wOF_)qcV3
+zDJ_77=L@E%vJsB+FW=CNOz6oV`HcHu?{fVQ;4yF9hmrmM3r7xP8~Lv%8DG-ye-K->
+N&ghQ_8!IaH{R0B+&GG;M
+
+literal 0
+HcmV?d00001
+
+diff --git a/node_modules/@expo/ui/build/swift-ui/index.d.ts b/node_modules/@expo/ui/build/swift-ui/index.d.ts
+index 5ab269420fa3b861d80bd55adc84c80dffb48968..7647b7ca78e346f04b622821c0316f4af0ea44a9 100644
+GIT binary patch
+delta 19
+acmeC=UBo*fiq$bEwWws`Ly?V9`fLD2at8AN
+
+delta 10
+RcmZ3)+sQj2YGbiJ8vqp<1Bn0t
+
+diff --git a/node_modules/@expo/ui/build/swift-ui/index.d.ts.map b/node_modules/@expo/ui/build/swift-ui/index.d.ts.map
+index 5485de4bc2fd18c2135b17a172cd5f6440248a78..56d63767a57098022f57b6f7d340eaad4fa10cb4 100644
+GIT binary patch
+delta 13
+VcmX@l^@MA}>WNpiHXi6_0RS(J2A2Q;
+
+delta 18
+acmaFDb)IX&>d9^_qLZ&PiEeyV#R33J3<r+@
+
+diff --git a/node_modules/@expo/ui/ios/Alert/AlertProps.swift b/node_modules/@expo/ui/ios/Alert/AlertProps.swift
+new file mode 100644
+index 0000000000000000000000000000000000000000..a6ff8312c3ecb6cd1f748b9442fa80d4e61ce44d
+--- /dev/null
++++ b/node_modules/@expo/ui/ios/Alert/AlertProps.swift
+@@ -0,0 +1,10 @@
++// Copyright 2025-present 650 Industries. All rights reserved.
++
++import ExpoModulesCore
++import SwiftUI
++
++internal final class AlertProps: UIBaseViewProps {
++  @Field var title: String = ""
++  @Field var isPresented: Bool = false
++  var onIsPresentedChange = EventDispatcher()
++}
+diff --git a/node_modules/@expo/ui/ios/Alert/AlertView.swift b/node_modules/@expo/ui/ios/Alert/AlertView.swift
+new file mode 100644
+index 0000000000000000000000000000000000000000..a381c8e0143a753551134336b74bb47fb3146954
+--- /dev/null
++++ b/node_modules/@expo/ui/ios/Alert/AlertView.swift
+@@ -0,0 +1,58 @@
++// Copyright 2025-present 650 Industries. All rights reserved.
++
++import ExpoModulesCore
++import SwiftUI
++
++internal struct AlertView: ExpoSwiftUI.View {
++  @ObservedObject var props: AlertProps
++  @State private var isPresented: Bool = false
++
++  var body: some View {
++    triggerContent
++      .alert(
++        props.title,
++        isPresented: $isPresented
++      ) {
++        actionsContent
++      } message: {
++        messageContent
++      }
++      .onAppear {
++        isPresented = props.isPresented
++      }
++      .onChange(of: isPresented) { newValue in
++        if props.isPresented != newValue {
++          props.onIsPresentedChange(["isPresented": newValue])
++        }
++      }
++      .onChange(of: props.isPresented) { newValue in
++        isPresented = newValue
++      }
++  }
++
++  @ViewBuilder
++  private var triggerContent: some View {
++    if let trigger = props.children?.slot("trigger") {
++      trigger
++    } else {
++      EmptyView()
++        .onAppear {
++          log.warn("Alert requires an Alert.Trigger child to be visible")
++        }
++    }
++  }
++
++  @ViewBuilder
++  private var actionsContent: some View {
++    if let actions = props.children?.slot("actions") {
++      actions
++    }
++  }
++
++  @ViewBuilder
++  private var messageContent: some View {
++    if let message = props.children?.slot("message") {
++      message
++    }
++  }
++}
+diff --git a/node_modules/@expo/ui/ios/ExpoUIModule.swift b/node_modules/@expo/ui/ios/ExpoUIModule.swift
+index f95e75d40a3a97df64f44067ce8e3d5511f1c065..16af6edf4f7fcdae2d8f39edd0fe410fd9f95629 100644
+--- a/node_modules/@expo/ui/ios/ExpoUIModule.swift
++++ b/node_modules/@expo/ui/ios/ExpoUIModule.swift
+@@ -91,6 +91,7 @@ public final class ExpoUIModule: Module {
+ 
+     // MARK: - Expo UI Views
+ 
++    ExpoUIView(AlertView.self)
+     ExpoUIView(BottomSheetView.self)
+     ExpoUIView(ExpoUI.Button.self)
+     ExpoUIView(ChartView.self)
+diff --git a/node_modules/@expo/ui/src/swift-ui/Alert/index.tsx b/node_modules/@expo/ui/src/swift-ui/Alert/index.tsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..7dc98629b67c8e7b84809358ba692dce9fbad506
+--- /dev/null
++++ b/node_modules/@expo/ui/src/swift-ui/Alert/index.tsx
+@@ -0,0 +1,85 @@
++import { requireNativeView } from 'expo';
++import type { NativeSyntheticEvent } from 'react-native';
++
++import { Slot } from '../SlotView';
++import { createViewModifierEventListener } from '../modifiers/utils';
++import { type CommonViewModifierProps } from '../types';
++
++/**
++ * Props of the `Alert` component.
++ */
++export type AlertProps = {
++  /**
++   * The contents of the alert.
++   * Should include `Alert.Trigger`, `Alert.Actions`, and optionally `Alert.Message`.
++   */
++  children: React.ReactNode;
++  /**
++   * The title of the alert.
++   */
++  title: string;
++  /**
++   * Whether the alert is presented.
++   */
++  isPresented?: boolean;
++  /**
++   * A callback that is called when the `isPresented` state changes.
++   */
++  onIsPresentedChange?: (isPresented: boolean) => void;
++} & CommonViewModifierProps;
++
++type NativeAlertProps = Omit<AlertProps, 'onIsPresentedChange'> & {
++  onIsPresentedChange?: (event: NativeSyntheticEvent<{ isPresented: boolean }>) => void;
++};
++
++const AlertNativeView: React.ComponentType<NativeAlertProps> = requireNativeView(
++  'ExpoUI',
++  'AlertView'
++);
++
++/**
++ * The component visible all the time that triggers the alert presentation.
++ */
++function AlertTrigger(props: { children: React.ReactNode }) {
++  return <Slot name="trigger">{props.children}</Slot>;
++}
++
++/**
++ * The action buttons displayed in the alert. Use `Button` components from `@expo/ui/swift-ui` as children.
++ */
++function AlertActions(props: { children: React.ReactNode }) {
++  return <Slot name="actions">{props.children}</Slot>;
++}
++
++/**
++ * An optional message displayed below the title in the alert.
++ */
++function AlertMessage(props: { children: React.ReactNode }) {
++  return <Slot name="message">{props.children}</Slot>;
++}
++
++Alert.Trigger = AlertTrigger;
++Alert.Actions = AlertActions;
++Alert.Message = AlertMessage;
++
++/**
++ * `Alert` presents a SwiftUI alert with a title, optional message, and action buttons.
++ *
++ * @see https://developer.apple.com/documentation/swiftui/view/alert(_:ispresented:actions:message:)
++ */
++export function Alert(props: AlertProps) {
++  const { onIsPresentedChange, modifiers, children, ...restProps } = props;
++
++  const handleIsPresentedChange = (event: NativeSyntheticEvent<{ isPresented: boolean }>) => {
++    onIsPresentedChange?.(event.nativeEvent.isPresented);
++  };
++
++  return (
++    <AlertNativeView
++      {...(modifiers ? createViewModifierEventListener(modifiers) : undefined)}
++      {...restProps}
++      onIsPresentedChange={handleIsPresentedChange}>
++      {children}
++    </AlertNativeView>
++  );
++}
+diff --git a/node_modules/@expo/ui/src/swift-ui/index.tsx b/node_modules/@expo/ui/src/swift-ui/index.tsx
+index 672ff6474253b3b59408f8a1d8ed4d77950240e7..f3298162362a031f5f1e14e8d5ffa65b96973b80 100644
+--- a/node_modules/@expo/ui/src/swift-ui/index.tsx
++++ b/node_modules/@expo/ui/src/swift-ui/index.tsx
+@@ -1,6 +1,7 @@
+ import '../State/index.fx';
+ 
+ export * from './AccessoryWidgetBackground';
++export * from './Alert';
+ export * from './BottomSheet';
+ export * from './Button';
+ export * from './Chart';
