@@ -18,6 +18,7 @@ PRs still in flight. Every row has a patch in `packages/` you can drop into your
 
 | Package | Version | Fix | PR |
 | :--- | :--- | :--- | :--- |
+| [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260506-03817f5` | Add SwiftUI `Alert` component wrapping iOS 15 `.alert(_:isPresented:actions:message:)`, with `Alert.Trigger`, `Alert.Actions`, and optional `Alert.Message` slots. Mirrors `ConfirmationDialog`'s shape so `isPresented` bindings and `Button` actions compose the same way. | [expo/expo#45700](https://github.com/expo/expo/pull/45700) |
 | [`expo`](packages/expo/) | n/a | Resolve `workspace:*` peer deps for scoped packages whose dir name differs from the package name (`@expo/ui`, `@expo/app-integrity`). Same root cause as [#44412](https://github.com/expo/expo/pull/44412), different call site. | [expo/expo#45403](https://github.com/expo/expo/pull/45403) |
 | [`better-auth`](packages/better-auth/) | `1.6.9` | Preserve the caller's session on `/change-password` with `revokeOtherSessions: true`. Same family as [#9087](https://github.com/better-auth/better-auth/pull/9087). | [better-auth/better-auth#9345](https://github.com/better-auth/better-auth/pull/9345) |
 | [`@hugeicons/react`](packages/@hugeicons/react/) | `1.1.6` | Ship subpath types for `@hugeicons/core-free-icons/*` so TS finds them under `node16`, `nodenext`, and `bundler` resolution. Vite dev stops pre-bundling the 6.2 MB barrel for the 33 KB you actually use. | [hugeicons/react#5](https://github.com/hugeicons/react/pull/5) |
