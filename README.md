@@ -68,21 +68,7 @@ Merged upstream. Bump the dep (or wait for the next canary), then delete the pat
 | [`create-fumadocs-app`](packages/create-fumadocs-app/) | `15.6.4` | Fix Prettier formatting in `tanstack-start` template's `NotFound.tsx`. | `15.6.5` ([fuma-nama/fumadocs#2095](https://github.com/fuma-nama/fumadocs/pull/2095)) |
 | [`create-fumadocs-app`](packages/create-fumadocs-app/) | `15.6.4` | Fix Vite and TanStack Router config warnings in `tanstack-start` template. | `15.6.5` ([fuma-nama/fumadocs#2092](https://github.com/fuma-nama/fumadocs/pull/2092)) |
 | [`@tanstack/db`](packages/tanstack/) | n/a | Fix example todo app path in README. | merged ([TanStack/db#17](https://github.com/TanStack/db/pull/17)) |
-
-## Filed
-
-<details>
-<summary>Issues I tracked down. All got fixed, by the maintainer or by my own follow-up PR.</summary>
-
-| Issue | Package | Status | Notes |
-| :--- | :--- | :--- | :--- |
-| [get-convex/better-auth#345](https://github.com/get-convex/better-auth/issues/345) | `@convex-dev/better-auth` | fixed (my PR) | `better-auth` 1.6.6 dynamic `@opentelemetry/api` import crashed Convex V8 isolate on every auth request. Fixed in `0.12.0` via [#323](https://github.com/get-convex/better-auth/pull/323) after [#9281](https://github.com/better-auth/better-auth/pull/9281) shipped the noop in `1.6.7`. |
-| [anthropics/claude-code#18181](https://github.com/anthropics/claude-code/issues/18181) | `claude` | fixed (my report) | Manual update wasn't fixing the symlink with `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` set. [@bcherny](https://github.com/bcherny) replied "Fix incoming" and closed it. |
-| [get-convex/better-auth#219](https://github.com/get-convex/better-auth/issues/219) | `@convex-dev/better-auth` | fixed (my PR) | Concurrent `fetchAccessToken` calls racing to `/token`. Fixed in [#267](https://github.com/get-convex/better-auth/pull/267). |
-| [shadcn-ui/ui#8892](https://github.com/shadcn-ui/ui/issues/8892) | `shadcn/ui` | fixed (my PR) | Registry directory submission for CodeRabbit. [@shadcn](https://github.com/shadcn) asked for a PR. Shipped [#9331](https://github.com/shadcn-ui/ui/pull/9331). |
-| [panva/jose#752](https://github.com/panva/jose/issues/752) | [`jose`](packages/jose/) | fixed (my report) | `process.getBuiltinModule` broke Edge Runtime and Next.js middleware. Fixed in [`v6.0.4`](https://github.com/panva/jose/releases/tag/v6.0.4). [@panva](https://github.com/panva) thanked me on close. |
-
-</details>
+| [`jose`](packages/jose/) | `6.0.3` | Guard `process.getBuiltinModule` against Edge Runtime and Next.js middleware where it isn't defined. | `6.0.4` ([panva/jose@v6.0.4](https://github.com/panva/jose/releases/tag/v6.0.4)) |
 
 ## Usage
 
