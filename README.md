@@ -14,7 +14,7 @@ This is me sending patches.
 
 ## Open
 
-PRs still in flight. Every row has a patch in `packages/` you can drop into your project. Indented rows (`↳`) are sibling patches from the same PR, apply them together.
+PRs still in flight. Every row has a patch in `packages/` you can drop into your project.
 
 | Package | Version | Fix | PR |
 | :--- | :--- | :--- | :--- |
@@ -102,7 +102,7 @@ Copy the patch file into your `patches/` dir. Strip the `-prXXX` suffix from the
 > ```
 
 <details>
-<summary>Bun (1.2+)</summary>
+<summary>Bun (1.3+)</summary>
 
 Applied automatically on `bun install`.
 
@@ -118,7 +118,7 @@ Applied automatically on `bun install`.
 </details>
 
 <details>
-<summary>npm (patch-package)</summary>
+<summary>npm (11+)</summary>
 
 No native patching. Uses [patch-package](https://github.com/ds300/patch-package) via `postinstall`.
 
@@ -137,7 +137,7 @@ No native patching. Uses [patch-package](https://github.com/ds300/patch-package)
 </details>
 
 <details>
-<summary>pnpm (10.7+)</summary>
+<summary>pnpm (11+)</summary>
 
 [`pnpm patch`](https://pnpm.io/cli/patch). Config goes in `pnpm-workspace.yaml`.
 
