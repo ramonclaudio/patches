@@ -1,5 +1,5 @@
 diff --git a/CHANGELOG.md b/CHANGELOG.md
-index 16fd16628704aa6f22eaf2a2cf83c4e4398aa5bd..a4b5f3efaade42e0ae0e86aa0c9d484e56468765 100644
+index faa90143834319..bcb8af1eded006 100644
 --- a/CHANGELOG.md
 +++ b/CHANGELOG.md
 @@ -6,6 +6,8 @@
@@ -13,87 +13,89 @@ index 16fd16628704aa6f22eaf2a2cf83c4e4398aa5bd..a4b5f3efaade42e0ae0e86aa0c9d484e
  ### 💡 Others
 diff --git a/build/swift-ui/Alert/index.d.ts b/build/swift-ui/Alert/index.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..a0fdca2fbe7e20ffd2ae08b22d1814f69a4654d6
-GIT binary patch
-literal 1720
-zcmcIlO>f&U487-95FM~4L2KV#bZb`Z&|w{ler&tVip9j*WXX`^q(zbcUh2bbymSF}
-zXb=R6L_d=6Ju;$cwQ=wW?x96E*G;3<cY*6m&Ba2XxiY%7uz`iq4IE}!?&Iv?$ta&r
-zM=*tWuNUBIgmNa)xDqN&s0x+KC?p@@eaI0qgoyaiDLjsVUIEE}nZhlBR9ZQD)ItJf
-z9+QA##7(U`$w8<}cD&D+-5Rl6qA8D33E8Z2LMuxLOmWby|HY(y=<hGlTDHWp$ISzN
-zRSU@tssgT&RW1vk-!#XQ*9vvQNqn`+h!*Y(u+9jz+(GzJBT;4oZ=ppH7FvUrdPhF2
-zOW3Ra;$s1GttB$GgE)hVTAZ`$4}mi0@%#aDSl6hcKwC&9RmL3gT{E>rJItun#Y@if
-z5J8#8TaQ22F@e($u+oB`j5hH8Ulw{cOq4kJ16IO{Ik8A}h60^vFjh~jc}Z<Jjszuk
-zm=}}EC1-K0Br^z$P6fds*ekhV+<Na8$z^-A-AoD)VGhOz#tWbSw)e-TQ@)ymN%rOD
-zXZBfQL&^-=ph&6&=ACooHQ>Uwl06XLBC;Kw3wM@$`Y8l$jfRaQRi63j$UBkSwOF|0
-zPL#k%xa7orZ6=SuX`3_kJUr0Enc3=dj#96aZhjU9eeV${P2ZbV-tVGh8Vd|=Ji~Vv
-zWH#C;uokYS!!V^sJ6*=bF;v)#L2o#-h)_F6=E`%9D`KHVld-myn9=Ubxvo0zmf+MV
-zED5}#wVH?A<6i}Nr61`cX0b&gxR?a$($;+4;yrc2?_r((kB9$)R*W*Ytim`xX<$~&
-zK$@f?{5#M-4(ZZi+&?}l8F3hu4qu{@=)<UVNUNj&mw4RJjOFjZ>dsVnNu<*Dyu1E-
-PDip{2jAzbf4QrnO6W%<u
-
-literal 0
-HcmV?d00001
-
+index 00000000000000..0740432c8fc251
+--- /dev/null
++++ b/build/swift-ui/Alert/index.d.ts
+@@ -0,0 +1,42 @@
++import { type CommonViewModifierProps } from '../types';
++/**
++ * Props of the `Alert` component.
++ */
++export type AlertProps = {
++    /**
++     * The contents of the alert.
++     * Should include `Alert.Trigger`, `Alert.Actions`, and optionally `Alert.Message`.
++     */
++    children: React.ReactNode;
++    /**
++     * The title of the alert.
++     */
++    title: string;
++    /**
++     * Whether the alert is presented.
++     */
++    isPresented?: boolean;
++    /**
++     * A callback that is called when the `isPresented` state changes.
++     */
++    onIsPresentedChange?: (isPresented: boolean) => void;
++} & CommonViewModifierProps;
++/**
++ * `Alert` presents a SwiftUI alert with a title, optional message, and action buttons.
++ *
++ * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/view/alert(_:ispresented:actions:message:)).
++ */
++declare function Alert(props: AlertProps): import("react/jsx-runtime").JSX.Element;
++declare namespace Alert {
++    var Trigger: (props: {
++        children: React.ReactNode;
++    }) => import("react/jsx-runtime").JSX.Element;
++    var Actions: (props: {
++        children: React.ReactNode;
++    }) => import("react/jsx-runtime").JSX.Element;
++    var Message: (props: {
++        children: React.ReactNode;
++    }) => import("react/jsx-runtime").JSX.Element;
++}
++export { Alert };
++//# sourceMappingURL=index.d.ts.map
+\ No newline at end of file
 diff --git a/build/swift-ui/Alert/index.d.ts.map b/build/swift-ui/Alert/index.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..4bd97e380df2befe388d1114106eb61ee224e0e9
-GIT binary patch
-literal 763
-zcmdUtPj7-i5XHaCo~Mwu>BT)g7J|eWVvRAT>A~n~NCXTlYTNX?cbKjJF1<J5u*1Ij
-z&AbO+>R_9;s4F#iCbcPcRt;29t?emT2d-75+PZ62_O-4Z-(2ce4c=4`g#KxpRoEVj
-zjeF>d5Iftr&@)_nQtzayWoi2kK9<Y<zNofbDPRQ3ft(T`p%K^AML-w%7h_;dGhjvr
-zFq$=|SnCu?%4ahqxxb21Ak`VnA<|msNTnFk1en|m=utEUrXI@rN7m;(l+Q!Ih3q3_
-znamgKTg@DpOS|Wag|pDz(Mq;cMmJg+Fa0t@TE%z<WPT+B<6`RFoYN3C&wOF_)qcV3
-zDJ_77=L@E%vJsB+FW=CNOz6oV`HcHu?{fVQ;4yF9hmrmM3r7xP8~Lv%8DG-ye-K->
-N&ghQ_8!IaH{R0B+&GG;M
-
-literal 0
-HcmV?d00001
-
+index 00000000000000..48cd1c78c0ded3
+--- /dev/null
++++ b/build/swift-ui/Alert/index.d.ts.map
+@@ -0,0 +1 @@
++{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/swift-ui/Alert/index.tsx"],"names":[],"mappings":"AAKA,OAAO,EAAE,KAAK,uBAAuB,EAAE,MAAM,UAAU,CAAC;AAExD;;GAEG;AACH,MAAM,MAAM,UAAU,GAAG;IACvB;;;OAGG;IACH,QAAQ,EAAE,KAAK,CAAC,SAAS,CAAC;IAC1B;;OAEG;IACH,KAAK,EAAE,MAAM,CAAC;IACd;;OAEG;IACH,WAAW,CAAC,EAAE,OAAO,CAAC;IACtB;;OAEG;IACH,mBAAmB,CAAC,EAAE,CAAC,WAAW,EAAE,OAAO,KAAK,IAAI,CAAC;CACtD,GAAG,uBAAuB,CAAC;AAgC5B;;;;GAIG;AACH,iBAAS,KAAK,CAAC,KAAK,EAAE,UAAU,2CAe/B;kBAfQ,KAAK;yBAvBU;QAAE,QAAQ,EAAE,KAAK,CAAC,SAAS,CAAA;KAAE;yBAO7B;QAAE,QAAQ,EAAE,KAAK,CAAC,SAAS,CAAA;KAAE;yBAO7B;QAAE,QAAQ,EAAE,KAAK,CAAC,SAAS,CAAA;KAAE;;AA8BrD,OAAO,EAAE,KAAK,EAAE,CAAC"}
+\ No newline at end of file
 diff --git a/build/swift-ui/index.d.ts b/build/swift-ui/index.d.ts
-index 5ab269420fa3b861d80bd55adc84c80dffb48968..7647b7ca78e346f04b622821c0316f4af0ea44a9 100644
-GIT binary patch
-delta 19
-acmeC=UBo*fiq$bEwWws`Ly?V9`fLD2at8AN
-
-delta 10
-RcmZ3)+sQj2YGbiJ8vqp<1Bn0t
-
+index 5ab269420fa3b8..7647b7ca78e346 100644
+--- a/build/swift-ui/index.d.ts
++++ b/build/swift-ui/index.d.ts
+@@ -1,5 +1,6 @@
+ import '../State/index.fx';
+ export * from './AccessoryWidgetBackground';
++export * from './Alert';
+ export * from './BottomSheet';
+ export * from './Button';
+ export * from './Chart';
 diff --git a/build/swift-ui/index.d.ts.map b/build/swift-ui/index.d.ts.map
-index 5485de4bc2fd18c2135b17a172cd5f6440248a78..56d63767a57098022f57b6f7d340eaad4fa10cb4 100644
-GIT binary patch
-delta 13
-VcmX@l^@MA}>WNpiHXi6_0RS(J2A2Q;
-
-delta 18
-acmaFDb)IX&>d9^_qLZ&PiEeyV#R33J3<r+@
-
-diff --git a/ios/Alert/AlertProps.swift b/ios/Alert/AlertProps.swift
+index 5485de4bc2fd18..56d63767a57098 100644
+--- a/build/swift-ui/index.d.ts.map
++++ b/build/swift-ui/index.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../src/swift-ui/index.tsx"],"names":[],"mappings":"AAAA,OAAO,mBAAmB,CAAC;AAE3B,cAAc,6BAA6B,CAAC;AAC5C,cAAc,eAAe,CAAC;AAC9B,cAAc,UAAU,CAAC;AACzB,cAAc,SAAS,CAAC;AACxB,cAAc,eAAe,CAAC;AAC9B,cAAc,0BAA0B,CAAC;AACzC,cAAc,sBAAsB,CAAC;AACrC,cAAc,gBAAgB,CAAC;AAC/B,cAAc,eAAe,CAAC;AAC9B,cAAc,cAAc,CAAC;AAC7B,cAAc,WAAW,CAAC;AAC1B,cAAc,mBAAmB,CAAC;AAClC,cAAc,QAAQ,CAAC;AACvB,cAAc,SAAS,CAAC;AACxB,cAAc,QAAQ,CAAC;AACvB,cAAc,SAAS,CAAC;AACxB,cAAc,SAAS,CAAC;AACxB,cAAc,kBAAkB,CAAC;AACjC,cAAc,UAAU,CAAC;AACzB,cAAc,cAAc,CAAC;AAC7B,cAAc,cAAc,CAAC;AAC7B,cAAc,UAAU,CAAC;AACzB,cAAc,UAAU,CAAC;AACzB,cAAc,SAAS,CAAC;AACxB,cAAc,QAAQ,CAAC;AACvB,cAAc,QAAQ,CAAC;AACvB,cAAc,UAAU,CAAC;AACzB,cAAc,gBAAgB,CAAC;AAC/B,cAAc,WAAW,CAAC;AAC1B,cAAc,aAAa,CAAC;AAC5B,cAAc,UAAU,CAAC;AACzB,cAAc,UAAU,CAAC;AACzB,cAAc,WAAW,CAAC;AAC1B,cAAc,QAAQ,CAAC;AACvB,OAAO,EAAE,cAAc,EAAE,MAAM,yBAAyB,CAAC;AACzD,cAAc,cAAc,CAAC;AAC7B,cAAc,WAAW,CAAC;AAC1B,cAAc,UAAU,CAAC;AACzB,OAAO,EACL,SAAS,EACT,KAAK,cAAc,EACnB,KAAK,YAAY,EACjB,KAAK,kBAAkB,GACxB,MAAM,aAAa,CAAC;AACrB,cAAc,eAAe,CAAC;AAC9B,cAAc,aAAa,CAAC;AAC5B,cAAc,wBAAwB,CAAC;AACvC,cAAc,cAAc,CAAC;AAC7B,cAAc,UAAU,CAAC;AACzB,cAAc,QAAQ,CAAC;AACvB,cAAc,WAAW,CAAC;AAC1B,cAAc,WAAW,CAAC;AAC1B,cAAc,QAAQ,CAAC;AACvB,cAAc,cAAc,CAAC;AAC7B,cAAc,QAAQ,CAAC;AACvB,OAAO,EAAE,KAAK,SAAS,EAAE,KAAK,uBAAuB,EAAE,MAAM,SAAS,CAAC"}
+\ No newline at end of file
++{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../src/swift-ui/index.tsx"],"names":[],"mappings":"AAAA,OAAO,mBAAmB,CAAC;AAE3B,cAAc,6BAA6B,CAAC;AAC5C,cAAc,SAAS,CAAC;AACxB,cAAc,eAAe,CAAC;AAC9B,cAAc,UAAU,CAAC;AACzB,cAAc,SAAS,CAAC;AACxB,cAAc,eAAe,CAAC;AAC9B,cAAc,0BAA0B,CAAC;AACzC,cAAc,sBAAsB,CAAC;AACrC,cAAc,gBAAgB,CAAC;AAC/B,cAAc,eAAe,CAAC;AAC9B,cAAc,cAAc,CAAC;AAC7B,cAAc,WAAW,CAAC;AAC1B,cAAc,mBAAmB,CAAC;AAClC,cAAc,QAAQ,CAAC;AACvB,cAAc,SAAS,CAAC;AACxB,cAAc,QAAQ,CAAC;AACvB,cAAc,SAAS,CAAC;AACxB,cAAc,SAAS,CAAC;AACxB,cAAc,kBAAkB,CAAC;AACjC,cAAc,UAAU,CAAC;AACzB,cAAc,cAAc,CAAC;AAC7B,cAAc,cAAc,CAAC;AAC7B,cAAc,UAAU,CAAC;AACzB,cAAc,UAAU,CAAC;AACzB,cAAc,SAAS,CAAC;AACxB,cAAc,QAAQ,CAAC;AACvB,cAAc,QAAQ,CAAC;AACvB,cAAc,UAAU,CAAC;AACzB,cAAc,gBAAgB,CAAC;AAC/B,cAAc,WAAW,CAAC;AAC1B,cAAc,aAAa,CAAC;AAC5B,cAAc,UAAU,CAAC;AACzB,cAAc,UAAU,CAAC;AACzB,cAAc,WAAW,CAAC;AAC1B,cAAc,QAAQ,CAAC;AACvB,OAAO,EAAE,cAAc,EAAE,MAAM,yBAAyB,CAAC;AACzD,cAAc,cAAc,CAAC;AAC7B,cAAc,WAAW,CAAC;AAC1B,cAAc,UAAU,CAAC;AACzB,OAAO,EACL,SAAS,EACT,KAAK,cAAc,EACnB,KAAK,YAAY,EACjB,KAAK,kBAAkB,GACxB,MAAM,aAAa,CAAC;AACrB,cAAc,eAAe,CAAC;AAC9B,cAAc,aAAa,CAAC;AAC5B,cAAc,wBAAwB,CAAC;AACvC,cAAc,cAAc,CAAC;AAC7B,cAAc,UAAU,CAAC;AACzB,cAAc,QAAQ,CAAC;AACvB,cAAc,WAAW,CAAC;AAC1B,cAAc,WAAW,CAAC;AAC1B,cAAc,QAAQ,CAAC;AACvB,cAAc,cAAc,CAAC;AAC7B,cAAc,QAAQ,CAAC;AACvB,OAAO,EAAE,KAAK,SAAS,EAAE,KAAK,uBAAuB,EAAE,MAAM,SAAS,CAAC"}
+\ No newline at end of file
+diff --git a/ios/Alert/Alert.swift b/ios/Alert/Alert.swift
 new file mode 100644
-index 0000000000000000000000000000000000000000..a6ff8312c3ecb6cd1f748b9442fa80d4e61ce44d
+index 00000000000000..4065847888028c
 --- /dev/null
-+++ b/ios/Alert/AlertProps.swift
-@@ -0,0 +1,10 @@
-+// Copyright 2025-present 650 Industries. All rights reserved.
-+
-+import ExpoModulesCore
++++ b/ios/Alert/Alert.swift
+@@ -0,0 +1,56 @@
 +import SwiftUI
-+
-+internal final class AlertProps: UIBaseViewProps {
-+  @Field var title: String = ""
-+  @Field var isPresented: Bool = false
-+  var onIsPresentedChange = EventDispatcher()
-+}
-diff --git a/ios/Alert/AlertView.swift b/ios/Alert/AlertView.swift
-new file mode 100644
-index 0000000000000000000000000000000000000000..a381c8e0143a753551134336b74bb47fb3146954
---- /dev/null
-+++ b/ios/Alert/AlertView.swift
-@@ -0,0 +1,58 @@
-+// Copyright 2025-present 650 Industries. All rights reserved.
-+
 +import ExpoModulesCore
-+import SwiftUI
 +
 +internal struct AlertView: ExpoSwiftUI.View {
 +  @ObservedObject var props: AlertProps
@@ -148,8 +150,22 @@ index 0000000000000000000000000000000000000000..a381c8e0143a753551134336b74bb47f
 +    }
 +  }
 +}
+diff --git a/ios/Alert/AlertProps.swift b/ios/Alert/AlertProps.swift
+new file mode 100644
+index 00000000000000..c9956a0a0c7ab6
+--- /dev/null
++++ b/ios/Alert/AlertProps.swift
+@@ -0,0 +1,8 @@
++import ExpoModulesCore
++import SwiftUI
++
++internal final class AlertProps: UIBaseViewProps {
++  @Field var title: String = ""
++  @Field var isPresented: Bool = false
++  var onIsPresentedChange = EventDispatcher()
++}
 diff --git a/ios/ExpoUIModule.swift b/ios/ExpoUIModule.swift
-index f95e75d40a3a97df64f44067ce8e3d5511f1c065..16af6edf4f7fcdae2d8f39edd0fe410fd9f95629 100644
+index f95e75d40a3a97..16af6edf4f7fcd 100644
 --- a/ios/ExpoUIModule.swift
 +++ b/ios/ExpoUIModule.swift
 @@ -91,6 +91,7 @@ public final class ExpoUIModule: Module {
@@ -162,10 +178,10 @@ index f95e75d40a3a97df64f44067ce8e3d5511f1c065..16af6edf4f7fcdae2d8f39edd0fe410f
      ExpoUIView(ChartView.self)
 diff --git a/src/swift-ui/Alert/index.tsx b/src/swift-ui/Alert/index.tsx
 new file mode 100644
-index 0000000000000000000000000000000000000000..7dc98629b67c8e7b84809358ba692dce9fbad506
+index 00000000000000..6c8dec836583ef
 --- /dev/null
 +++ b/src/swift-ui/Alert/index.tsx
-@@ -0,0 +1,85 @@
+@@ -0,0 +1,87 @@
 +import { requireNativeView } from 'expo';
 +import type { NativeSyntheticEvent } from 'react-native';
 +
@@ -208,34 +224,30 @@ index 0000000000000000000000000000000000000000..7dc98629b67c8e7b84809358ba692dce
 +/**
 + * The component visible all the time that triggers the alert presentation.
 + */
-+function AlertTrigger(props: { children: React.ReactNode }) {
++function Trigger(props: { children: React.ReactNode }) {
 +  return <Slot name="trigger">{props.children}</Slot>;
 +}
 +
 +/**
 + * The action buttons displayed in the alert. Use `Button` components from `@expo/ui/swift-ui` as children.
 + */
-+function AlertActions(props: { children: React.ReactNode }) {
++function Actions(props: { children: React.ReactNode }) {
 +  return <Slot name="actions">{props.children}</Slot>;
 +}
 +
 +/**
 + * An optional message displayed below the title in the alert.
 + */
-+function AlertMessage(props: { children: React.ReactNode }) {
++function Message(props: { children: React.ReactNode }) {
 +  return <Slot name="message">{props.children}</Slot>;
 +}
-+
-+Alert.Trigger = AlertTrigger;
-+Alert.Actions = AlertActions;
-+Alert.Message = AlertMessage;
 +
 +/**
 + * `Alert` presents a SwiftUI alert with a title, optional message, and action buttons.
 + *
-+ * @see https://developer.apple.com/documentation/swiftui/view/alert(_:ispresented:actions:message:)
++ * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/view/alert(_:ispresented:actions:message:)).
 + */
-+export function Alert(props: AlertProps) {
++function Alert(props: AlertProps) {
 +  const { onIsPresentedChange, modifiers, children, ...restProps } = props;
 +
 +  const handleIsPresentedChange = (event: NativeSyntheticEvent<{ isPresented: boolean }>) => {
@@ -251,8 +263,14 @@ index 0000000000000000000000000000000000000000..7dc98629b67c8e7b84809358ba692dce
 +    </AlertNativeView>
 +  );
 +}
++
++Alert.Trigger = Trigger;
++Alert.Actions = Actions;
++Alert.Message = Message;
++
++export { Alert };
 diff --git a/src/swift-ui/index.tsx b/src/swift-ui/index.tsx
-index 672ff6474253b3b59408f8a1d8ed4d77950240e7..f3298162362a031f5f1e14e8d5ffa65b96973b80 100644
+index 672ff6474253b3..f3298162362a03 100644
 --- a/src/swift-ui/index.tsx
 +++ b/src/swift-ui/index.tsx
 @@ -1,6 +1,7 @@
