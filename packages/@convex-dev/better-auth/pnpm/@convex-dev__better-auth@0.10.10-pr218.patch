@@ -1,5 +1,5 @@
 diff --git a/dist/plugins/cross-domain/client.js b/dist/plugins/cross-domain/client.js
-index ae0c621..f702b32 100644
+index ae0c621..6c8e382 100644
 --- a/dist/plugins/cross-domain/client.js
 +++ b/dist/plugins/cross-domain/client.js
 @@ -26,7 +26,7 @@ export function getSetCookie(header, prevCookie) {
@@ -20,23 +20,26 @@ index ae0c621..f702b32 100644
              return acc;
          }
          return `${acc}; ${key}=${value.value}`;
-@@ -113,7 +113,14 @@ export const crossDomainClient = (opts = {}) => {
+@@ -113,7 +113,17 @@ export const crossDomainClient = (opts = {}) => {
                   */
                  getSessionData: () => {
                      const sessionData = storage?.getItem(localCacheName);
 -                    return sessionData ? JSON.parse(sessionData) : null;
-+                    if (!sessionData) return null;
++                    if (!sessionData)
++                        return null;
 +                    try {
 +                        const parsed = JSON.parse(sessionData);
-+                        if (parsed && typeof parsed === "object" && Object.keys(parsed).length === 0) return null;
++                        if (parsed && typeof parsed === "object" && Object.keys(parsed).length === 0)
++                            return null;
 +                        return parsed;
-+                    } catch {
++                    }
++                    catch {
 +                        return null;
 +                    }
                  },
              };
          },
-@@ -140,6 +147,9 @@ export const crossDomainClient = (opts = {}) => {
+@@ -140,6 +150,9 @@ export const crossDomainClient = (opts = {}) => {
                              !opts?.disableCache) {
                              const data = context.data;
                              storage.setItem(localCacheName, JSON.stringify(data));
@@ -47,15 +50,42 @@ index ae0c621..f702b32 100644
                      },
                  },
 diff --git a/dist/react/index.js b/dist/react/index.js
-index eb292f6..235eef4 100644
+index eb292f6..7c535ba 100644
 --- a/dist/react/index.js
 +++ b/dist/react/index.js
-@@ -73,7 +73,7 @@ function useUseAuthFromBetterAuth(authClient, initialToken) {
+@@ -38,7 +38,7 @@ export function ConvexBetterAuthProvider({ children, client, authClient, initial
+ }
+ let initialTokenUsed = false;
+ function useUseAuthFromBetterAuth(authClient, initialToken) {
+-    const [cachedToken, setCachedToken] = useState(initialTokenUsed ? (initialToken ?? null) : null);
++    const [cachedToken, setCachedToken] = useState(initialTokenUsed ? null : (initialToken ?? null));
+     useEffect(() => {
+         if (!initialTokenUsed) {
+             initialTokenUsed = true;
+@@ -57,7 +57,9 @@ function useUseAuthFromBetterAuth(authClient, initialToken) {
+                 return cachedToken;
+             }
+             try {
+-                const { data } = await authClient.convex.token();
++                const { data } = await authClient.convex.token({
++                    fetchOptions: { throw: false },
++                });
+                 const token = data?.token || null;
+                 setCachedToken(token);
+                 return token;
+@@ -72,12 +74,12 @@ function useUseAuthFromBetterAuth(authClient, initialToken) {
+         // eslint-disable-next-line react-hooks/exhaustive-deps
          [sessionId]);
          return useMemo(() => ({
-             isLoading: isSessionPending,
+-            isLoading: isSessionPending,
 -            isAuthenticated: session !== null,
-+            isAuthenticated: Boolean(session?.session),
++            isLoading: isSessionPending && !cachedToken,
++            isAuthenticated: Boolean(session?.session) || cachedToken !== null,
              fetchAccessToken,
          }), 
          // eslint-disable-next-line react-hooks/exhaustive-deps
+-        [isSessionPending, sessionId, fetchAccessToken]);
++        [isSessionPending, sessionId, fetchAccessToken, cachedToken]);
+     }, [authClient]);
+ }
+ class ErrorBoundary extends Component {

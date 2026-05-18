@@ -5573,13 +5573,12 @@ index 0000000..ec0b199
 \ No newline at end of file
 diff --git a/dist/version.js b/dist/version.js
 new file mode 100644
-index 0000000..745b933
+index 0000000..ddb4669
 --- /dev/null
 +++ b/dist/version.js
 @@ -0,0 +1,2 @@
-+export const VERSION = "0.11.5";
++export const VERSION = "0.12.0";
 +//# sourceMappingURL=version.js.map
-\ No newline at end of file
 diff --git a/dist/version.js.map b/dist/version.js.map
 new file mode 100644
 index 0000000..72e9b3b
@@ -5589,9 +5588,18 @@ index 0000000..72e9b3b
 +{"version":3,"file":"version.js","sourceRoot":"","sources":["../src/version.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC,MAAM,OAAO,GAAG,QAAQ,CAAC"}
 \ No newline at end of file
 diff --git a/package.json b/package.json
-index 8845d0e..6ddcb87 100644
+index 8845d0e..25acf02 100644
 --- a/package.json
 +++ b/package.json
+@@ -6,7 +6,7 @@
+   "bugs": {
+     "url": "https://github.com/get-convex/better-auth/issues"
+   },
+-  "version": "0.11.5",
++  "version": "0.12.0",
+   "license": "Apache-2.0",
+   "keywords": [
+     "convex",
 @@ -30,6 +30,7 @@
      "test:e2e": "npm run build && cd e2e && npm run test",
      "test:coverage": "vitest run --coverage --coverage.reporter=text",
@@ -10805,8 +10813,8 @@ index 767311d..cfdaf38 100644
  );
 diff --git a/src/version.ts b/src/version.ts
 new file mode 100644
-index 0000000..61b058b
+index 0000000..b3c2cc4
 --- /dev/null
 +++ b/src/version.ts
 @@ -0,0 +1 @@
-+export const VERSION = "0.11.5";
++export const VERSION = "0.12.0";
