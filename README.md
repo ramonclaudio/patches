@@ -72,7 +72,7 @@ Merged upstream. Bump the dep (or wait for the next canary), then delete the pat
 
 ## Usage
 
-Most patches are ready to drop into `bun`, `npm` (via `patch-package`), or `pnpm`. Source-only patches (CI, docs, non-npm code) get applied with `git apply` against a clone of the upstream repo.
+Most patches drop straight into `bun`, `pnpm`, or Yarn Berry. `npm` and Yarn classic apply them via `patch-package`. Source-only patches (CI, docs, non-npm code) get applied with `git apply` against a clone of the upstream repo.
 
 Copy the patch file into your `patches/` dir. Strip the `-prXXX` suffix from the filename so it matches what your package manager expects.
 
@@ -196,30 +196,47 @@ One patch file per PR in this repo. But most package managers only support **one
 | **npm / Yarn classic** (patch-package) | Yes | Use `--append` for sequenced patches: `pkg+ver+001+fix-a.patch`, `pkg+ver+002+fix-b.patch`. |
 
 <details>
-<summary>Combining patches (Bun, pnpm)</summary>
+<summary>Combining patches (Bun, pnpm, Yarn Berry)</summary>
 
-Apply all changes to `node_modules` and let the tool generate one combined diff:
+Apply all changes to `node_modules` and let the tool generate one combined diff. Bun:
 
 ```bash
-# 1. prep the package
 bun patch @expo/ui
-
-# 2. apply each patch from this repo
 git apply --directory=node_modules/@expo/ui patches/fix-a.patch
 git apply --directory=node_modules/@expo/ui patches/fix-b.patch
-
-# 3. commit as one combined patch
 bun patch --commit @expo/ui
 ```
 
-> [!TIP]
-> If the patches touch completely different files, `cat` them together instead:
->
-> ```bash
-> cat patches/fix-a.patch patches/fix-b.patch > patches/@expo%2Fui@56.0.0-canary-20260212-4f61309.patch
-> ```
->
-> If any file appears in both patches, use the `bun patch` or `pnpm patch-commit` workflow above.
+pnpm and Yarn Berry follow the same shape. `pnpm patch <pkg>` and `yarn patch <pkg>` each print a temp dir to edit, then commit with `pnpm patch-commit <dir>` or `yarn patch-commit -s <dir>`.
+
+If the patches touch completely different files, `cat` works:
+
+```bash
+cat patches/fix-a.patch patches/fix-b.patch > patches/@expo%2Fui@56.0.0-canary-20260212-4f61309.patch
+```
+
+If patches touch the same file, use the `patch` workflow above instead.
+
+</details>
+
+<details>
+<summary>Sequenced patches (npm, Yarn classic)</summary>
+
+patch-package applies multiple patches per package in sequence. No combining needed.
+
+When you grab two patches from this repo for the same `package@version`, rename them with sequence numbers:
+
+```text
+patches/
+  @expo+ui+56.0.0+001+fix-a.patch
+  @expo+ui+56.0.0+002+fix-b.patch
+```
+
+For your own edits in `node_modules`, `--append` generates a sequenced patch:
+
+```bash
+npx patch-package @expo/ui --append fix-name
+```
 
 </details>
 
