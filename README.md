@@ -84,8 +84,8 @@ Copy the patch file into your `patches/` dir. Strip the `-prXXX` suffix from the
 > | Tool | Format |
 > | :--- | :--- |
 > | Bun | `@scope%2Fpkg@version.patch` |
-> | npm (patch-package) | `@scope+pkg+version.patch` |
-> | pnpm | `@scope__pkg@version.patch` |
+> | npm / Yarn classic (patch-package) | `@scope+pkg+version.patch` |
+> | pnpm / Yarn Berry | `@scope__pkg@version.patch` |
 >
 > **Diff paths.** Bun and pnpm use paths relative to the package root. patch-package prefixes with `node_modules/@scope/pkg/`. To convert:
 >
@@ -149,6 +149,41 @@ patchedDependencies:
 
 </details>
 
+<details>
+<summary>Yarn classic (1.22+)</summary>
+
+No native patching. Same setup as npm: [patch-package](https://github.com/ds300/patch-package) via `postinstall`. The `packages/*/npm/` patches work as-is. Copy into `patches/` and strip the `-prXXX` suffix.
+
+```jsonc
+// package.json
+{
+  "scripts": {
+    "postinstall": "patch-package"
+  },
+  "devDependencies": {
+    "patch-package": "^8.0.1"
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Yarn Berry (2+, 3+, 4+)</summary>
+
+Native [`yarn patch`](https://yarnpkg.com/cli/patch) with the `patch:` protocol. The `packages/*/pnpm/` patches work as-is (same diff format, same filename). Copy into `.yarn/patches/` and add a `resolutions` entry.
+
+```jsonc
+// package.json
+{
+  "resolutions": {
+    "@convex-dev/[email protected]": "patch:@convex-dev/better-auth@npm:0.10.10#./.yarn/patches/@convex-dev__better-auth@0.10.10.patch"
+  }
+}
+```
+
+</details>
+
 ## Multiple patches for the same package
 
 One patch file per PR in this repo. But most package managers only support **one patch per `package@version`**.
@@ -157,7 +192,8 @@ One patch file per PR in this repo. But most package managers only support **one
 | :--- | :--- | :--- |
 | **Bun** | No | One entry per `package@version` in `patchedDependencies`. Combine into one `.patch`. |
 | **pnpm** | No | One entry per exact version in `patchedDependencies`. Combine into one `.patch`. |
-| **npm** (patch-package) | Yes | Use `--append` for sequenced patches: `pkg+ver+001+fix-a.patch`, `pkg+ver+002+fix-b.patch`. |
+| **Yarn Berry** | No | One entry per package in `resolutions`. Combine into one `.patch`. |
+| **npm / Yarn classic** (patch-package) | Yes | Use `--append` for sequenced patches: `pkg+ver+001+fix-a.patch`, `pkg+ver+002+fix-b.patch`. |
 
 <details>
 <summary>Combining patches (Bun, pnpm)</summary>
