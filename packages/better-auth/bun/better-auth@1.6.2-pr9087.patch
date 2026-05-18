@@ -1,8 +1,8 @@
 diff --git a/dist/client/config.mjs b/dist/client/config.mjs
-index 1234567..abcdef0 100644
+index 78af8f7..5107c04 100644
 --- a/dist/client/config.mjs
 +++ b/dist/client/config.mjs
-@@ -67,7 +67,7 @@
+@@ -67,7 +67,7 @@ const getClientConfig = (options, loadEnv) => {
  	const atomListeners = [{
  		signal: "$sessionSignal",
  		matcher(path) {

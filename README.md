@@ -14,13 +14,14 @@ This is me sending patches.
 
 ## Open
 
-PRs still in flight. Every row has a patch in `packages/` you can drop into your project. Indented rows (`↳`) are sibling patches from the same PR, apply them together.
+PRs still in flight. Every row has a patch in `packages/` you can drop into your project.
 
 | Package | Version | Fix | PR |
 | :--- | :--- | :--- | :--- |
 | [`@expo/ui`](packages/@expo/ui/) | `56.0.8` | Apply `<Host modifiers={...}>` on iOS. `HostProps` extends `CommonViewModifierProps` and `Host/index.tsx` already forwards `modifiers` to the native view, but `HostViewProps` (Swift) never declared the field, so every typechecked modifier on `Host` was a no-op. Adding the field plus one `.applyModifiers(...)` chain in `HostView.body` restores the entire registered modifier surface to `Host` in one shot. | [expo/expo#45872](https://github.com/expo/expo/pull/45872) |
 | [`bun`](packages/oven-sh/bun/) | `1.3.14` | Drop the order-dependent peer-dep early-match block from `get_or_put_resolved_package` so `bun.lock` stops varying run to run. The block bound peers to whichever same-name resolution `package_index` held first, and `package_index` fills in thread-pool-completion order. Dedup and the "incorrect peer dependency" warning move into `Tree::hoist_dependency` where placement is deterministic. Rust port of Dylan's [#29804](https://github.com/oven-sh/bun/pull/29804). | [oven-sh/bun#30855](https://github.com/oven-sh/bun/pull/30855) |
-| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.12.2` | Wrap `fetchAccessToken` in `new Promise()` so `useConvexAuth().isAuthenticated` flips after sign-in on Hermes V1. The Expo SDK 56 canary dropped `@babel/plugin-transform-async-to-generator` from its Hermes V1 preset ([expo/expo#45345](https://github.com/expo/expo/pull/45345)), exposing a bridge race the transform's extra tick was hiding. | [get-convex/better-auth#368](https://github.com/get-convex/better-auth/pull/368) |
+| [`@convex-dev/better-auth`](packages/@convex-dev/better-auth/) | `0.12.2` | Wrap `fetchAccessToken` in `new Promise()` so `useConvexAuth().isAuthenticated` flips after sign-in on Hermes V1. The Expo SDK 56 canary dropped `@babel/plugin-transform-async-to-generator` from its Hermes V1 preset ([expo/expo#45345](https://github.com/expo/expo/pull/45345)), exposing a bridge race the transform's extra tick was hiding. Babel-layer root fix in [facebook/react-native#56816](https://github.com/facebook/react-native/pull/56816). | [get-convex/better-auth#368](https://github.com/get-convex/better-auth/pull/368) |
+| [`@react-native/babel-preset`](packages/@react-native/babel-preset/) | `0.85.3` | Three Babel plugins that rewrite source patterns Hermes V1 mishandles: `async ({a}) =>` (await resolves with `undefined` while the body keeps running), `class` inside `finally` (IR-cache contamination), and `super.x` in object-accessor identifier keys (segfaults at IR generation). Port of [@kitten](https://github.com/kitten)'s plugins from `babel-preset-expo` ([expo/expo#45601](https://github.com/expo/expo/pull/45601)) so bare RN consumers escape the bugs without `babel-preset-expo`. Root cause: [facebook/hermes#1761](https://github.com/facebook/hermes/issues/1761). | [facebook/react-native#56816](https://github.com/facebook/react-native/pull/56816) |
 | [`better-auth`](packages/better-auth/) | `1.6.11` | Preserve the caller's session on `/change-password` with `revokeOtherSessions: true`. Same family as [#9087](https://github.com/better-auth/better-auth/pull/9087). | [better-auth/better-auth#9345](https://github.com/better-auth/better-auth/pull/9345) |
 | [`@hugeicons/react`](packages/@hugeicons/react/) | `1.1.6` | Ship subpath types for `@hugeicons/core-free-icons/*` so TS finds them under `node16`, `nodenext`, and `bundler` resolution. Vite dev stops pre-bundling the 6.2 MB barrel for the 33 KB you actually use. | [hugeicons/react#5](https://github.com/hugeicons/react/pull/5) |
 | [`shadcn`](packages/shadcn/) | `4.7.0` | Strip C0 (`0x00`-`0x1F`) and DEL (`0x7F`) control chars from `prompts` text input so Cmd+Delete on macOS stops creating directories like `\x15my-app`. | [shadcn-ui/ui#10364](https://github.com/shadcn-ui/ui/pull/10364) |
@@ -32,8 +33,10 @@ Merged upstream. Bump the dep (or wait for the next canary), then delete the pat
 
 | Package | Was | Fix | Fixed in |
 | :--- | :--- | :--- | :--- |
+| [`expo`](packages/expo/) | n/a | Gate `pull_request_target`, `issues`, and label-event workflows on `github.repository == 'expo/expo'` so fork PRs stop red-checking on secret-gated jobs that can't run. Covers 18 workflows including `code-review`, `commentator`, `docs-pr`, `issue-triage`, and `sync-template`. Sibling to [#45782](https://github.com/expo/expo/pull/45782). | merged ([expo/expo#45859](https://github.com/expo/expo/pull/45859)) |
+| [`expo`](packages/expo/) | n/a | Make five auto-firing scheduled workflows fork-safe. Swap `../expo/` (breaks on forks named anything but `expo`) for `${{ github.workspace }}`. Gate `validate-npm-owners`, `check-issues-nightly`, `publish-canaries`, and both `development-client-e2e` matrices on `github.repository == 'expo/expo'`. Drops failing checks and 120-minute fork CI burns. | merged ([expo/expo#45782](https://github.com/expo/expo/pull/45782)) |
 | [`@expo/ui`](packages/@expo/ui/) | `56.0.0-canary-20260506-03817f5` | Add SwiftUI `Alert` component wrapping iOS 15 `.alert(_:isPresented:actions:message:)`, with `Alert.Trigger`, `Alert.Actions`, and optional `Alert.Message` slots. Mirrors `ConfirmationDialog`'s shape so `isPresented` bindings and `Button` actions compose the same way. | `56.0.8` ([expo/expo#45700](https://github.com/expo/expo/pull/45700)) |
-| [`expo`](packages/expo/) | n/a | Resolve `workspace:*` peer deps for scoped packages whose dir name differs from the package name (`@expo/ui`, `@expo/app-integrity`). Same root cause as [#44412](https://github.com/expo/expo/pull/44412), different call site. | `56.0.0-canary-20260506-964f25d` ([expo/expo#45403](https://github.com/expo/expo/pull/45403)) |
+| [`expo`](packages/expo/) | n/a | Resolve `workspace:*` peer deps for scoped packages whose dir name differs from the package name (`@expo/ui`, `@expo/app-integrity`). Same root cause as [#44412](https://github.com/expo/expo/pull/44412), different call site. Fix is in monorepo tooling, so the user-visible effect ships in the next canary of the affected packages. | `@expo/ui@56.0.0-canary-20260506-964f25d` ([expo/expo#45403](https://github.com/expo/expo/pull/45403)) |
 | [`better-auth`](packages/better-auth/) | n/a | Add `./instrumentation` subpath with `browser` and `edge` noop conditions so Convex V8 isolate stops crashing on `@opentelemetry/api` resolve. Pairs with [#9340](https://github.com/better-auth/better-auth/pull/9340). | `1.6.7` ([better-auth/better-auth#9281](https://github.com/better-auth/better-auth/pull/9281)) |
 | [`@astrojs/compiler-rs`](packages/withastro/compiler-rs/) | `0.1.7` | Switch linux-gnu builds from zigbuild `-x` to `--use-napi-cross`, dropping glibc baseline from 2.30 and 2.35 to 2.16 and 2.17. Fixes Vercel, Amazon Linux 2023, AWS Lambda, RHEL and CentOS 7, Debian 10. Supersedes [#22](https://github.com/withastro/compiler-rs/pull/22). | `0.1.8` ([withastro/compiler-rs#25](https://github.com/withastro/compiler-rs/pull/25)) |
 | [`shadcn/ui`](packages/shadcn-ui/) | n/a | Add TanStack Start dark mode guide with the `ScriptOnce` and Context pattern. | merged ([shadcn-ui/ui#10396](https://github.com/shadcn-ui/ui/pull/10396)) |
@@ -65,21 +68,7 @@ Merged upstream. Bump the dep (or wait for the next canary), then delete the pat
 | [`create-fumadocs-app`](packages/create-fumadocs-app/) | `15.6.4` | Fix Prettier formatting in `tanstack-start` template's `NotFound.tsx`. | `15.6.5` ([fuma-nama/fumadocs#2095](https://github.com/fuma-nama/fumadocs/pull/2095)) |
 | [`create-fumadocs-app`](packages/create-fumadocs-app/) | `15.6.4` | Fix Vite and TanStack Router config warnings in `tanstack-start` template. | `15.6.5` ([fuma-nama/fumadocs#2092](https://github.com/fuma-nama/fumadocs/pull/2092)) |
 | [`@tanstack/db`](packages/tanstack/) | n/a | Fix example todo app path in README. | merged ([TanStack/db#17](https://github.com/TanStack/db/pull/17)) |
-
-## Filed
-
-<details>
-<summary>Issues I tracked down. All got fixed, by the maintainer or by my own follow-up PR.</summary>
-
-| Issue | Package | Status | Notes |
-| :--- | :--- | :--- | :--- |
-| [get-convex/better-auth#345](https://github.com/get-convex/better-auth/issues/345) | `@convex-dev/better-auth` | fixed (my PR) | `better-auth` 1.6.6 dynamic `@opentelemetry/api` import crashed Convex V8 isolate on every auth request. Fixed in `0.12.0` via [#323](https://github.com/get-convex/better-auth/pull/323) after [#9281](https://github.com/better-auth/better-auth/pull/9281) shipped the noop in `1.6.7`. |
-| [anthropics/claude-code#18181](https://github.com/anthropics/claude-code/issues/18181) | `claude` | fixed (my report) | Manual update wasn't fixing the symlink with `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` set. [@bcherny](https://github.com/bcherny) replied "Fix incoming" and closed it. |
-| [get-convex/better-auth#219](https://github.com/get-convex/better-auth/issues/219) | `@convex-dev/better-auth` | fixed (my PR) | Concurrent `fetchAccessToken` calls racing to `/token`. Fixed in [#267](https://github.com/get-convex/better-auth/pull/267). |
-| [shadcn-ui/ui#8892](https://github.com/shadcn-ui/ui/issues/8892) | `shadcn/ui` | fixed (my PR) | Registry directory submission for CodeRabbit. [@shadcn](https://github.com/shadcn) asked for a PR. Shipped [#9331](https://github.com/shadcn-ui/ui/pull/9331). |
-| [panva/jose#752](https://github.com/panva/jose/issues/752) | [`jose`](packages/jose/) | fixed (my report) | `process.getBuiltinModule` broke Edge Runtime and Next.js middleware. Fixed in [`v6.0.4`](https://github.com/panva/jose/releases/tag/v6.0.4). [@panva](https://github.com/panva) thanked me on close. |
-
-</details>
+| [`jose`](packages/jose/) | `6.0.3` | Guard `process.getBuiltinModule` against Edge Runtime and Next.js middleware where it isn't defined. | `6.0.4` ([panva/jose@v6.0.4](https://github.com/panva/jose/releases/tag/v6.0.4)) |
 
 ## Usage
 
@@ -113,7 +102,7 @@ Copy the patch file into your `patches/` dir. Strip the `-prXXX` suffix from the
 > ```
 
 <details>
-<summary>Bun (1.2+)</summary>
+<summary>Bun (1.3+)</summary>
 
 Applied automatically on `bun install`.
 
@@ -129,7 +118,7 @@ Applied automatically on `bun install`.
 </details>
 
 <details>
-<summary>npm (patch-package)</summary>
+<summary>npm (11+)</summary>
 
 No native patching. Uses [patch-package](https://github.com/ds300/patch-package) via `postinstall`.
 
@@ -148,7 +137,7 @@ No native patching. Uses [patch-package](https://github.com/ds300/patch-package)
 </details>
 
 <details>
-<summary>pnpm (10.7+)</summary>
+<summary>pnpm (11+)</summary>
 
 [`pnpm patch`](https://pnpm.io/cli/patch). Config goes in `pnpm-workspace.yaml`.
 

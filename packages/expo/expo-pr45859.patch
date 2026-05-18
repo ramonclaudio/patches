@@ -1,0 +1,275 @@
+diff --git a/.github/workflows/code-review.yml b/.github/workflows/code-review.yml
+index 91962d8b77d1bb..afe8ede76afbe3 100644
+--- a/.github/workflows/code-review.yml
++++ b/.github/workflows/code-review.yml
+@@ -14,13 +14,15 @@ concurrency:
+ 
+ jobs:
+   code_review:
+-    # Auto-run only on same-repo PRs. Fork PRs don't get EXPO_BOT_GITHUB_TOKEN
+-    # under `pull_request`, so the review would fail anyway — skip cleanly
+-    # instead of leaving a red check. Maintainers can review a fork PR
+-    # manually via workflow_dispatch.
++    # Auto-run only on same-repo PRs to expo/expo. Fork PRs don't get
++    # EXPO_BOT_GITHUB_TOKEN under `pull_request`, so the review would fail
++    # anyway — skip cleanly instead of leaving a red check. Forks dispatching
++    # this workflow manually would also fail for the same reason; gate on
++    # `github.repository` to short-circuit.
+     if: >-
+-      github.event_name == 'workflow_dispatch' ||
+-      github.event.pull_request.head.repo.full_name == github.repository
++      github.repository == 'expo/expo' &&
++      (github.event_name == 'workflow_dispatch' ||
++       github.event.pull_request.head.repo.full_name == github.repository)
+     runs-on: ubuntu-24.04
+     timeout-minutes: 30
+     steps:
+diff --git a/.github/workflows/commentator.yml b/.github/workflows/commentator.yml
+index 6408fd89612891..a8ba738ad1ef07 100644
+--- a/.github/workflows/commentator.yml
++++ b/.github/workflows/commentator.yml
+@@ -9,6 +9,7 @@ on:
+ 
+ jobs:
+   comment:
++    if: github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     steps:
+       - name: 👀 Checkout
+diff --git a/.github/workflows/development-client-e2e.yml b/.github/workflows/development-client-e2e.yml
+index 10176e133ad4b3..199a8de25e3ab4 100644
+--- a/.github/workflows/development-client-e2e.yml
++++ b/.github/workflows/development-client-e2e.yml
+@@ -18,6 +18,7 @@ concurrency:
+ 
+ jobs:
+   detox_e2e:
++    if: github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     strategy:
+       matrix:
+diff --git a/.github/workflows/development-client-latest-e2e.yml b/.github/workflows/development-client-latest-e2e.yml
+index fc18c3210c6f48..371b331d7fa420 100644
+--- a/.github/workflows/development-client-latest-e2e.yml
++++ b/.github/workflows/development-client-latest-e2e.yml
+@@ -11,6 +11,7 @@ concurrency:
+ 
+ jobs:
+   detox_latest_e2e:
++    if: github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     strategy:
+       matrix:
+@@ -74,7 +75,7 @@ jobs:
+           path: packages/expo-dev-client/artifacts
+       - name: 🔔 Notify on Slack
+         uses: ./.github/actions/slack-notify
+-        if: failure()
++        if: failure() && github.repository == 'expo/expo'
+         with:
+           webhook: ${{ secrets.slack_webhook_dev_client }}
+           channel: '#dev-clients'
+diff --git a/.github/workflows/docs-pr-destroy.yml b/.github/workflows/docs-pr-destroy.yml
+index 00055662700fd3..847756070d755c 100644
+--- a/.github/workflows/docs-pr-destroy.yml
++++ b/.github/workflows/docs-pr-destroy.yml
+@@ -14,8 +14,9 @@ concurrency:
+ 
+ jobs:
+   docs-pr-destroy:
+-    if: (github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'preview')) ||
+-        (github.event.action == 'unlabeled' && github.event.label.name == 'preview')
++    if: github.repository == 'expo/expo' &&
++        ((github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'preview')) ||
++         (github.event.action == 'unlabeled' && github.event.label.name == 'preview'))
+     runs-on: ubuntu-24.04
+     steps:
+       - name: 👀 Checkout
+diff --git a/.github/workflows/docs-pr.yml b/.github/workflows/docs-pr.yml
+index 9a92cce9da7e1f..f057954530878e 100644
+--- a/.github/workflows/docs-pr.yml
++++ b/.github/workflows/docs-pr.yml
+@@ -22,6 +22,7 @@ concurrency:
+ 
+ jobs:
+   docs-pr:
++    if: github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     steps:
+       - name: 👀 Checkout
+diff --git a/.github/workflows/docs.yml b/.github/workflows/docs.yml
+index bff884d51c9855..6632729113f95f 100644
+--- a/.github/workflows/docs.yml
++++ b/.github/workflows/docs.yml
+@@ -21,6 +21,7 @@ concurrency:
+ 
+ jobs:
+   docs:
++    if: github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     steps:
+       - name: 👀 Checkout
+diff --git a/.github/workflows/issue-closed.yml b/.github/workflows/issue-closed.yml
+index 7f4ba4600da17b..47c6cd8dfffe1b 100644
+--- a/.github/workflows/issue-closed.yml
++++ b/.github/workflows/issue-closed.yml
+@@ -7,7 +7,7 @@ on:
+ jobs:
+   run-on-issue-accepted:
+     runs-on: ubuntu-24.04
+-    if: contains(github.event.issue.labels.*.name, 'Issue accepted')
++    if: github.repository == 'expo/expo' && contains(github.event.issue.labels.*.name, 'Issue accepted')
+     steps:
+       - name: 👀 Checkout
+         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+diff --git a/.github/workflows/issue-opened.yml b/.github/workflows/issue-opened.yml
+index 3ad996fde5526c..d18c993efbca4d 100644
+--- a/.github/workflows/issue-opened.yml
++++ b/.github/workflows/issue-opened.yml
+@@ -9,6 +9,7 @@ on:
+ 
+ jobs:
+   check-if-trusted:
++    if: github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     steps:
+       - uses: ./.github/actions/slack-notify
+@@ -32,6 +33,7 @@ jobs:
+             })
+ 
+   validate:
++    if: github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     steps:
+       - name: 👀 Checkout
+diff --git a/.github/workflows/issue-triage.yml b/.github/workflows/issue-triage.yml
+index 10ee47e0ee4afb..dd40f002ea69aa 100644
+--- a/.github/workflows/issue-triage.yml
++++ b/.github/workflows/issue-triage.yml
+@@ -14,7 +14,7 @@ on:
+ jobs:
+   needs-repro:
+     runs-on: ubuntu-24.04
+-    if: "${{ contains(github.event.label.name, 'incomplete issue: missing or invalid repro') }}"
++    if: "${{ github.repository == 'expo/expo' && contains(github.event.label.name, 'incomplete issue: missing or invalid repro') }}"
+     steps:
+       - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+         with:
+@@ -58,7 +58,7 @@ jobs:
+ 
+   needs-info:
+     runs-on: ubuntu-24.04
+-    if: "${{ contains(github.event.label.name, 'incomplete issue: missing info') }}"
++    if: "${{ github.repository == 'expo/expo' && contains(github.event.label.name, 'incomplete issue: missing info') }}"
+     steps:
+       - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+         with:
+@@ -93,7 +93,7 @@ jobs:
+     # expotools with EXPO_BOT_GITHUB_TOKEN, LINEAR_API_KEY, and OPENAI_API_KEY
+     # in env. Without the guard, applying an "issue accepted" label to a PR
+     # would trigger the same flow on a pull_request_target event.
+-    if: github.event_name == 'issues' && github.event.label.name == 'issue accepted'
++    if: github.repository == 'expo/expo' && github.event_name == 'issues' && github.event.label.name == 'issue accepted'
+     steps:
+       - name: Comment on issue
+         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+@@ -151,7 +151,7 @@ jobs:
+ 
+   question:
+     runs-on: ubuntu-24.04
+-    if: "${{ contains(github.event.label.name, 'invalid issue: question') }}"
++    if: "${{ github.repository == 'expo/expo' && contains(github.event.label.name, 'invalid issue: question') }}"
+     steps:
+       - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+         with:
+@@ -179,7 +179,7 @@ jobs:
+ 
+   feature-request:
+     runs-on: ubuntu-24.04
+-    if: "${{ contains(github.event.label.name, 'invalid issue: feature request') }}"
++    if: "${{ github.repository == 'expo/expo' && contains(github.event.label.name, 'invalid issue: feature request') }}"
+     steps:
+       - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+         with:
+@@ -202,7 +202,7 @@ jobs:
+ 
+   third-party:
+     runs-on: ubuntu-24.04
+-    if: "${{ contains(github.event.label.name, 'invalid issue: third-party library') }}"
++    if: "${{ github.repository == 'expo/expo' && contains(github.event.label.name, 'invalid issue: third-party library') }}"
+     steps:
+       - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+         with:
+@@ -229,7 +229,7 @@ jobs:
+             })
+   react-native-core:
+     runs-on: ubuntu-24.04
+-    if: "${{ contains(github.event.label.name, 'invalid issue: react-native-core') }}"
++    if: "${{ github.repository == 'expo/expo' && contains(github.event.label.name, 'invalid issue: react-native-core') }}"
+     steps:
+       - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+         with:
+@@ -251,7 +251,7 @@ jobs:
+             })
+   comments-on-closed:
+     runs-on: ubuntu-24.04
+-    if: "${{ github.event.label.name == 'Comments on closed issue' }}"
++    if: "${{ github.repository == 'expo/expo' && github.event.label.name == 'Comments on closed issue' }}"
+     steps:
+       - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+         with:
+@@ -273,7 +273,7 @@ jobs:
+             })
+   eas-build-troubleshooting:
+     runs-on: ubuntu-24.04
+-    if: "${{ github.event.label.name == 'invalid issue: EAS Build troubleshooting' }}"
++    if: "${{ github.repository == 'expo/expo' && github.event.label.name == 'invalid issue: EAS Build troubleshooting' }}"
+     steps:
+       - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+         with:
+@@ -295,7 +295,7 @@ jobs:
+             })
+   version-bump:
+     runs-on: ubuntu-24.04
+-    if: "${{ github.event.label.name == 'Version bump PR' }}"
++    if: "${{ github.repository == 'expo/expo' && github.event.label.name == 'Version bump PR' }}"
+     steps:
+       - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+         with:
+diff --git a/.github/workflows/pr-contributor-labeler.yml b/.github/workflows/pr-contributor-labeler.yml
+index 811bbab95df5b8..7c242358ec53b2 100644
+--- a/.github/workflows/pr-contributor-labeler.yml
++++ b/.github/workflows/pr-contributor-labeler.yml
+@@ -13,6 +13,7 @@ permissions:
+ 
+ jobs:
+   label:
++    if: github.repository == 'expo/expo'
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+diff --git a/.github/workflows/pr-labeler.yml b/.github/workflows/pr-labeler.yml
+index 5ad053cf695932..e66dc3fded2cff 100644
+--- a/.github/workflows/pr-labeler.yml
++++ b/.github/workflows/pr-labeler.yml
+@@ -27,7 +27,7 @@ concurrency:
+ jobs:
+   test-suite-fingerprint:
+     runs-on: ubuntu-24.04
+-    if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.event_name == 'push' }}
++    if: ${{ github.repository == 'expo/expo' && (github.event.pull_request.head.repo.full_name == github.repository || github.event_name == 'push') }}
+     # REQUIRED: limit concurrency when pushing main(default) branch to prevent conflict for this action to update its fingerprint database
+     concurrency: fingerprint-${{ github.event_name != 'pull_request' && 'main' || github.run_id }}
+     permissions:
+diff --git a/.github/workflows/sync-template.yml b/.github/workflows/sync-template.yml
+index 0a8998a5c35318..6f9b5bac963613 100644
+--- a/.github/workflows/sync-template.yml
++++ b/.github/workflows/sync-template.yml
+@@ -10,6 +10,7 @@ on:
+ 
+ jobs:
+   build:
++    if: github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     steps:
+       - name: 👀 Checkout

@@ -1,7 +1,16 @@
 diff --git a/package.json b/package.json
-index 959158dbf5ae465ce61707b69d8a5928487bf0e0..e03105e6ee4417d16876806ba47263633a9f0775 100644
+index 959158d..3d20a8e 100644
 --- a/package.json
 +++ b/package.json
+@@ -6,7 +6,7 @@
+   "bugs": {
+     "url": "https://github.com/get-convex/better-auth/issues"
+   },
+-  "version": "0.10.12",
++  "version": "0.10.13",
+   "license": "Apache-2.0",
+   "keywords": [
+     "convex",
 @@ -105,8 +105,7 @@
    "peerDependencies": {
      "better-auth": ">=1.4.9 <1.5.0",

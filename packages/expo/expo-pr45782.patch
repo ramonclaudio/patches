@@ -1,0 +1,122 @@
+diff --git a/.github/workflows/check-issues-nightly.yml b/.github/workflows/check-issues-nightly.yml
+index 9df4315192e430..3734d2a5314b90 100644
+--- a/.github/workflows/check-issues-nightly.yml
++++ b/.github/workflows/check-issues-nightly.yml
+@@ -7,6 +7,7 @@ on:
+ 
+ jobs:
+   validate-pending-issues:
++    if: github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     steps:
+       - name: 👀 Checkout
+diff --git a/.github/workflows/development-client.yml b/.github/workflows/development-client.yml
+index 4e7a984f90a513..4569367be23ed3 100644
+--- a/.github/workflows/development-client.yml
++++ b/.github/workflows/development-client.yml
+@@ -56,18 +56,18 @@ jobs:
+             const pkg = require('./package.json'); \
+             pkg.resolutions = { \
+               ...pkg.resolutions, \
+-              'expo-dev-menu': 'file:../expo/packages/expo-dev-menu', \
+-              'expo-dev-menu-interface': 'file:../expo/packages/expo-dev-menu-interface', \
+-              'expo-dev-launcher': 'file:../expo/packages/expo-dev-launcher', \
+-              'expo-updates-interface': 'file:../expo/packages/expo-updates-interface', \
+-              'expo-updates': 'file:../expo/packages/expo-updates', \
+-              'expo-manifests': 'file:../expo/packages/expo-manifests', \
+-              'expo-json-utils': 'file:../expo/packages/expo-json-utils', \
++              'expo-dev-menu': 'file:${{ github.workspace }}/packages/expo-dev-menu', \
++              'expo-dev-menu-interface': 'file:${{ github.workspace }}/packages/expo-dev-menu-interface', \
++              'expo-dev-launcher': 'file:${{ github.workspace }}/packages/expo-dev-launcher', \
++              'expo-updates-interface': 'file:${{ github.workspace }}/packages/expo-updates-interface', \
++              'expo-updates': 'file:${{ github.workspace }}/packages/expo-updates', \
++              'expo-manifests': 'file:${{ github.workspace }}/packages/expo-manifests', \
++              'expo-json-utils': 'file:${{ github.workspace }}/packages/expo-json-utils', \
+             }; \
+             fs.writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');"
+       - name: Add dependencies
+         working-directory: ../development-client-android-test
+-        run: pnpm add file:../expo/packages/expo-dev-client
++        run: pnpm add file:${{ github.workspace }}/packages/expo-dev-client
+       - name: Setup app.config.json
+         working-directory: ../development-client-android-test
+         run: echo "{\"name\":\"development-client-android-test\",\"plugins\":[\"expo-dev-client\"],\"android\":{\"package\":\"com.devclient.test\"},\"ios\":{\"bundleIdentifier\":\"com.devclient.test\"}}" > app.config.json
+@@ -117,18 +117,18 @@ jobs:
+             const pkg = require('./package.json'); \
+             pkg.resolutions = { \
+               ...pkg.resolutions, \
+-              'expo-dev-menu': 'file:../expo/packages/expo-dev-menu', \
+-              'expo-dev-menu-interface': 'file:../expo/packages/expo-dev-menu-interface', \
+-              'expo-dev-launcher': 'file:../expo/packages/expo-dev-launcher', \
+-              'expo-updates-interface': 'file:../expo/packages/expo-updates-interface', \
+-              'expo-updates': 'file:../expo/packages/expo-updates', \
+-              'expo-manifests': 'file:../expo/packages/expo-manifests', \
+-              'expo-json-utils': 'file:../expo/packages/expo-json-utils', \
++              'expo-dev-menu': 'file:${{ github.workspace }}/packages/expo-dev-menu', \
++              'expo-dev-menu-interface': 'file:${{ github.workspace }}/packages/expo-dev-menu-interface', \
++              'expo-dev-launcher': 'file:${{ github.workspace }}/packages/expo-dev-launcher', \
++              'expo-updates-interface': 'file:${{ github.workspace }}/packages/expo-updates-interface', \
++              'expo-updates': 'file:${{ github.workspace }}/packages/expo-updates', \
++              'expo-manifests': 'file:${{ github.workspace }}/packages/expo-manifests', \
++              'expo-json-utils': 'file:${{ github.workspace }}/packages/expo-json-utils', \
+             }; \
+             fs.writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');"
+       - name: Add dependencies
+         working-directory: ../development-client-ios-test
+-        run: pnpm add file:../expo/packages/expo-dev-client
++        run: pnpm add file:${{ github.workspace }}/packages/expo-dev-client
+       - name: Setup app.config.json
+         working-directory: ../development-client-ios-test
+         run: echo "{\"name\":\"development-client-ios-test\",\"plugins\":[\"expo-dev-client\"],\"android\":{\"package\":\"com.devclient.test\"},\"ios\":{\"bundleIdentifier\":\"com.devclient.test\"}}" > app.config.json
+diff --git a/.github/workflows/fingerprint.yml b/.github/workflows/fingerprint.yml
+index 95dcdf56858b79..2971640b3e700f 100644
+--- a/.github/workflows/fingerprint.yml
++++ b/.github/workflows/fingerprint.yml
+@@ -87,9 +87,9 @@ jobs:
+           EOF
+ 
+           if [[ "${{ env.ACTIONS_STEP_DEBUG }}" == "true" ]]; then
+-            ../expo/packages/@expo/fingerprint/bin/cli.js fingerprint:generate --debug > ../expo/fingerprint-${{ matrix.os }}.json
++            ${{ github.workspace }}/packages/@expo/fingerprint/bin/cli.js fingerprint:generate --debug > ${{ github.workspace }}/fingerprint-${{ matrix.os }}.json
+           else
+-            ../expo/packages/@expo/fingerprint/bin/cli.js fingerprint:generate > ../expo/fingerprint-${{ matrix.os }}.json
++            ${{ github.workspace }}/packages/@expo/fingerprint/bin/cli.js fingerprint:generate > ${{ github.workspace }}/fingerprint-${{ matrix.os }}.json
+           fi
+       - name: 💾 Create fingerprint from the temp project (Windows)
+         if: ${{ startsWith(matrix.os, 'windows') }}
+@@ -119,9 +119,9 @@ jobs:
+           "@ | Set-Content fingerprint.config.js
+ 
+           if ($env:ACTIONS_STEP_DEBUG -eq "true") {
+-            node ../expo/packages/@expo/fingerprint/bin/cli.js fingerprint:generate --debug > ../expo/fingerprint-${{ matrix.os }}.json
++            node ${{ github.workspace }}/packages/@expo/fingerprint/bin/cli.js fingerprint:generate --debug > ${{ github.workspace }}/fingerprint-${{ matrix.os }}.json
+           } else {
+-            node ../expo/packages/@expo/fingerprint/bin/cli.js fingerprint:generate > ../expo/fingerprint-${{ matrix.os }}.json
++            node ${{ github.workspace }}/packages/@expo/fingerprint/bin/cli.js fingerprint:generate > ${{ github.workspace }}/fingerprint-${{ matrix.os }}.json
+           }
+       - name: 📤 Upload fingerprint
+         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+diff --git a/.github/workflows/publish-canaries.yml b/.github/workflows/publish-canaries.yml
+index 63000585468bc1..5f6a9406018d74 100644
+--- a/.github/workflows/publish-canaries.yml
++++ b/.github/workflows/publish-canaries.yml
+@@ -19,6 +19,7 @@ concurrency:
+ 
+ jobs:
+   publish-canaries:
++    if: github.repository == 'expo/expo'
+     runs-on: macos-15
+     timeout-minutes: 120
+     env:
+diff --git a/.github/workflows/validate-npm-owners.yml b/.github/workflows/validate-npm-owners.yml
+index 177088973521aa..83169478d1ac35 100644
+--- a/.github/workflows/validate-npm-owners.yml
++++ b/.github/workflows/validate-npm-owners.yml
+@@ -7,6 +7,7 @@ on:
+ 
+ jobs:
+   validate-npm-owners:
++    if: github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     steps:
+       - name: 👀 Checkout
