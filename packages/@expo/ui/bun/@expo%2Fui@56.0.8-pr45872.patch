@@ -1,0 +1,108 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 21a60c1..996f3bf 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,6 +8,8 @@
+ 
+ ### 🐛 Bug fixes
+ 
++- [iOS] Apply `modifiers` prop on `Host` instead of silently dropping it. ([#45872](https://github.com/expo/expo/pull/45872) by [@ramonclaudio](https://github.com/ramonclaudio))
++
+ ### 💡 Others
+ 
+ ## 56.0.8 — 2026-05-15
+diff --git a/ios/ExpoUIModule.swift b/ios/ExpoUIModule.swift
+index 87cbf96..10dc1f4 100644
+--- a/ios/ExpoUIModule.swift
++++ b/ios/ExpoUIModule.swift
+@@ -81,13 +81,16 @@ public final class ExpoUIModule: Module {
+       }
+     }
+ 
+-    // MARK: - Views don't support common view modifiers
++    // MARK: - Views that apply common view modifiers internally
++
++    View(HostView.self)
++    View(TextView.self)
++
++    // MARK: - Views that don't support common view modifiers
+ 
+     View(SlotView.self)
+     View(NamespaceView.self)
+     View(GridRowView.self)
+-    View(HostView.self)
+-    View(TextView.self)
+ 
+     // MARK: - Expo UI Views
+ 
+diff --git a/ios/HostView.swift b/ios/HostView.swift
+index 98d7bbd..1e7921e 100644
+--- a/ios/HostView.swift
++++ b/ios/HostView.swift
+@@ -38,6 +38,7 @@ internal final class HostViewProps: ExpoSwiftUI.ViewProps, ExpoSwiftUI.SafeAreaC
+   @Field var matchContentsHorizontal = false
+   @Field var matchContentsVertical = false
+   @Field var ignoreSafeArea: ExpoSwiftUI.IgnoreSafeArea?
++  @Field var modifiers: ModifierArray?
+   var onLayoutContent = EventDispatcher()
+ }
+ 
+@@ -45,38 +46,40 @@ struct HostView: ExpoSwiftUI.View, ExpoSwiftUI.WithHostingView {
+   @ObservedObject var props: HostViewProps
+ 
+   var body: some View {
+-    var useViewportSizeMeasurement: Bool = props.useViewportSizeMeasurement
+-    if #available(iOS 16.0, tvOS 16.0, macOS 13.0, *) {
+-      useViewportSizeMeasurement = props.useViewportSizeMeasurement
+-    } else {
+-      log.warn("useViewportSizeMeasurement is not supported on iOS/tvOS < 16.0")
+-      useViewportSizeMeasurement = false
+-    }
+-
+     let layoutDirection = props.layoutDirection.toLayoutDirection()
+     let alignment: Alignment = layoutDirection == .rightToLeft ? .topTrailing : .topLeading
+ 
+     if #available(iOS 16.0, tvOS 16.0, macOS 13.0, *) {
+       // swiftlint:disable:next identifier_name
+-      let HostLayout = useViewportSizeMeasurement
++      let HostLayout = props.useViewportSizeMeasurement
+         ? AnyLayout(ViewportSizeMeasurementLayout(layoutDirection: layoutDirection))
+         : AnyLayout(ZStackLayout(alignment: alignment))
+-      return HostLayout {
++      HostLayout {
+         Children()
+       }
+       .fixedSize(horizontal: props.matchContentsHorizontal, vertical: props.matchContentsVertical)
+       .modifier(LayoutDirectionModifier(layoutDirection: layoutDirection))
+       .modifier(ColorSchemeModifier(colorScheme: props.colorScheme?.toColorScheme()))
++      .applyModifiers(
++        props.modifiers,
++        appContext: props.appContext,
++        globalEventDispatcher: props.globalEventDispatcher
++      )
++      .modifier(GeometryChangeModifier(props: props))
++    } else {
++      ZStack(alignment: alignment) {
++        Children()
++      }
++      .fixedSize(horizontal: props.matchContentsHorizontal, vertical: props.matchContentsVertical)
++      .modifier(LayoutDirectionModifier(layoutDirection: layoutDirection))
++      .modifier(ColorSchemeModifier(colorScheme: props.colorScheme?.toColorScheme()))
++      .applyModifiers(
++        props.modifiers,
++        appContext: props.appContext,
++        globalEventDispatcher: props.globalEventDispatcher
++      )
+       .modifier(GeometryChangeModifier(props: props))
+     }
+-
+-    return ZStack(alignment: alignment) {
+-      Children()
+-    }
+-    .fixedSize(horizontal: props.matchContentsHorizontal, vertical: props.matchContentsVertical)
+-    .modifier(LayoutDirectionModifier(layoutDirection: layoutDirection))
+-    .modifier(ColorSchemeModifier(colorScheme: props.colorScheme?.toColorScheme()))
+-    .modifier(GeometryChangeModifier(props: props))
+   }
+ 
+   private func safeAreaSize() -> CGSize {
