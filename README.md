@@ -84,16 +84,16 @@ Copy the patch file into your `patches/` dir. Strip the `-prXXX` suffix from the
 > | Tool | Format |
 > | :--- | :--- |
 > | Bun | `@scope%2Fpkg@version.patch` |
-> | npm / Yarn classic (patch-package) | `@scope+pkg+version.patch` |
-> | pnpm / Yarn Berry | `@scope__pkg@version.patch` |
+> | npm and Yarn classic (patch-package) | `@scope+pkg+version.patch` |
+> | pnpm and Yarn Berry | `@scope__pkg@version.patch` |
 >
-> **Diff paths.** Bun and pnpm use paths relative to the package root. patch-package prefixes with `node_modules/@scope/pkg/`. To convert:
+> **Diff paths.** Bun, pnpm, and Yarn Berry use paths relative to the package root. patch-package prefixes with `node_modules/@scope/pkg/`. To convert:
 >
 > ```bash
-> # patch-package -> Bun/pnpm
+> # Strip node_modules prefix (Bun, pnpm, Yarn Berry)
 > sed 's|node_modules/@scope/pkg/||g' old.patch > new.patch
 >
-> # Bun/pnpm -> patch-package
+> # Add node_modules prefix (patch-package)
 > sed -e '/^diff --git /s|a/|a/node_modules/@scope/pkg/|' \
 >     -e '/^diff --git /s|b/|b/node_modules/@scope/pkg/|' \
 >     -e 's|^--- a/|--- a/node_modules/@scope/pkg/|' \
@@ -193,7 +193,7 @@ One patch file per PR in this repo. But most package managers only support **one
 | **Bun** | No | One entry per `package@version` in `patchedDependencies`. Combine into one `.patch`. |
 | **pnpm** | No | One entry per exact version in `patchedDependencies`. Combine into one `.patch`. |
 | **Yarn Berry** | No | One entry per package in `resolutions`. Combine into one `.patch`. |
-| **npm / Yarn classic** (patch-package) | Yes | Use `--append` for sequenced patches: `pkg+ver+001+fix-a.patch`, `pkg+ver+002+fix-b.patch`. |
+| **npm and Yarn classic** (patch-package) | Yes | Use `--append` for sequenced patches: `pkg+ver+001+fix-a.patch`, `pkg+ver+002+fix-b.patch`. |
 
 <details>
 <summary>Combining patches (Bun, pnpm, Yarn Berry)</summary>
