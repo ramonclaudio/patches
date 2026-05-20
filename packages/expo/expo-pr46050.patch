@@ -1,0 +1,380 @@
+diff --git a/.github/workflows/bare-diffs.yml b/.github/workflows/bare-diffs.yml
+index 3ad00f407a9..98805a14df1 100644
+--- a/.github/workflows/bare-diffs.yml
++++ b/.github/workflows/bare-diffs.yml
+@@ -37,7 +37,7 @@ jobs:
+           pnpm expotools generate-bare-diffs --check
+       - name: 🔔 Notify on Slack
+         uses: ./.github/actions/slack-notify
+-        if: failure() && github.event.ref == 'refs/heads/main'
++        if: failure() && github.event.ref == 'refs/heads/main' && github.repository == 'expo/expo'
+         with:
+           webhook: ${{ secrets.slack_webhook_docs }}
+           author_name: Check for Changes in Bare Diffs
+diff --git a/.github/workflows/cli.yml b/.github/workflows/cli.yml
+index 24e5af5fde1..7e28ac9d34a 100644
+--- a/.github/workflows/cli.yml
++++ b/.github/workflows/cli.yml
+@@ -55,6 +55,10 @@ concurrency:
+ 
+ jobs:
+   jest-ubuntu:
++    # Schedule run tests the current repo state, which on a fork hasn't
++    # changed since the last push (which already validated). Skip schedule
++    # on forks; push/PR/dispatch still run for pre-flight on fork branches.
++    if: github.event_name != 'schedule' || github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     strategy:
+       fail-fast: false
+@@ -98,6 +102,7 @@ jobs:
+         run: pnpm test:e2e --max-workers 1 --shard ${{ matrix.shard }}/${{ strategy.job-total }}
+ 
+   jest-windows:
++    if: github.event_name != 'schedule' || github.repository == 'expo/expo'
+     runs-on: windows-2022
+     strategy:
+       fail-fast: false
+@@ -157,6 +162,7 @@ jobs:
+         run: pnpm test:e2e --max-workers 1 --shard ${{ matrix.shard }}/${{ strategy.job-total }}
+ 
+   playwright-ubuntu:
++    if: github.event_name != 'schedule' || github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     steps:
+       - name: 👀 Checkout
+@@ -216,6 +222,7 @@ jobs:
+           retention-days: 30
+ 
+   playwright-windows:
++    if: github.event_name != 'schedule' || github.repository == 'expo/expo'
+     runs-on: windows-2022
+     strategy:
+       fail-fast: false
+diff --git a/.github/workflows/create-expo-app.yml b/.github/workflows/create-expo-app.yml
+index c1c3041d1cd..1f94c2a432f 100644
+--- a/.github/workflows/create-expo-app.yml
++++ b/.github/workflows/create-expo-app.yml
+@@ -21,6 +21,10 @@ concurrency:
+ 
+ jobs:
+   test:
++    # Schedule run on a fork tests the same global npm-published artifacts
++    # upstream tests. No new signal. Skip schedule on forks; push/PR/dispatch
++    # still run for pre-flight on fork branches.
++    if: github.event_name != 'schedule' || github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     strategy:
+       fail-fast: false
+diff --git a/.github/workflows/create-expo-module.yml b/.github/workflows/create-expo-module.yml
+index 295bc06aa68..84543248ef6 100644
+--- a/.github/workflows/create-expo-module.yml
++++ b/.github/workflows/create-expo-module.yml
+@@ -21,6 +21,10 @@ concurrency:
+ 
+ jobs:
+   test:
++    # Schedule run on a fork tests the same global npm-published artifacts
++    # upstream tests. No new signal. Skip schedule on forks; push/PR/dispatch
++    # still run for pre-flight on fork branches.
++    if: github.event_name != 'schedule' || github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     strategy:
+       fail-fast: false
+diff --git a/.github/workflows/development-client-latest-e2e.yml b/.github/workflows/development-client-latest-e2e.yml
+index 371b331d7fa..04d82c0f6bd 100644
+--- a/.github/workflows/development-client-latest-e2e.yml
++++ b/.github/workflows/development-client-latest-e2e.yml
+@@ -75,7 +75,7 @@ jobs:
+           path: packages/expo-dev-client/artifacts
+       - name: 🔔 Notify on Slack
+         uses: ./.github/actions/slack-notify
+-        if: failure() && github.repository == 'expo/expo'
++        if: failure()
+         with:
+           webhook: ${{ secrets.slack_webhook_dev_client }}
+           channel: '#dev-clients'
+diff --git a/.github/workflows/fingerprint.yml b/.github/workflows/fingerprint.yml
+index 2971640b3e7..58dd89733b2 100644
+--- a/.github/workflows/fingerprint.yml
++++ b/.github/workflows/fingerprint.yml
+@@ -24,6 +24,11 @@ concurrency:
+ 
+ jobs:
+   test:
++    # Schedule run tests the current repo state, which on a fork hasn't
++    # changed since the last push (which already validated). Skip schedule
++    # on forks; push/PR/dispatch still run for pre-flight on fork branches.
++    # `cross-platform-checks` below needs this job, so it cascades.
++    if: github.event_name != 'schedule' || github.repository == 'expo/expo'
+     strategy:
+       matrix:
+         os: [macos-latest, ubuntu-latest, windows-latest]
+diff --git a/.github/workflows/ios-prebuild-external-xcframeworks.yml b/.github/workflows/ios-prebuild-external-xcframeworks.yml
+index 465590257f0..61676f02d2a 100644
+--- a/.github/workflows/ios-prebuild-external-xcframeworks.yml
++++ b/.github/workflows/ios-prebuild-external-xcframeworks.yml
+@@ -86,21 +86,26 @@ jobs:
+           retention-days: 14
+           include-hidden-files: true
+ 
++      # The `expo` workload-identity provider (projects/321830142373/.../providers/expo)
++      # only accepts OIDC tokens from `expo/expo` refs per its trust policy. Without
++      # the repo guard a fork dispatch with `publish: true` would burn the full
++      # ~120-minute build before failing at GCP auth. Fail fast at the `if:` and
++      # avoid the wasted compute plus a noisy entry in the project's audit log.
+       - name: Authenticate to Google Cloud
+-        if: ${{ success() && github.event.inputs.publish == 'true' }}
++        if: ${{ success() && github.event.inputs.publish == 'true' && github.repository == 'expo/expo' }}
+         uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+         with:
+           project_id: exponentjs
+           workload_identity_provider: projects/321830142373/locations/global/workloadIdentityPools/github/providers/expo
+ 
+       - name: Setup gcloud
+-        if: ${{ success() && github.event.inputs.publish == 'true' }}
++        if: ${{ success() && github.event.inputs.publish == 'true' && github.repository == 'expo/expo' }}
+         uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2
+         with:
+           project_id: exponentjs
+ 
+       - name: Upload XCFramework directory structure to GCS
+-        if: ${{ success() && github.event.inputs.publish == 'true' }}
++        if: ${{ success() && github.event.inputs.publish == 'true' && github.repository == 'expo/expo' }}
+         run: |
+           SYNC_ROOT="$RUNNER_TEMP/precompiled-modules-upload"
+           rm -rf "$SYNC_ROOT"
+diff --git a/.github/workflows/ios-static-frameworks.yml b/.github/workflows/ios-static-frameworks.yml
+index ac8a8c5a840..3811929dd00 100644
+--- a/.github/workflows/ios-static-frameworks.yml
++++ b/.github/workflows/ios-static-frameworks.yml
+@@ -14,6 +14,12 @@ concurrency:
+ 
+ jobs:
+   build:
++    # Weekly schedule builds bare-expo with `useFrameworks = "static"`.
++    # On a fork the build tests upstream code (or local mods that already
++    # validated on PR), so the schedule run is a duplicate of upstream's
++    # weekly run. Workflow_dispatch and PR stay open so fork dev can still
++    # validate iOS framework changes ad-hoc.
++    if: github.event_name != 'schedule' || github.repository == 'expo/expo'
+     runs-on: macos-15
+     steps:
+       - name: 👀 Checkout
+@@ -53,7 +59,7 @@ jobs:
+           xcodebuild -workspace ios/BareExpo.xcworkspace -scheme BareExpo -configuration Release -sdk iphonesimulator -derivedDataPath "ios/build" | xcpretty
+       - name: 🔔 Notify on Slack
+         uses: ./.github/actions/slack-notify
+-        if: failure() && (github.event_name == 'schedule' || github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-'))
++        if: failure() && (github.event_name == 'schedule' || github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-')) && github.repository == 'expo/expo'
+         with:
+           webhook: ${{ secrets.slack_webhook_ios }}
+           channel: '#expo-ios'
+diff --git a/.github/workflows/issue-stale.yml b/.github/workflows/issue-stale.yml
+index 6b5b091f44a..3e860b5bfec 100644
+--- a/.github/workflows/issue-stale.yml
++++ b/.github/workflows/issue-stale.yml
+@@ -6,6 +6,7 @@ on:
+ 
+ jobs:
+   close-issues:
++    if: github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     steps:
+       - uses: actions/stale@a20b814fb01b71def3bd6f56e7494d667ddf28da # v4
+diff --git a/.github/workflows/lock.yml b/.github/workflows/lock.yml
+index a432b5c9426..5eb7814d48e 100644
+--- a/.github/workflows/lock.yml
++++ b/.github/workflows/lock.yml
+@@ -15,6 +15,7 @@ concurrency:
+ 
+ jobs:
+   action:
++    if: github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     steps:
+       - uses: dessant/lock-threads@1bf7ec25051fe7c00bdd17e6a7cf3d7bfb7dc771 # v5
+diff --git a/.github/workflows/native-component-list.yml b/.github/workflows/native-component-list.yml
+index dcd806afbae..dc151b0872b 100644
+--- a/.github/workflows/native-component-list.yml
++++ b/.github/workflows/native-component-list.yml
+@@ -49,7 +49,7 @@ jobs:
+         working-directory: apps/native-component-list
+       - name: 🔔 Notify on Slack
+         uses: ./.github/actions/slack-notify
+-        if: failure() && (github.event.ref == 'refs/heads/main')
++        if: failure() && (github.event.ref == 'refs/heads/main') && github.repository == 'expo/expo'
+         with:
+           webhook: ${{ secrets.slack_webhook_api }}
+           author_name: Build Native Component List
+diff --git a/.github/workflows/pr-labeler.yml b/.github/workflows/pr-labeler.yml
+index e66dc3fded2..9a942a66b0c 100644
+--- a/.github/workflows/pr-labeler.yml
++++ b/.github/workflows/pr-labeler.yml
+@@ -27,6 +27,12 @@ concurrency:
+ jobs:
+   test-suite-fingerprint:
+     runs-on: ubuntu-24.04
++    # Second clause is load-bearing: this job has `actions: write` permission to
++    # update the fingerprint database in the action cache, and `pull-requests: write`
++    # to comment with the fingerprint diff. Fork PRs would run under those permissions
++    # if we only checked `github.repository`, so we additionally require the PR head
++    # to be in the same repo (internal branch) or the event to be a direct push to
++    # main. Keeps elevated tokens out of fork-controlled code paths.
+     if: ${{ github.repository == 'expo/expo' && (github.event.pull_request.head.repo.full_name == github.repository || github.event_name == 'push') }}
+     # REQUIRED: limit concurrency when pushing main(default) branch to prevent conflict for this action to update its fingerprint database
+     concurrency: fingerprint-${{ github.event_name != 'pull_request' && 'main' || github.run_id }}
+diff --git a/.github/workflows/sdk.yml b/.github/workflows/sdk.yml
+index 84525eba02d..0f40904f297 100644
+--- a/.github/workflows/sdk.yml
++++ b/.github/workflows/sdk.yml
+@@ -31,6 +31,11 @@ concurrency:
+ 
+ jobs:
+   check-packages:
++    # Schedule run tests the same packages upstream's schedule already tests.
++    # On a fork the packages are upstream's code (or local mods that already
++    # validated on push). No new signal on schedule. Push/PR/dispatch stay
++    # open for fork dev pre-flight on package changes.
++    if: github.event_name != 'schedule' || github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     steps:
+       - name: 👀 Checkout
+@@ -75,14 +80,18 @@ jobs:
+         run: pnpm expotools check-packages --since $SINCE --core
+       - name: 🔔 Notify on Slack
+         uses: ./.github/actions/slack-notify
+-        if: failure() && (github.event_name == 'schedule' || github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-'))
++        if: failure() && (github.event_name == 'schedule' || github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-')) && github.repository == 'expo/expo'
+         with:
+           webhook: ${{ secrets.slack_webhook_api }}
+           author_name: Check packages
+ 
+   check-packages-windows:
+     runs-on: windows-latest
+-    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
++    # Originally schedule-or-dispatch only. Schedule restricted to expo/expo
++    # so forks don't waste a windows-latest runner on a daily duplicate-of-
++    # upstream's run; dispatch stays open so fork dev can still trigger
++    # ad-hoc package validation on windows.
++    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.repository == 'expo/expo') }}
+     steps:
+       - name: 👀 Checkout
+         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+@@ -106,7 +115,7 @@ jobs:
+         run: pnpm expotools check-packages --all
+       - name: 🔔 Notify on Slack
+         uses: ./.github/actions/slack-notify
+-        if: failure() && (github.event_name == 'schedule' || github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-'))
++        if: failure() && (github.event_name == 'schedule' || github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-')) && github.repository == 'expo/expo'
+         with:
+           webhook: ${{ secrets.slack_webhook_api }}
+           author_name: Check packages
+diff --git a/.github/workflows/test-react-native-nightly.yml b/.github/workflows/test-react-native-nightly.yml
+index 8e9dc529b70..93cc1f6ccb8 100644
+--- a/.github/workflows/test-react-native-nightly.yml
++++ b/.github/workflows/test-react-native-nightly.yml
+@@ -20,6 +20,7 @@ concurrency:
+ 
+ jobs:
+   ios-build:
++    if: github.repository == 'expo/expo'
+     strategy:
+       fail-fast: true
+       matrix:
+@@ -87,6 +88,7 @@ jobs:
+           author_name: React Native Nightly (iOS)
+ 
+   android-build:
++    if: github.repository == 'expo/expo'
+     strategy:
+       fail-fast: true
+       matrix:
+diff --git a/.github/workflows/test-suite-macos.yml b/.github/workflows/test-suite-macos.yml
+index 87fc54dcdfb..0b1eb6a4dd4 100644
+--- a/.github/workflows/test-suite-macos.yml
++++ b/.github/workflows/test-suite-macos.yml
+@@ -113,7 +113,7 @@ jobs:
+           path: apps/bare-expo/macos/build/BareExpo.app
+       - name: 🔔 Notify on Slack
+         uses: ./.github/actions/slack-notify
+-        if: failure() && (github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-'))
++        if: failure() && (github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-')) && github.repository == 'expo/expo'
+         with:
+           webhook: ${{ secrets.slack_webhook_ios }}
+           channel: '#expo-ios'
+diff --git a/.github/workflows/test-suite-nightly.yml b/.github/workflows/test-suite-nightly.yml
+index 31a3170aed2..88824008546 100644
+--- a/.github/workflows/test-suite-nightly.yml
++++ b/.github/workflows/test-suite-nightly.yml
+@@ -20,6 +20,7 @@ concurrency:
+ 
+ jobs:
+   ios-build:
++    if: github.repository == 'expo/expo'
+     runs-on: macos-15
+     steps:
+       - name: 👀 Checkout
+@@ -87,6 +88,7 @@ jobs:
+           author_name: Test Suite Nightly (iOS)
+ 
+   ios-test:
++    if: github.repository == 'expo/expo'
+     needs: ios-build
+     runs-on: macos-15
+     steps:
+@@ -153,6 +155,7 @@ jobs:
+           author_name: Test Suite Nightly (iOS)
+ 
+   android-build:
++    if: github.repository == 'expo/expo'
+     runs-on: ubuntu-24.04
+     env:
+       ORG_GRADLE_PROJECT_reactNativeArchitectures: x86_64
+@@ -216,6 +219,7 @@ jobs:
+           author_name: Test Suite Nightly (Android)
+ 
+   android-test:
++    if: github.repository == 'expo/expo'
+     needs: android-build
+     runs-on: ubuntu-24.04
+     strategy:
+diff --git a/.github/workflows/test-suite.yml b/.github/workflows/test-suite.yml
+index 0144e6919ab..02d23cc3c69 100644
+--- a/.github/workflows/test-suite.yml
++++ b/.github/workflows/test-suite.yml
+@@ -230,7 +230,7 @@ jobs:
+         run: ccache -s -v
+       - name: 🔔 Notify on Slack
+         uses: ./.github/actions/slack-notify
+-        if: failure() && (github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-'))
++        if: failure() && (github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-')) && github.repository == 'expo/expo'
+         with:
+           webhook: ${{ secrets.slack_webhook_ios }}
+           channel: '#expo-ios'
+@@ -325,7 +325,7 @@ jobs:
+           echo "Artifacts URL: ${{ steps.upload-artifacts.outputs.artifact-url }}"
+       - name: 🔔 Notify on Slack
+         uses: ./.github/actions/slack-notify
+-        if: failure() && (github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-'))
++        if: failure() && (github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-')) && github.repository == 'expo/expo'
+         with:
+           webhook: ${{ secrets.slack_webhook_ios }}
+           channel: '#expo-ios'
+@@ -428,7 +428,7 @@ jobs:
+         run: ccache -s -v
+       - name: 🔔 Notify on Slack
+         uses: ./.github/actions/slack-notify
+-        if: failure() && (github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-'))
++        if: failure() && (github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-')) && github.repository == 'expo/expo'
+         with:
+           webhook: ${{ secrets.slack_webhook_android }}
+           channel: '#expo-android'
+@@ -507,7 +507,7 @@ jobs:
+           echo "Artifacts URL: ${{ steps.upload-artifacts.outputs.artifact-url }}"
+       - name: 🔔 Notify on Slack
+         uses: ./.github/actions/slack-notify
+-        if: failure() && (github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-'))
++        if: failure() && (github.event.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/heads/sdk-')) && github.repository == 'expo/expo'
+         with:
+           webhook: ${{ secrets.slack_webhook_android }}
+           channel: '#expo-android'
