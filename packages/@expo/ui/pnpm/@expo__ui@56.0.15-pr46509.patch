@@ -1,0 +1,49 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 5ae7c35..b5245b5 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,6 +8,8 @@
+ 
+ ### 🐛 Bug fixes
+ 
++- [iOS] Fix the `font` modifier dropping Dynamic Type scaling (`relativeTo`) and `weight` on concatenated `Text` runs. The Text-concatenation path now resolves the same `Font` as the view path. ([#46509](https://github.com/expo/expo/pull/46509) by [@ramonclaudio](https://github.com/ramonclaudio))
++
+ ### 💡 Others
+ 
+ ## 56.0.15 — 2026-05-29
+diff --git a/ios/Modifiers/FontModifier.swift b/ios/Modifiers/FontModifier.swift
+index 3d58626..094cee1 100644
+--- a/ios/Modifiers/FontModifier.swift
++++ b/ios/Modifiers/FontModifier.swift
+@@ -86,7 +86,10 @@ internal struct FontModifier: ViewModifier, Record {
+     content.font(resolveFont())
+   }
+ 
+-  private func resolveFont() -> Font {
++  // Shared so the Text-concatenation path (`applyTextModifier`) resolves the
++  // same `Font` as the view path, instead of a fixed-size `Font.custom` that
++  // drops `relativeTo` (Dynamic Type) and `weight`.
++  func resolveFont() -> Font {
+     if let family = family {
+       let baseSize = size ?? 17
+       var font: Font = if let textStyle = textStyle {
+diff --git a/ios/Modifiers/ViewModifierRegistry.swift b/ios/Modifiers/ViewModifierRegistry.swift
+index af3b4ec..2ac9986 100644
+--- a/ios/Modifiers/ViewModifierRegistry.swift
++++ b/ios/Modifiers/ViewModifierRegistry.swift
+@@ -1212,14 +1212,7 @@ public class ViewModifierRegistry {
+       return text.monospacedDigit()
+     case "font":
+       guard let modifier = try? FontModifier(from: params, appContext: appContext) else { return text }
+-      if let family = modifier.family {
+-        return text.font(Font.custom(family, size: modifier.size ?? 17))
+-      }
+-      return text.font(.system(
+-        size: modifier.size ?? 17,
+-        weight: modifier.weight?.toSwiftUI() ?? .regular,
+-        design: modifier.design?.toSwiftUI() ?? .default
+-      ))
++      return text.font(modifier.resolveFont())
+     case "foregroundColor":
+       guard let modifier = try? ForegroundColorModifier(from: params, appContext: appContext),
+             let color = modifier.color else { return text }
