@@ -1,0 +1,516 @@
+diff --git a/lib/IRGen/ESTreeIRGen-legacy-class.cpp b/lib/IRGen/ESTreeIRGen-legacy-class.cpp
+index 3b8dc0ca5e5..f480a768a81 100644
+--- a/lib/IRGen/ESTreeIRGen-legacy-class.cpp
++++ b/lib/IRGen/ESTreeIRGen-legacy-class.cpp
+@@ -62,43 +62,35 @@ namespace irgen {
+ /// inspecting the kind of a `Decl`, it's possible to know which kind of element
+ /// in the side table the customData field of the `Decl` points to.
+ void ESTreeIRGen::emitPrivateNameDeclarations(
++    ESTree::ClassLikeNode *classNode,
+     sema::LexicalScope *scope,
+     Identifier className) {
+-  Variable *staticBrand = nullptr;
+-  Variable *instanceBrand = nullptr;
++  // Get the cached variables for this class. Brand Variables must be cached
++  // for recompilation (e.g., finally blocks) to ensure consistency.
++  auto &cachedVars = legacyClassVars_[classNode];
++
+   /// Lazily create and return the correct private brand for the given static
+-  /// level.
+-  auto getPrivateBrand =
+-      [this, &className, &staticBrand, &instanceBrand](bool isStatic) {
+-        if (isStatic) {
+-          if (!staticBrand) {
+-            staticBrand = Builder.createVariable(
+-                curFunction()->curScope()->getVariableScope(),
+-                Twine("?static_brand_") + className.str(),
+-                Type::createPrivateName(),
+-                /* hidden */ true);
+-            Builder.createStoreFrameInst(
+-                curFunction()->curScope(),
+-                Builder.createCreatePrivateNameInst(
+-                    Builder.getLiteralString(className)),
+-                staticBrand);
+-          }
+-          return staticBrand;
+-        }
+-        if (!instanceBrand) {
+-          instanceBrand = Builder.createVariable(
+-              curFunction()->curScope()->getVariableScope(),
+-              Twine("?instance_brand_") + className.str(),
+-              Type::createPrivateName(),
+-              /* hidden */ true);
+-          Builder.createStoreFrameInst(
+-              curFunction()->curScope(),
+-              Builder.createCreatePrivateNameInst(
+-                  Builder.getLiteralString(className)),
+-              instanceBrand);
+-        }
+-        return instanceBrand;
+-      };
++  /// level. Brands are cached to ensure consistency across recompilations.
++  auto getPrivateBrand = [this, &className, &cachedVars](bool isStatic) {
++    if (isStatic) {
++      if (!cachedVars.staticBrand) {
++        cachedVars.staticBrand = Builder.createVariable(
++            curFunction()->curScope()->getVariableScope(),
++            Twine("?static_brand_") + className.str(),
++            Type::createPrivateName(),
++            /* hidden */ true);
++      }
++      return cachedVars.staticBrand;
++    }
++    if (!cachedVars.instanceBrand) {
++      cachedVars.instanceBrand = Builder.createVariable(
++          curFunction()->curScope()->getVariableScope(),
++          Twine("?instance_brand_") + className.str(),
++          Type::createPrivateName(),
++          /* hidden */ true);
++    }
++    return cachedVars.instanceBrand;
++  };
+   for (sema::Decl *decl : scope->decls) {
+     if (!sema::Decl::isKindPrivateName(decl->kind))
+       continue;
+@@ -207,6 +199,25 @@ void ESTreeIRGen::emitPrivateNameDeclarations(
+         continue;
+     }
+   }
++
++  // Emit brand stores. These must be emitted on every compilation (including
++  // recompiles) because the store instruction must exist in all code paths.
++  // We check the cached brands rather than the flags because on recompile
++  // getPrivateBrand may not be called (decl->customData is already set).
++  if (cachedVars.staticBrand) {
++    Builder.createStoreFrameInst(
++        curFunction()->curScope(),
++        Builder.createCreatePrivateNameInst(
++            Builder.getLiteralString(className)),
++        cachedVars.staticBrand);
++  }
++  if (cachedVars.instanceBrand) {
++    Builder.createStoreFrameInst(
++        curFunction()->curScope(),
++        Builder.createCreatePrivateNameInst(
++            Builder.getLiteralString(className)),
++        cachedVars.instanceBrand);
++  }
+ }
+ 
+ void ESTreeIRGen::emitPrivateBrandCheck(Value *from, Value *brandVal) {
+@@ -359,21 +370,37 @@ CreateClassInst *ESTreeIRGen::genLegacyClassLike(
+   Value *superCls = superClassNode ? genExpression(superClassNode)
+                                    : Builder.getEmptySentinel();
+ 
+-  emitPrivateNameDeclarations(classNode->getScope(), className);
++  emitPrivateNameDeclarations(classNode, classNode->getScope(), className);
+   auto *curScope = curFunction()->curScope();
+   auto *curVarScope = curScope->getVariableScope();
+-  // Holds the .prototype of the class.
+-  Variable *clsPrototypeVar = Builder.createVariable(
+-      curScope->getVariableScope(),
+-      Builder.createIdentifier("?" + className.str() + ".prototype"),
+-      Type::createObject(),
+-      true);
+-  // Holds the class
+-  Variable *classVar = Builder.createVariable(
+-      curVarScope,
+-      Builder.createIdentifier("?" + className.str()),
+-      Type::createObject(),
+-      true);
++
++  // Check if we already created internal variables for this class (e.g., when
++  // recompiling a finally block). If so, reuse them to ensure consistency.
++  // Note: emitPrivateNameDeclarations may have already created an entry for
++  // caching brand variables, so we check classVar specifically rather than
++  // whether the entry exists.
++  Variable *clsPrototypeVar;
++  Variable *classVar;
++  auto &cachedVars = legacyClassVars_[classNode];
++  if (cachedVars.classVar) {
++    clsPrototypeVar = cachedVars.prototypeVar;
++    classVar = cachedVars.classVar;
++  } else {
++    // Holds the .prototype of the class.
++    clsPrototypeVar = Builder.createVariable(
++        curScope->getVariableScope(),
++        Builder.createIdentifier("?" + className.str() + ".prototype"),
++        Type::createObject(),
++        true);
++    // Holds the class
++    classVar = Builder.createVariable(
++        curVarScope,
++        Builder.createIdentifier("?" + className.str()),
++        Type::createObject(),
++        true);
++    cachedVars.classVar = classVar;
++    cachedVars.prototypeVar = clsPrototypeVar;
++  }
+ 
+   std::shared_ptr<LegacyClassContext> savedClsCtx =
+       curFunction()->legacyClassContext;
+@@ -391,11 +418,18 @@ CreateClassInst *ESTreeIRGen::genLegacyClassLike(
+     CreateFunctionInst *createInstElemInitFunc =
+         Builder.createCreateFunctionInst(
+             curFunction()->curScope(), instElemInitFunc);
+-    Variable *instElemInitFuncVar = Builder.createVariable(
+-        curFunction()->curScope()->getVariableScope(),
+-        (llvh::Twine("<instElemInitFunc:") + className.str() + ">"),
+-        Type::createObject(),
+-        /* hidden */ true);
++    // Reuse cached variable or create a new one.
++    Variable *instElemInitFuncVar;
++    if (cachedVars.instElemInitFuncVar) {
++      instElemInitFuncVar = cachedVars.instElemInitFuncVar;
++    } else {
++      instElemInitFuncVar = Builder.createVariable(
++          curFunction()->curScope()->getVariableScope(),
++          (llvh::Twine("<instElemInitFunc:") + className.str() + ">"),
++          Type::createObject(),
++          /* hidden */ true);
++      cachedVars.instElemInitFuncVar = instElemInitFuncVar;
++    }
+     Builder.createStoreFrameInst(
+         curFunction()->curScope(), createInstElemInitFunc, instElemInitFuncVar);
+     curFunction()->legacyClassContext->instElemInitFuncVar =
+@@ -555,12 +589,20 @@ CreateClassInst *ESTreeIRGen::genLegacyClassLike(
+     } else if (
+         auto *prop = llvh::dyn_cast<ESTree::ClassPropertyNode>(&classElement)) {
+       if (prop->_computed) {
+-        Variable *fieldKeyVar = Builder.createVariable(
+-            curVarScope,
+-            Builder.createIdentifier(
+-                className.str() + "_computed_key_" + Twine(computedKeyIdx++)),
+-            Type::createAnyType(),
+-            /* hidden */ true);
++        // Reuse cached variable or create a new one.
++        auto cachedKeyIt = cachedVars.computedFieldKeys.find(prop);
++        Variable *fieldKeyVar;
++        if (cachedKeyIt != cachedVars.computedFieldKeys.end()) {
++          fieldKeyVar = cachedKeyIt->second;
++        } else {
++          fieldKeyVar = Builder.createVariable(
++              curVarScope,
++              Builder.createIdentifier(
++                  className.str() + "_computed_key_" + Twine(computedKeyIdx++)),
++              Type::createAnyType(),
++              /* hidden */ true);
++          cachedVars.computedFieldKeys[prop] = fieldKeyVar;
++        }
+         curFunction()->legacyClassContext->classComputedFieldKeys[prop] =
+             fieldKeyVar;
+         Builder.createStoreFrameInst(
+diff --git a/lib/IRGen/ESTreeIRGen.h b/lib/IRGen/ESTreeIRGen.h
+index 77ab28d21cf..2f1b25d7ff3 100644
+--- a/lib/IRGen/ESTreeIRGen.h
++++ b/lib/IRGen/ESTreeIRGen.h
+@@ -612,6 +612,33 @@ class ESTreeIRGen {
+   /// guaranteed to be, if any.
+   llvh::DenseMap<const flow::ClassType::Field *, Function *> finalMethods_{};
+ 
++  /// Internal variables created during legacy class compilation.
++  /// These need to be cached so they can be reused when the same class
++  /// is compiled multiple times (e.g., in a finally block).
++  struct LegacyClassVars {
++    /// Variable holding the class constructor object.
++    Variable *classVar{nullptr};
++    /// Variable holding the class prototype object.
++    Variable *prototypeVar{nullptr};
++    /// Variable holding the instance elements initializer closure.
++    /// May be nullptr if there are no instance elements.
++    Variable *instElemInitFuncVar{nullptr};
++    /// Variable holding the static private brand (for static private methods).
++    Variable *staticBrand{nullptr};
++    /// Variable holding the instance private brand (for instance private
++    /// methods).
++    Variable *instanceBrand{nullptr};
++    /// Map from computed property nodes to their key variables.
++    llvh::DenseMap<ESTree::ClassPropertyNode *, Variable *> computedFieldKeys{};
++
++    LegacyClassVars() = default;
++    LegacyClassVars(Variable *cls, Variable *proto)
++        : classVar(cls), prototypeVar(proto) {}
++  };
++
++  /// Map from a class AST node to its internal variables.
++  llvh::DenseMap<ESTree::ClassLikeNode *, LegacyClassVars> legacyClassVars_{};
++
+   /// A queue of "entities" that have been forward declared and mapped in
+   /// \c compiledEntities_, but need to be actually compiled. This makes the
+   /// compiler non-recursive.
+@@ -1327,8 +1354,10 @@ class ESTreeIRGen {
+   /// Declare all private names in the class' scope. This will setup the
+   /// customData for all private name decls to point to the required state
+   /// needed for IRGen to handle usages involving that private name.
++  /// \param classNode The class AST node, used for caching internal variables.
+   /// \param scope The lexical scope, can't be null.
+   void emitPrivateNameDeclarations(
++      ESTree::ClassLikeNode *classNode,
+       sema::LexicalScope *scope,
+       Identifier className);
+ 
+diff --git a/test/IRGen/class-static-in-finally.js b/test/IRGen/class-static-in-finally.js
+new file mode 100644
+index 00000000000..127d5005ed9
+--- /dev/null
++++ b/test/IRGen/class-static-in-finally.js
+@@ -0,0 +1,95 @@
++/**
++ * Copyright (c) Meta Platforms, Inc. and affiliates.
++ *
++ * This source code is licensed under the MIT license found in the
++ * LICENSE file in the root directory of this source tree.
++ */
++
++// RUN: %hermes -O0 %s -dump-ir | %FileCheckOrRegen --match-full-lines %s
++
++// Regression test: class with static property in finally block.
++// The finally block causes code to be emitted twice. Previously,
++// internal class variables were created fresh on each compilation,
++// but initializer functions were cached. This caused the static
++// initializer to load from an uninitialized variable, crashing at
++// runtime with "PutOwn requires object operand".
++
++function main() {
++    try {
++        throw 1;
++    } finally {
++        class C5 {
++            static g = "-10238";
++        }
++    }
++}
++main();
++
++// Auto-generated content below. Please do not modify manually.
++
++// CHECK:scope %VS0 []
++
++// CHECK:function global(): any
++// CHECK-NEXT:%BB0:
++// CHECK-NEXT:  %0 = CreateScopeInst (:environment) %VS0: any, empty: any
++// CHECK-NEXT:       DeclareGlobalVarInst "main": string
++// CHECK-NEXT:  %2 = CreateFunctionInst (:object) %0: environment, %VS0: any, %main(): functionCode
++// CHECK-NEXT:       StorePropertyLooseInst %2: object, globalObject: object, "main": string
++// CHECK-NEXT:  %4 = AllocStackInst (:any) $?anon_0_ret: any
++// CHECK-NEXT:       StoreStackInst undefined: undefined, %4: any
++// CHECK-NEXT:  %6 = LoadPropertyInst (:any) globalObject: object, "main": string
++// CHECK-NEXT:  %7 = CallInst (:any) %6: any, empty: any, false: boolean, empty: any, undefined: undefined, undefined: undefined
++// CHECK-NEXT:       StoreStackInst %7: any, %4: any
++// CHECK-NEXT:  %9 = LoadStackInst (:any) %4: any
++// CHECK-NEXT:        ReturnInst %9: any
++// CHECK-NEXT:function_end
++
++// CHECK:scope %VS1 [C5: any, C5#1: any, ?C5.prototype: object, ?C5: object]
++
++// CHECK:function main(): any
++// CHECK-NEXT:%BB0:
++// CHECK-NEXT:  %0 = GetParentScopeInst (:environment) %VS0: any, %parentScope: environment
++// CHECK-NEXT:  %1 = CreateScopeInst (:environment) %VS1: any, %0: environment
++// CHECK-NEXT:       TryStartInst %BB1, %BB2
++// CHECK-NEXT:%BB1:
++// CHECK-NEXT:  %3 = CatchInst (:any)
++// CHECK-NEXT:       StoreFrameInst %1: environment, undefined: undefined, [%VS1.C5]: any
++// CHECK-NEXT:       StoreFrameInst %1: environment, undefined: undefined, [%VS1.C5#1]: any
++// CHECK-NEXT:  %6 = AllocStackInst (:object) $?anon_1_clsPrototype: any
++// CHECK-NEXT:  %7 = CreateClassInst (:object) %1: environment, %VS1: any, %C5(): functionCode, empty: any, %6: object
++// CHECK-NEXT:  %8 = LoadStackInst (:object) %6: object
++// CHECK-NEXT:       StoreFrameInst %1: environment, %7: object, [%VS1.C5#1]: any
++// CHECK-NEXT:        StoreFrameInst %1: environment, %7: object, [%VS1.?C5]: object
++// CHECK-NEXT:        StoreFrameInst %1: environment, %8: object, [%VS1.?C5.prototype]: object
++// CHECK-NEXT:  %12 = CreateFunctionInst (:object) %1: environment, %VS1: any, %<static_elements_initializer:C5>(): functionCode
++// CHECK-NEXT:  %13 = CallInst (:any) %12: object, %<static_elements_initializer:C5>(): functionCode, true: boolean, %1: environment, undefined: undefined, %7: object
++// CHECK-NEXT:        StoreFrameInst %1: environment, %7: object, [%VS1.C5]: any
++// CHECK-NEXT:        ThrowInst %3: any
++// CHECK-NEXT:%BB2:
++// CHECK-NEXT:        ThrowInst 1: number, %BB1
++// CHECK-NEXT:function_end
++
++// CHECK:scope %VS2 [this: object]
++
++// CHECK:base constructor C5(): object
++// CHECK-NEXT:%BB0:
++// CHECK-NEXT:  %0 = GetParentScopeInst (:environment) %VS1: any, %parentScope: environment
++// CHECK-NEXT:  %1 = CreateScopeInst (:environment) %VS2: any, %0: environment
++// CHECK-NEXT:  %2 = GetNewTargetInst (:object) %new.target: object
++// CHECK-NEXT:  %3 = LoadPropertyInst (:any) %2: object, "prototype": string
++// CHECK-NEXT:  %4 = AllocObjectLiteralInst (:object) %3: any
++// CHECK-NEXT:       StoreFrameInst %1: environment, %4: object, [%VS2.this]: object
++// CHECK-NEXT:  %6 = LoadFrameInst (:object) %1: environment, [%VS2.this]: object
++// CHECK-NEXT:       ReturnInst %6: object
++// CHECK-NEXT:function_end
++
++// CHECK:scope %VS3 []
++
++// CHECK:function <static_elements_initializer:C5>(): undefined
++// CHECK-NEXT:%BB0:
++// CHECK-NEXT:  %0 = GetParentScopeInst (:environment) %VS1: any, %parentScope: environment
++// CHECK-NEXT:  %1 = CreateScopeInst (:environment) %VS3: any, %0: environment
++// CHECK-NEXT:  %2 = LoadFrameInst (:object) %0: environment, [%VS1.?C5]: object
++// CHECK-NEXT:       DefineOwnPropertyInst "-10238": string, %2: object, "g": string, true: boolean
++// CHECK-NEXT:       ReturnInst undefined: undefined
++// CHECK-NEXT:function_end
+diff --git a/test/IRGen/private-properties.js b/test/IRGen/private-properties.js
+index cbdbfb2aaa2..d79440d7ab1 100644
+--- a/test/IRGen/private-properties.js
++++ b/test/IRGen/private-properties.js
+@@ -91,9 +91,9 @@ function simpleMethods() {
+ // CHECK-NEXT:       StoreFrameInst %1: environment, undefined: undefined, [%VS2.B]: any
+ // CHECK-NEXT:       StoreFrameInst %1: environment, undefined: undefined, [%VS2.B#1]: any
+ // CHECK-NEXT:  %4 = CreatePrivateNameInst (:privateName) "B": string
+-// CHECK-NEXT:       StoreFrameInst %1: environment, %4: privateName, [%VS2.?instance_brand_B]: privateName
++// CHECK-NEXT:       StoreFrameInst %1: environment, %4: privateName, [%VS2.?static_brand_B]: privateName
+ // CHECK-NEXT:  %6 = CreatePrivateNameInst (:privateName) "B": string
+-// CHECK-NEXT:       StoreFrameInst %1: environment, %6: privateName, [%VS2.?static_brand_B]: privateName
++// CHECK-NEXT:       StoreFrameInst %1: environment, %6: privateName, [%VS2.?instance_brand_B]: privateName
+ // CHECK-NEXT:  %8 = CreateFunctionInst (:object) %1: environment, %VS2: any, %<instance_members_initializer:B>(): functionCode
+ // CHECK-NEXT:       StoreFrameInst %1: environment, %8: object, [%VS2.<instElemInitFunc:B>]: object
+ // CHECK-NEXT:  %10 = AllocStackInst (:object) $?anon_0_clsPrototype: any
+diff --git a/test/IRGen/regress-class-recompiled.js b/test/IRGen/regress-class-recompiled.js
+index 5b055dfca91..2a9287eee73 100644
+--- a/test/IRGen/regress-class-recompiled.js
++++ b/test/IRGen/regress-class-recompiled.js
+@@ -34,7 +34,7 @@
+ // CHECK-NEXT:       ReturnInst %6: any
+ // CHECK-NEXT:function_end
+ 
+-// CHECK:scope %VS1 [e: any, C1: any, C1#1: any, ?C1.prototype: object, ?C1: object, <instElemInitFunc:C1>: object, ?C1.prototype#1: object, ?C1#1: object, <instElemInitFunc:C1>#1: object]
++// CHECK:scope %VS1 [e: any, C1: any, C1#1: any, ?C1.prototype: object, ?C1: object, <instElemInitFunc:C1>: object]
+ 
+ // CHECK:function ""(): any
+ // CHECK-NEXT:%BB0:
+@@ -46,13 +46,13 @@
+ // CHECK-NEXT:       StoreFrameInst %1: environment, undefined: undefined, [%VS1.C1]: any
+ // CHECK-NEXT:       StoreFrameInst %1: environment, undefined: undefined, [%VS1.C1#1]: any
+ // CHECK-NEXT:  %6 = CreateFunctionInst (:object) %1: environment, %VS1: any, %<instance_members_initializer:C1>(): functionCode
+-// CHECK-NEXT:       StoreFrameInst %1: environment, %6: object, [%VS1.<instElemInitFunc:C1>#1]: object
++// CHECK-NEXT:       StoreFrameInst %1: environment, %6: object, [%VS1.<instElemInitFunc:C1>]: object
+ // CHECK-NEXT:  %8 = AllocStackInst (:object) $?anon_1_clsPrototype: any
+ // CHECK-NEXT:  %9 = CreateClassInst (:object) %1: environment, %VS1: any, %C1(): functionCode, empty: any, %8: object
+ // CHECK-NEXT:  %10 = LoadStackInst (:object) %8: object
+ // CHECK-NEXT:        StoreFrameInst %1: environment, %9: object, [%VS1.C1#1]: any
+-// CHECK-NEXT:        StoreFrameInst %1: environment, %9: object, [%VS1.?C1#1]: object
+-// CHECK-NEXT:        StoreFrameInst %1: environment, %10: object, [%VS1.?C1.prototype#1]: object
++// CHECK-NEXT:        StoreFrameInst %1: environment, %9: object, [%VS1.?C1]: object
++// CHECK-NEXT:        StoreFrameInst %1: environment, %10: object, [%VS1.?C1.prototype]: object
+ // CHECK-NEXT:  %14 = CreateFunctionInst (:object) %1: environment, %VS1: any, %<static_elements_initializer:C1>(): functionCode
+ // CHECK-NEXT:  %15 = CallInst (:any) %14: object, %<static_elements_initializer:C1>(): functionCode, true: boolean, %1: environment, undefined: undefined, %9: object
+ // CHECK-NEXT:        StoreFrameInst %1: environment, %9: object, [%VS1.C1]: any
+diff --git a/test/hermes/class-in-finally.js b/test/hermes/class-in-finally.js
+new file mode 100644
+index 00000000000..5d6edda5162
+--- /dev/null
++++ b/test/hermes/class-in-finally.js
+@@ -0,0 +1,112 @@
++/**
++ * Copyright (c) Meta Platforms, Inc. and affiliates.
++ *
++ * This source code is licensed under the MIT license found in the
++ * LICENSE file in the root directory of this source tree.
++ */
++
++// RUN: %hermes -O0 %s | %FileCheck --match-full-lines %s
++// RUN: %hermes -O %s | %FileCheck --match-full-lines %s
++
++// Test that classes work correctly when defined inside finally blocks.
++// Finally blocks emit code twice (normal flow + exception handler),
++// which requires proper caching of internal variables.
++
++function testStaticProperty() {
++    try {
++        throw 1;
++    } finally {
++        class C {
++            static g = 42;
++        }
++        print(C.g);
++// CHECK: 42
++    }
++}
++try { testStaticProperty(); } catch (e) {}
++print("testStaticProperty passed");
++// CHECK-NEXT: testStaticProperty passed
++
++function testInstanceProperty() {
++    try {
++        throw 1;
++    } finally {
++        class C {
++            f = 52;
++        }
++        print(new C().f);
++// CHECK-NEXT: 52
++    }
++}
++try { testInstanceProperty(); } catch (e) {}
++print("testInstanceProperty passed");
++// CHECK-NEXT: testInstanceProperty passed
++
++function testComputedProperty() {
++    var key = "x";
++    try {
++        throw 1;
++    } finally {
++        class C {
++            static [key] = 42;
++            [key] = 52;
++        }
++        print(C[key]);
++// CHECK-NEXT: 42
++        print(new C()[key]);
++// CHECK-NEXT: 52
++    }
++}
++try { testComputedProperty(); } catch (e) {}
++print("testComputedProperty passed");
++// CHECK-NEXT: testComputedProperty passed
++
++function testPrivateMethod() {
++    try {
++        throw 1;
++    } finally {
++        class C {
++            #m() { return 62; }
++            call() { return this.#m(); }
++        }
++        print(new C().call());
++// CHECK-NEXT: 62
++    }
++}
++try { testPrivateMethod(); } catch (e) {}
++print("testPrivateMethod passed");
++// CHECK-NEXT: testPrivateMethod passed
++
++function testStaticPrivateMethod() {
++    try {
++        throw 1;
++    } finally {
++        class C {
++            static #m() { return 72; }
++            static call() { return C.#m(); }
++        }
++        print(C.call());
++// CHECK-NEXT: 72
++    }
++}
++try { testStaticPrivateMethod(); } catch (e) {}
++print("testStaticPrivateMethod passed");
++// CHECK-NEXT: testStaticPrivateMethod passed
++
++function testPrivateAccessor() {
++    try {
++        throw 1;
++    } finally {
++        class C {
++            #val = 82;
++            get #x() { return this.#val; }
++            set #x(v) { this.#val = v; }
++            call() { this.#x = this.#x + 10; return this.#x; }
++        }
++        print(new C().call());
++// CHECK-NEXT: 92
++    }
++}
++try { testPrivateAccessor(); } catch (e) {}
++print("testPrivateAccessor passed");
++// CHECK-NEXT: testPrivateAccessor passed
