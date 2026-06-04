@@ -1,0 +1,46 @@
+diff --git a/lib/IRGen/ESTreeIRGen-expr.cpp b/lib/IRGen/ESTreeIRGen-expr.cpp
+index 073cb38e5a0..4d27ac94007 100644
+--- a/lib/IRGen/ESTreeIRGen-expr.cpp
++++ b/lib/IRGen/ESTreeIRGen-expr.cpp
+@@ -1634,7 +1634,7 @@ Value *ESTreeIRGen::genObjectExpr(ESTree::ObjectExpressionNode *Expr) {
+             Builder.createIdentifier("get " + keyStr.str()),
+             /* superClassNode */ nullptr,
+             Function::DefinitionKind::ES5Function,
+-            /* homeObject */ nullptr,
++            /* homeObject */ capturedObj,
+             /* parentNode */ propValue->getterProp);
+       }
+ 
+@@ -1645,7 +1645,7 @@ Value *ESTreeIRGen::genObjectExpr(ESTree::ObjectExpressionNode *Expr) {
+             Builder.createIdentifier("set " + keyStr.str()),
+             /* superClassNode */ nullptr,
+             Function::DefinitionKind::ES5Function,
+-            /* homeObject */ nullptr,
++            /* homeObject */ capturedObj,
+             /* parentNode */ propValue->setterProp);
+       }
+ 
+diff --git a/test/hermes/object-literal-getter-super.js b/test/hermes/object-literal-getter-super.js
+index 5ba94c9a0ba..846fd684f51 100644
+--- a/test/hermes/object-literal-getter-super.js
++++ b/test/hermes/object-literal-getter-super.js
+@@ -20,3 +20,19 @@ var object = {
+ Object.setPrototypeOf(object, proto);
+ print(object.a);
+ // CHECK: a proto m
++
++// Test that accessors without computed names can also refer to super.
++(function () {
++  let v1 = {
++    get a() {
++      let x = super.m;
++      print(x);
++    }
++  }
++  let parent = { m: 12 };
++  v1.a;
++// CHECK-NEXT: undefined
++  Object.setPrototypeOf(v1, parent);
++  v1.a;
++// CHECK-NEXT: 12
++})();
