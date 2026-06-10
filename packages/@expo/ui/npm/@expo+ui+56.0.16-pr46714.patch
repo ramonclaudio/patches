@@ -1,0 +1,109 @@
+diff --git a/node_modules/@expo/ui/CHANGELOG.md b/node_modules/@expo/ui/CHANGELOG.md
+index bf1aed1..24c2be1 100644
+--- a/node_modules/@expo/ui/CHANGELOG.md
++++ b/node_modules/@expo/ui/CHANGELOG.md
+@@ -8,6 +8,8 @@
+ 
+ ### 🐛 Bug fixes
+ 
++- [iOS] Fix `font`, `dynamicTypeSize`, and `resizable` modifiers not applying to the SwiftUI `Image`. SF Symbols scale with Dynamic Type when a `font` modifier sets a `textStyle`. ([#46714](https://github.com/expo/expo/pull/46714) by [@ramonclaudio](https://github.com/ramonclaudio))
++
+ ### 💡 Others
+ 
+ ## 56.0.16 — 2026-06-05
+diff --git a/node_modules/@expo/ui/build/swift-ui/Image/index.d.ts b/node_modules/@expo/ui/build/swift-ui/Image/index.d.ts
+index 68884ed..b138bb5 100644
+--- a/node_modules/@expo/ui/build/swift-ui/Image/index.d.ts
++++ b/node_modules/@expo/ui/build/swift-ui/Image/index.d.ts
+@@ -18,7 +18,9 @@ export interface ImageProps extends CommonViewModifierProps {
+      */
+     uiImage?: string;
+     /**
+-     * The size of the system image.
++     * The fixed size of the system image in points. Does not scale with Dynamic
++     * Type. Use the `font` modifier with `textStyle` for that. Ignored when a
++     * `font` modifier is supplied.
+      */
+     size?: number;
+     /**
+diff --git a/node_modules/@expo/ui/build/swift-ui/Image/index.d.ts.map b/node_modules/@expo/ui/build/swift-ui/Image/index.d.ts.map
+index 41cf53a..b5631d7 100644
+--- a/node_modules/@expo/ui/build/swift-ui/Image/index.d.ts.map
++++ b/node_modules/@expo/ui/build/swift-ui/Image/index.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/swift-ui/Image/index.tsx"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,UAAU,EAAE,MAAM,cAAc,CAAC;AAC/C,OAAO,KAAK,EAAE,QAAQ,EAAE,MAAM,uBAAuB,CAAC;AAItD,OAAO,KAAK,EAAE,uBAAuB,EAAE,MAAM,UAAU,CAAC;AAExD,MAAM,WAAW,UAAW,SAAQ,uBAAuB;IACzD;;;OAGG;IACH,UAAU,CAAC,EAAE,QAAQ,CAAC;IACtB;;OAEG;IACH,SAAS,CAAC,EAAE,MAAM,CAAC;IACnB;;;;OAIG;IACH,OAAO,CAAC,EAAE,MAAM,CAAC;IACjB;;OAEG;IACH,IAAI,CAAC,EAAE,MAAM,CAAC;IACd;;;OAGG;IACH,KAAK,CAAC,EAAE,UAAU,CAAC;IACnB;;;;;;OAMG;IACH,aAAa,CAAC,EAAE,MAAM,CAAC;IAEvB;;OAEG;IACH,OAAO,CAAC,EAAE,MAAM,IAAI,CAAC;CACtB;AAuBD,wBAAgB,KAAK,CAAC,KAAK,EAAE,UAAU,2CAEtC"}
+\ No newline at end of file
++{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/swift-ui/Image/index.tsx"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,UAAU,EAAE,MAAM,cAAc,CAAC;AAC/C,OAAO,KAAK,EAAE,QAAQ,EAAE,MAAM,uBAAuB,CAAC;AAKtD,OAAO,KAAK,EAAE,uBAAuB,EAAE,MAAM,UAAU,CAAC;AAExD,MAAM,WAAW,UAAW,SAAQ,uBAAuB;IACzD;;;OAGG;IACH,UAAU,CAAC,EAAE,QAAQ,CAAC;IACtB;;OAEG;IACH,SAAS,CAAC,EAAE,MAAM,CAAC;IACnB;;;;OAIG;IACH,OAAO,CAAC,EAAE,MAAM,CAAC;IACjB;;;;OAIG;IACH,IAAI,CAAC,EAAE,MAAM,CAAC;IACd;;;OAGG;IACH,KAAK,CAAC,EAAE,UAAU,CAAC;IACnB;;;;;;OAMG;IACH,aAAa,CAAC,EAAE,MAAM,CAAC;IAEvB;;OAEG;IACH,OAAO,CAAC,EAAE,MAAM,IAAI,CAAC;CACtB;AA6BD,wBAAgB,KAAK,CAAC,KAAK,EAAE,UAAU,2CAEtC"}
+\ No newline at end of file
+diff --git a/node_modules/@expo/ui/ios/ImageView.swift b/node_modules/@expo/ui/ios/ImageView.swift
+index 3bffb1e..170de73 100644
+--- a/node_modules/@expo/ui/ios/ImageView.swift
++++ b/node_modules/@expo/ui/ios/ImageView.swift
+@@ -7,8 +7,6 @@ public final class ImageViewProps: UIBaseViewProps {
+   @Field var uiImage: String?
+   @Field var systemName: String?
+   @Field var assetName: String?
+-  @Field var size: Double?
+-  @Field var color: Color?
+   @Field var variableValue: Double?
+   @Field var useTapGesture: Bool?
+   var onTap = EventDispatcher()
+@@ -41,8 +39,7 @@ public struct ImageView: ExpoSwiftUI.View {
+   public var body: some View {
+     if let symbolImage {
+       symbolImage
+-        .font(.system(size: CGFloat(props.size ?? 24)))
+-        .foregroundColor(props.color)
++        .applyImageModifiers(props.modifiers, appContext: props.appContext)
+         .applyOnTapGesture(useTapGesture: props.useTapGesture, eventDispatcher: props.onTap)
+     } else if let url = props.uiImage,
+               let url = URL(string: url),
+@@ -50,7 +47,6 @@ public struct ImageView: ExpoSwiftUI.View {
+               let uiImage = UIImage(data: data) {
+       Image(uiImage: uiImage)
+         .applyImageModifiers(props.modifiers, appContext: props.appContext)
+-        .foregroundColor(props.color)
+         .applyOnTapGesture(useTapGesture: props.useTapGesture, eventDispatcher: props.onTap)
+     }
+   }
+diff --git a/node_modules/@expo/ui/src/swift-ui/Image/index.tsx b/node_modules/@expo/ui/src/swift-ui/Image/index.tsx
+index 4fee9d9..7d40eae 100644
+--- a/node_modules/@expo/ui/src/swift-ui/Image/index.tsx
++++ b/node_modules/@expo/ui/src/swift-ui/Image/index.tsx
+@@ -3,6 +3,7 @@ import type { ColorValue } from 'react-native';
+ import type { SFSymbol } from 'sf-symbols-typescript';
+ 
+ import type { ViewEvent } from '../../types';
++import { font, foregroundStyle } from '../modifiers';
+ import { createViewModifierEventListener } from '../modifiers/utils';
+ import type { CommonViewModifierProps } from '../types';
+ 
+@@ -23,7 +24,9 @@ export interface ImageProps extends CommonViewModifierProps {
+    */
+   uiImage?: string;
+   /**
+-   * The size of the system image.
++   * The fixed size of the system image in points. Does not scale with Dynamic
++   * Type. Use the `font` modifier with `textStyle` for that. Ignored when a
++   * `font` modifier is supplied.
+    */
+   size?: number;
+   /**
+@@ -53,9 +56,15 @@ type TapEvent = ViewEvent<'onTap', object> & {
+ type NativeImageProps = Omit<ImageProps, 'onPress'> | TapEvent;
+ 
+ function transformNativeProps(props: ImageProps): NativeImageProps {
+-  const { onPress, modifiers, ...restProps } = props;
++  const { onPress, modifiers, size, color, ...restProps } = props;
++  const hasFontModifier = modifiers?.some((modifier) => modifier.$type === 'font');
++  const allModifiers = [
++    ...(modifiers ?? []),
++    ...(hasFontModifier ? [] : [font({ size: size ?? 24 })]),
++    ...(color != null ? [foregroundStyle(color)] : []),
++  ];
+   return {
+-    modifiers,
++    modifiers: allModifiers,
+     ...(modifiers ? createViewModifierEventListener(modifiers) : undefined),
+     ...restProps,
+     ...(onPress ? { useTapGesture: true, onTap: () => onPress() } : null),
