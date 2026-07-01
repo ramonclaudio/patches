@@ -1,0 +1,245 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index cdc0c77..eb52ca8 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -6,6 +6,8 @@
+ 
+ ### 🎉 New features
+ 
++- [iOS] Added the SwiftUI `strokeBorder` modifier with a full `StrokeStyle` (line width, cap, join, miter limit, dash array, dash phase) for dashed and dotted inset borders that follow the shape's corners. ([#47426](https://github.com/expo/expo/pull/47426) by [@ramonclaudio](https://github.com/ramonclaudio))
++
+ ### 🐛 Bug fixes
+ 
+ ### 💡 Others
+diff --git a/build/swift-ui/modifiers/index.d.ts b/build/swift-ui/modifiers/index.d.ts
+index 969c151..ad28a6a 100644
+--- a/build/swift-ui/modifiers/index.d.ts
++++ b/build/swift-ui/modifiers/index.d.ts
+@@ -174,6 +174,36 @@ export declare const border: (params: {
+     color: Color;
+     width?: number;
+ }) => ModifierConfig;
++/**
++ * The characteristics of a stroke that traces a path.
++ * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/strokestyle).
++ */
++export type StrokeStyle = {
++    /** The width of the stroked line. @default 1 */
++    lineWidth?: number;
++    /** The endpoint style of a line segment. @default 'butt' */
++    lineCap?: 'butt' | 'round' | 'square';
++    /** The join type where line segments meet. @default 'miter' */
++    lineJoin?: 'miter' | 'round' | 'bevel';
++    /** The limit past which a miter join is replaced by a bevel. @default 10 */
++    miterLimit?: number;
++    /** The lengths of alternating painted and unpainted segments. An empty array draws a solid line. @default [] */
++    dash?: number[];
++    /** How far into the dash pattern the line starts. @default 0 */
++    dashPhase?: number;
++};
++/**
++ * Strokes an inset border along the view's shape.
++ * @param params - The stroke parameters. Color (omit for the foreground style), style, antialiased, shape and cornerRadius.
++ * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/insettableshape/strokeborder(_:style:antialiased:)).
++ */
++export declare const strokeBorder: (params: {
++    color?: Color;
++    style?: StrokeStyle;
++    antialiased?: boolean;
++    shape?: "rectangle" | "circle" | "capsule" | "ellipse" | "roundedRectangle" | "containerRelativeShape";
++    cornerRadius?: number;
++}) => ModifierConfig;
+ /**
+  * Applies scaling transformation.
+  * @param scale - Uniform scale factor (1.0 = normal size), or an object with separate `x` and `y` scale factors.
+@@ -1123,7 +1153,7 @@ export declare const resizable: (capInsets?: {
+  * This provides type safety for the modifiers array.
+  * @hidden
+  */
+-export type BuiltInModifier = ReturnType<typeof listSectionSpacing> | ReturnType<typeof background> | ReturnType<typeof cornerRadius> | ReturnType<typeof shadow> | ReturnType<typeof frame> | ReturnType<typeof padding> | ReturnType<typeof fixedSize> | ReturnType<typeof ignoreSafeArea> | ReturnType<typeof onTapGesture> | ReturnType<typeof onLongPressGesture> | ReturnType<typeof onAppear> | ReturnType<typeof luminanceToAlpha> | ReturnType<typeof onDisappear> | ReturnType<typeof onGeometryChange> | ReturnType<typeof opacity> | ReturnType<typeof clipShape> | ReturnType<typeof border> | ReturnType<typeof scaleEffect> | ReturnType<typeof rotationEffect> | ReturnType<typeof rotation3DEffect> | ReturnType<typeof offset> | ReturnType<typeof foregroundColor> | ReturnType<typeof foregroundStyle> | ReturnType<typeof bold> | ReturnType<typeof italic> | ReturnType<typeof monospacedDigit> | ReturnType<typeof tint> | ReturnType<typeof hidden> | ReturnType<typeof disabled> | ReturnType<typeof redacted> | ReturnType<typeof unredacted> | ReturnType<typeof privacySensitive> | ReturnType<typeof invalidatableContent> | ReturnType<typeof zIndex> | ReturnType<typeof blur> | ReturnType<typeof brightness> | ReturnType<typeof contrast> | ReturnType<typeof saturation> | ReturnType<typeof hueRotation> | ReturnType<typeof colorInvert> | ReturnType<typeof grayscale> | ReturnType<typeof buttonStyle> | ReturnType<typeof buttonBorderShape> | ReturnType<typeof toggleStyle> | ReturnType<typeof controlSize> | ReturnType<typeof imageScale> | ReturnType<typeof labelStyle> | ReturnType<typeof labelsHidden> | ReturnType<typeof textFieldStyle> | ReturnType<typeof menuActionDismissBehavior> | ReturnType<typeof accessibilityLabel> | ReturnType<typeof accessibilityHint> | ReturnType<typeof accessibilityValue> | ReturnType<typeof accessibilityInputLabels> | ReturnType<typeof accessibilityIdentifier> | ReturnType<typeof accessibilityHidden> | ReturnType<typeof accessibilityElement> | ReturnType<typeof layoutPriority> | ReturnType<typeof mask> | ReturnType<typeof overlay> | ReturnType<typeof backgroundOverlay> | ReturnType<typeof aspectRatio> | ReturnType<typeof clipped> | ReturnType<typeof glassEffect> | ReturnType<typeof glassEffectId> | ReturnType<typeof animation> | ReturnType<typeof containerShape> | ReturnType<typeof contentShape> | ReturnType<typeof containerRelativeFrame> | ReturnType<typeof scrollContentBackground> | ReturnType<typeof scrollDisabled> | ReturnType<typeof scrollIndicators> | ReturnType<typeof defaultScrollAnchor> | ReturnType<typeof defaultScrollAnchorForRole> | ReturnType<typeof scrollTargetBehavior> | ReturnType<typeof scrollTargetLayout> | ReturnType<typeof id> | ReturnType<typeof scrollPosition> | ReturnType<typeof onScrollPhaseChange> | NonNullable<ReturnType<typeof useScrollGeometryChange>> | ReturnType<typeof moveDisabled> | ReturnType<typeof deleteDisabled> | ReturnType<typeof environment> | ReturnType<typeof listRowBackground> | ReturnType<typeof listRowSeparator> | ReturnType<typeof listRowSpacing> | ReturnType<typeof truncationMode> | ReturnType<typeof allowsTightening> | ReturnType<typeof kerning> | ReturnType<typeof textCase> | ReturnType<typeof underline> | ReturnType<typeof strikethrough> | ReturnType<typeof multilineTextAlignment> | ReturnType<typeof textSelection> | ReturnType<typeof lineSpacing> | ReturnType<typeof lineHeight> | ReturnType<typeof lineLimit> | ReturnType<typeof headerProminence> | ReturnType<typeof listRowInsets> | ReturnType<typeof badgeProminence> | ReturnType<typeof badge> | ReturnType<typeof listSectionMargins> | ReturnType<typeof font> | ReturnType<typeof dynamicTypeSize> | ReturnType<typeof gridCellUnsizedAxes> | ReturnType<typeof gridCellColumns> | ReturnType<typeof gridColumnAlignment> | ReturnType<typeof gridCellAnchor> | ReturnType<typeof submitLabel> | ReturnType<typeof keyboardType> | ReturnType<typeof autocorrectionDisabled> | ReturnType<typeof onSubmit> | ReturnType<typeof textInputAutocapitalization> | ReturnType<typeof textContentType> | ReturnType<typeof datePickerStyle> | ReturnType<typeof progressViewStyle> | ReturnType<typeof gaugeStyle> | ReturnType<typeof listStyle> | ReturnType<typeof contentTransition> | ReturnType<typeof resizable> | ReturnType<typeof symbolEffect> | ReturnType<typeof widgetAccentedRenderingMode> | ReturnType<typeof widgetURL> | ReturnType<typeof activityBackgroundTint> | ReturnType<typeof containerBackground>;
++export type BuiltInModifier = ReturnType<typeof listSectionSpacing> | ReturnType<typeof background> | ReturnType<typeof cornerRadius> | ReturnType<typeof shadow> | ReturnType<typeof frame> | ReturnType<typeof padding> | ReturnType<typeof fixedSize> | ReturnType<typeof ignoreSafeArea> | ReturnType<typeof onTapGesture> | ReturnType<typeof onLongPressGesture> | ReturnType<typeof onAppear> | ReturnType<typeof luminanceToAlpha> | ReturnType<typeof onDisappear> | ReturnType<typeof onGeometryChange> | ReturnType<typeof opacity> | ReturnType<typeof clipShape> | ReturnType<typeof border> | ReturnType<typeof strokeBorder> | ReturnType<typeof scaleEffect> | ReturnType<typeof rotationEffect> | ReturnType<typeof rotation3DEffect> | ReturnType<typeof offset> | ReturnType<typeof foregroundColor> | ReturnType<typeof foregroundStyle> | ReturnType<typeof bold> | ReturnType<typeof italic> | ReturnType<typeof monospacedDigit> | ReturnType<typeof tint> | ReturnType<typeof hidden> | ReturnType<typeof disabled> | ReturnType<typeof redacted> | ReturnType<typeof unredacted> | ReturnType<typeof privacySensitive> | ReturnType<typeof invalidatableContent> | ReturnType<typeof zIndex> | ReturnType<typeof blur> | ReturnType<typeof brightness> | ReturnType<typeof contrast> | ReturnType<typeof saturation> | ReturnType<typeof hueRotation> | ReturnType<typeof colorInvert> | ReturnType<typeof grayscale> | ReturnType<typeof buttonStyle> | ReturnType<typeof buttonBorderShape> | ReturnType<typeof toggleStyle> | ReturnType<typeof controlSize> | ReturnType<typeof imageScale> | ReturnType<typeof labelStyle> | ReturnType<typeof labelsHidden> | ReturnType<typeof textFieldStyle> | ReturnType<typeof menuActionDismissBehavior> | ReturnType<typeof accessibilityLabel> | ReturnType<typeof accessibilityHint> | ReturnType<typeof accessibilityValue> | ReturnType<typeof accessibilityInputLabels> | ReturnType<typeof accessibilityIdentifier> | ReturnType<typeof accessibilityHidden> | ReturnType<typeof accessibilityElement> | ReturnType<typeof layoutPriority> | ReturnType<typeof mask> | ReturnType<typeof overlay> | ReturnType<typeof backgroundOverlay> | ReturnType<typeof aspectRatio> | ReturnType<typeof clipped> | ReturnType<typeof glassEffect> | ReturnType<typeof glassEffectId> | ReturnType<typeof animation> | ReturnType<typeof containerShape> | ReturnType<typeof contentShape> | ReturnType<typeof containerRelativeFrame> | ReturnType<typeof scrollContentBackground> | ReturnType<typeof scrollDisabled> | ReturnType<typeof scrollIndicators> | ReturnType<typeof defaultScrollAnchor> | ReturnType<typeof defaultScrollAnchorForRole> | ReturnType<typeof scrollTargetBehavior> | ReturnType<typeof scrollTargetLayout> | ReturnType<typeof id> | ReturnType<typeof scrollPosition> | ReturnType<typeof onScrollPhaseChange> | NonNullable<ReturnType<typeof useScrollGeometryChange>> | ReturnType<typeof moveDisabled> | ReturnType<typeof deleteDisabled> | ReturnType<typeof environment> | ReturnType<typeof listRowBackground> | ReturnType<typeof listRowSeparator> | ReturnType<typeof listRowSpacing> | ReturnType<typeof truncationMode> | ReturnType<typeof allowsTightening> | ReturnType<typeof kerning> | ReturnType<typeof textCase> | ReturnType<typeof underline> | ReturnType<typeof strikethrough> | ReturnType<typeof multilineTextAlignment> | ReturnType<typeof textSelection> | ReturnType<typeof lineSpacing> | ReturnType<typeof lineHeight> | ReturnType<typeof lineLimit> | ReturnType<typeof headerProminence> | ReturnType<typeof listRowInsets> | ReturnType<typeof badgeProminence> | ReturnType<typeof badge> | ReturnType<typeof listSectionMargins> | ReturnType<typeof font> | ReturnType<typeof dynamicTypeSize> | ReturnType<typeof gridCellUnsizedAxes> | ReturnType<typeof gridCellColumns> | ReturnType<typeof gridColumnAlignment> | ReturnType<typeof gridCellAnchor> | ReturnType<typeof submitLabel> | ReturnType<typeof keyboardType> | ReturnType<typeof autocorrectionDisabled> | ReturnType<typeof onSubmit> | ReturnType<typeof textInputAutocapitalization> | ReturnType<typeof textContentType> | ReturnType<typeof datePickerStyle> | ReturnType<typeof progressViewStyle> | ReturnType<typeof gaugeStyle> | ReturnType<typeof listStyle> | ReturnType<typeof contentTransition> | ReturnType<typeof resizable> | ReturnType<typeof symbolEffect> | ReturnType<typeof widgetAccentedRenderingMode> | ReturnType<typeof widgetURL> | ReturnType<typeof activityBackgroundTint> | ReturnType<typeof containerBackground>;
+ /**
+  * Main ViewModifier type that supports both built-in and 3rd party modifiers.
+  * 3rd party modifiers should return ModifierConfig objects with their own type strings.
+diff --git a/ios/Modifiers/ShapeTypes.swift b/ios/Modifiers/ShapeTypes.swift
+index ed02dae..eb7f429 100644
+--- a/ios/Modifiers/ShapeTypes.swift
++++ b/ios/Modifiers/ShapeTypes.swift
+@@ -22,6 +22,56 @@ internal struct CornerSize: Record {
+   @Field var height: Int = 0
+ }
+ 
++// MARK: - Stroke Style
++
++internal enum StrokeLineCap: String, Enumerable {
++  case butt
++  case round
++  case square
++
++  func toCGLineCap() -> CGLineCap {
++    switch self {
++    case .butt: return .butt
++    case .round: return .round
++    case .square: return .square
++    }
++  }
++}
++
++internal enum StrokeLineJoin: String, Enumerable {
++  case miter
++  case round
++  case bevel
++
++  func toCGLineJoin() -> CGLineJoin {
++    switch self {
++    case .miter: return .miter
++    case .round: return .round
++    case .bevel: return .bevel
++    }
++  }
++}
++
++internal struct StrokeStyleConfig: Record {
++  @Field var lineWidth: CGFloat = 1
++  @Field var lineCap: StrokeLineCap = .butt
++  @Field var lineJoin: StrokeLineJoin = .miter
++  @Field var miterLimit: CGFloat = 10
++  @Field var dash: [CGFloat] = []
++  @Field var dashPhase: CGFloat = 0
++
++  func toStrokeStyle() -> StrokeStyle {
++    return StrokeStyle(
++      lineWidth: lineWidth,
++      lineCap: lineCap.toCGLineCap(),
++      lineJoin: lineJoin.toCGLineJoin(),
++      miterLimit: miterLimit,
++      dash: dash,
++      dashPhase: dashPhase
++    )
++  }
++}
++
+ // MARK: - Shape Helper Functions
+ 
+ internal func makeCapsule(style: RoundedCornerStyle?) -> Capsule {
+diff --git a/ios/Modifiers/ViewModifierRegistry.swift b/ios/Modifiers/ViewModifierRegistry.swift
+index 237e134..b8950da 100644
+--- a/ios/Modifiers/ViewModifierRegistry.swift
++++ b/ios/Modifiers/ViewModifierRegistry.swift
+@@ -373,6 +373,48 @@ internal struct ClipShapeModifier: ViewModifier, Record {
+   }
+ }
+ 
++internal struct StrokeBorderModifier: ViewModifier, Record {
++  @Field var color: Color?
++  @Field var style: StrokeStyleConfig?
++  @Field var antialiased: Bool = true
++  @Field var shape: ShapeType = .rectangle
++  @Field var cornerRadius: CGFloat = 8
++  @Field var roundedCornerStyle: RoundedCornerStyle?
++  @Field var cornerSize: CornerSize?
++
++  func body(content: Content) -> some View {
++    content.overlay(strokeBorderView())
++  }
++
++  @ViewBuilder
++  private func strokeBorderView() -> some View {
++    let strokeStyle = (style ?? StrokeStyleConfig()).toStrokeStyle()
++    switch shape {
++    case .capsule:
++      applyStrokeBorder(makeCapsule(style: roundedCornerStyle), strokeStyle)
++    case .circle:
++      applyStrokeBorder(Circle(), strokeStyle)
++    case .containerRelativeShape:
++      applyStrokeBorder(ContainerRelativeShape(), strokeStyle)
++    case .ellipse:
++      applyStrokeBorder(Ellipse(), strokeStyle)
++    case .rectangle:
++      applyStrokeBorder(Rectangle(), strokeStyle)
++    case .roundedRectangle:
++      applyStrokeBorder(makeRoundedRectangle(cornerRadius: cornerRadius, cornerSize: cornerSize, style: roundedCornerStyle), strokeStyle)
++    }
++  }
++
++  @ViewBuilder
++  private func applyStrokeBorder<S: InsettableShape>(_ shape: S, _ strokeStyle: StrokeStyle) -> some View {
++    if let color {
++      shape.strokeBorder(color, style: strokeStyle, antialiased: antialiased)
++    } else {
++      shape.strokeBorder(style: strokeStyle, antialiased: antialiased)
++    }
++  }
++}
++
+ internal struct OnTapGestureModifier: ViewModifier, Record {
+   var eventDispatcher: EventDispatcher?
+ 
+@@ -1636,6 +1678,10 @@ extension ViewModifierRegistry {
+       return try BorderModifier(from: params, appContext: appContext)
+     }
+ 
++    register("strokeBorder") { params, appContext, _ in
++      return try StrokeBorderModifier(from: params, appContext: appContext)
++    }
++
+     register("clipShape") { params, appContext, _ in
+       return try ClipShapeModifier(from: params, appContext: appContext)
+     }
+diff --git a/src/swift-ui/modifiers/index.ts b/src/swift-ui/modifiers/index.ts
+index 223c51d..30df04d 100644
+--- a/src/swift-ui/modifiers/index.ts
++++ b/src/swift-ui/modifiers/index.ts
+@@ -252,6 +252,44 @@ export const clipShape = (
+ export const border = (params: { color: Color; width?: number }) =>
+   createModifier('border', params);
+ 
++/**
++ * The characteristics of a stroke that traces a path.
++ * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/strokestyle).
++ */
++export type StrokeStyle = {
++  /** The width of the stroked line. @default 1 */
++  lineWidth?: number;
++  /** The endpoint style of a line segment. @default 'butt' */
++  lineCap?: 'butt' | 'round' | 'square';
++  /** The join type where line segments meet. @default 'miter' */
++  lineJoin?: 'miter' | 'round' | 'bevel';
++  /** The limit past which a miter join is replaced by a bevel. @default 10 */
++  miterLimit?: number;
++  /** The lengths of alternating painted and unpainted segments. An empty array draws a solid line. @default [] */
++  dash?: number[];
++  /** How far into the dash pattern the line starts. @default 0 */
++  dashPhase?: number;
++};
++
++/**
++ * Strokes an inset border along the view's shape.
++ * @param params - The stroke parameters. Color (omit for the foreground style), style, antialiased, shape and cornerRadius.
++ * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/insettableshape/strokeborder(_:style:antialiased:)).
++ */
++export const strokeBorder = (params: {
++  color?: Color;
++  style?: StrokeStyle;
++  antialiased?: boolean;
++  shape?:
++    | 'rectangle'
++    | 'circle'
++    | 'capsule'
++    | 'ellipse'
++    | 'roundedRectangle'
++    | 'containerRelativeShape';
++  cornerRadius?: number;
++}) => createModifier('strokeBorder', params);
++
+ /**
+  * Applies scaling transformation.
+  * @param scale - Uniform scale factor (1.0 = normal size), or an object with separate `x` and `y` scale factors.
+@@ -1514,6 +1552,7 @@ export type BuiltInModifier =
+   | ReturnType<typeof opacity>
+   | ReturnType<typeof clipShape>
+   | ReturnType<typeof border>
++  | ReturnType<typeof strokeBorder>
+   | ReturnType<typeof scaleEffect>
+   | ReturnType<typeof rotationEffect>
+   | ReturnType<typeof rotation3DEffect>
