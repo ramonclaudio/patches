@@ -1,0 +1,228 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index d3f70a6..dddc2df 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -6,6 +6,8 @@
+ 
+ ### 🎉 New features
+ 
++- [iOS] Added `accessibilityAddTraits` and `accessibilityRemoveTraits` SwiftUI modifiers, accepting an array of trait names. ([#47387](https://github.com/expo/expo/pull/47387) by [@ramonclaudio](https://github.com/ramonclaudio))
++
+ ### 🐛 Bug fixes
+ 
+ ### 💡 Others
+diff --git a/build/swift-ui/modifiers/index.d.ts b/build/swift-ui/modifiers/index.d.ts
+index 969c151..60050d2 100644
+--- a/build/swift-ui/modifiers/index.d.ts
++++ b/build/swift-ui/modifiers/index.d.ts
+@@ -661,6 +661,24 @@ export declare const accessibilityHidden: (hidden?: boolean) => ModifierConfig;
+  * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/view/accessibilityelement(children:)).
+  */
+ export declare const accessibilityElement: (children?: "ignore" | "combine" | "contain") => ModifierConfig;
++/**
++ * The set of accessibility traits that can be added to or removed from a view
++ * with `accessibilityAddTraits` and `accessibilityRemoveTraits`.
++ * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/accessibilitytraits).
++ */
++export type AccessibilityTrait = 'isButton' | 'isHeader' | 'isImage' | 'isSelected' | 'isLink' | 'isModal' | 'isSummaryElement' | 'updatesFrequently' | 'startsMediaSession' | 'allowsDirectInteraction' | 'causesPageTurn' | 'isToggle' | 'playsSound' | 'isStaticText' | 'isSearchField' | 'isKeyboardKey' | 'isTabBar';
++/**
++ * Adds the given accessibility traits to the view.
++ * @param traits - The accessibility traits to add. `isToggle` and `isTabBar` require iOS 17+ and are ignored on older systems.
++ * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/view/accessibilityaddtraits(_:)).
++ */
++export declare const accessibilityAddTraits: (traits: AccessibilityTrait[]) => ModifierConfig;
++/**
++ * Removes the given accessibility traits from the view.
++ * @param traits - The accessibility traits to remove. `isToggle` and `isTabBar` require iOS 17+ and are ignored on older systems.
++ * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/view/accessibilityremovetraits(_:)).
++ */
++export declare const accessibilityRemoveTraits: (traits: AccessibilityTrait[]) => ModifierConfig;
+ /**
+  * Sets layout priority for the view.
+  * @param priority - Layout priority value.
+@@ -1123,7 +1141,7 @@ export declare const resizable: (capInsets?: {
+  * This provides type safety for the modifiers array.
+  * @hidden
+  */
+-export type BuiltInModifier = ReturnType<typeof listSectionSpacing> | ReturnType<typeof background> | ReturnType<typeof cornerRadius> | ReturnType<typeof shadow> | ReturnType<typeof frame> | ReturnType<typeof padding> | ReturnType<typeof fixedSize> | ReturnType<typeof ignoreSafeArea> | ReturnType<typeof onTapGesture> | ReturnType<typeof onLongPressGesture> | ReturnType<typeof onAppear> | ReturnType<typeof luminanceToAlpha> | ReturnType<typeof onDisappear> | ReturnType<typeof onGeometryChange> | ReturnType<typeof opacity> | ReturnType<typeof clipShape> | ReturnType<typeof border> | ReturnType<typeof scaleEffect> | ReturnType<typeof rotationEffect> | ReturnType<typeof rotation3DEffect> | ReturnType<typeof offset> | ReturnType<typeof foregroundColor> | ReturnType<typeof foregroundStyle> | ReturnType<typeof bold> | ReturnType<typeof italic> | ReturnType<typeof monospacedDigit> | ReturnType<typeof tint> | ReturnType<typeof hidden> | ReturnType<typeof disabled> | ReturnType<typeof redacted> | ReturnType<typeof unredacted> | ReturnType<typeof privacySensitive> | ReturnType<typeof invalidatableContent> | ReturnType<typeof zIndex> | ReturnType<typeof blur> | ReturnType<typeof brightness> | ReturnType<typeof contrast> | ReturnType<typeof saturation> | ReturnType<typeof hueRotation> | ReturnType<typeof colorInvert> | ReturnType<typeof grayscale> | ReturnType<typeof buttonStyle> | ReturnType<typeof buttonBorderShape> | ReturnType<typeof toggleStyle> | ReturnType<typeof controlSize> | ReturnType<typeof imageScale> | ReturnType<typeof labelStyle> | ReturnType<typeof labelsHidden> | ReturnType<typeof textFieldStyle> | ReturnType<typeof menuActionDismissBehavior> | ReturnType<typeof accessibilityLabel> | ReturnType<typeof accessibilityHint> | ReturnType<typeof accessibilityValue> | ReturnType<typeof accessibilityInputLabels> | ReturnType<typeof accessibilityIdentifier> | ReturnType<typeof accessibilityHidden> | ReturnType<typeof accessibilityElement> | ReturnType<typeof layoutPriority> | ReturnType<typeof mask> | ReturnType<typeof overlay> | ReturnType<typeof backgroundOverlay> | ReturnType<typeof aspectRatio> | ReturnType<typeof clipped> | ReturnType<typeof glassEffect> | ReturnType<typeof glassEffectId> | ReturnType<typeof animation> | ReturnType<typeof containerShape> | ReturnType<typeof contentShape> | ReturnType<typeof containerRelativeFrame> | ReturnType<typeof scrollContentBackground> | ReturnType<typeof scrollDisabled> | ReturnType<typeof scrollIndicators> | ReturnType<typeof defaultScrollAnchor> | ReturnType<typeof defaultScrollAnchorForRole> | ReturnType<typeof scrollTargetBehavior> | ReturnType<typeof scrollTargetLayout> | ReturnType<typeof id> | ReturnType<typeof scrollPosition> | ReturnType<typeof onScrollPhaseChange> | NonNullable<ReturnType<typeof useScrollGeometryChange>> | ReturnType<typeof moveDisabled> | ReturnType<typeof deleteDisabled> | ReturnType<typeof environment> | ReturnType<typeof listRowBackground> | ReturnType<typeof listRowSeparator> | ReturnType<typeof listRowSpacing> | ReturnType<typeof truncationMode> | ReturnType<typeof allowsTightening> | ReturnType<typeof kerning> | ReturnType<typeof textCase> | ReturnType<typeof underline> | ReturnType<typeof strikethrough> | ReturnType<typeof multilineTextAlignment> | ReturnType<typeof textSelection> | ReturnType<typeof lineSpacing> | ReturnType<typeof lineHeight> | ReturnType<typeof lineLimit> | ReturnType<typeof headerProminence> | ReturnType<typeof listRowInsets> | ReturnType<typeof badgeProminence> | ReturnType<typeof badge> | ReturnType<typeof listSectionMargins> | ReturnType<typeof font> | ReturnType<typeof dynamicTypeSize> | ReturnType<typeof gridCellUnsizedAxes> | ReturnType<typeof gridCellColumns> | ReturnType<typeof gridColumnAlignment> | ReturnType<typeof gridCellAnchor> | ReturnType<typeof submitLabel> | ReturnType<typeof keyboardType> | ReturnType<typeof autocorrectionDisabled> | ReturnType<typeof onSubmit> | ReturnType<typeof textInputAutocapitalization> | ReturnType<typeof textContentType> | ReturnType<typeof datePickerStyle> | ReturnType<typeof progressViewStyle> | ReturnType<typeof gaugeStyle> | ReturnType<typeof listStyle> | ReturnType<typeof contentTransition> | ReturnType<typeof resizable> | ReturnType<typeof symbolEffect> | ReturnType<typeof widgetAccentedRenderingMode> | ReturnType<typeof widgetURL> | ReturnType<typeof activityBackgroundTint> | ReturnType<typeof containerBackground>;
++export type BuiltInModifier = ReturnType<typeof listSectionSpacing> | ReturnType<typeof background> | ReturnType<typeof cornerRadius> | ReturnType<typeof shadow> | ReturnType<typeof frame> | ReturnType<typeof padding> | ReturnType<typeof fixedSize> | ReturnType<typeof ignoreSafeArea> | ReturnType<typeof onTapGesture> | ReturnType<typeof onLongPressGesture> | ReturnType<typeof onAppear> | ReturnType<typeof luminanceToAlpha> | ReturnType<typeof onDisappear> | ReturnType<typeof onGeometryChange> | ReturnType<typeof opacity> | ReturnType<typeof clipShape> | ReturnType<typeof border> | ReturnType<typeof scaleEffect> | ReturnType<typeof rotationEffect> | ReturnType<typeof rotation3DEffect> | ReturnType<typeof offset> | ReturnType<typeof foregroundColor> | ReturnType<typeof foregroundStyle> | ReturnType<typeof bold> | ReturnType<typeof italic> | ReturnType<typeof monospacedDigit> | ReturnType<typeof tint> | ReturnType<typeof hidden> | ReturnType<typeof disabled> | ReturnType<typeof redacted> | ReturnType<typeof unredacted> | ReturnType<typeof privacySensitive> | ReturnType<typeof invalidatableContent> | ReturnType<typeof zIndex> | ReturnType<typeof blur> | ReturnType<typeof brightness> | ReturnType<typeof contrast> | ReturnType<typeof saturation> | ReturnType<typeof hueRotation> | ReturnType<typeof colorInvert> | ReturnType<typeof grayscale> | ReturnType<typeof buttonStyle> | ReturnType<typeof buttonBorderShape> | ReturnType<typeof toggleStyle> | ReturnType<typeof controlSize> | ReturnType<typeof imageScale> | ReturnType<typeof labelStyle> | ReturnType<typeof labelsHidden> | ReturnType<typeof textFieldStyle> | ReturnType<typeof menuActionDismissBehavior> | ReturnType<typeof accessibilityLabel> | ReturnType<typeof accessibilityHint> | ReturnType<typeof accessibilityValue> | ReturnType<typeof accessibilityInputLabels> | ReturnType<typeof accessibilityIdentifier> | ReturnType<typeof accessibilityHidden> | ReturnType<typeof accessibilityElement> | ReturnType<typeof accessibilityAddTraits> | ReturnType<typeof accessibilityRemoveTraits> | ReturnType<typeof layoutPriority> | ReturnType<typeof mask> | ReturnType<typeof overlay> | ReturnType<typeof backgroundOverlay> | ReturnType<typeof aspectRatio> | ReturnType<typeof clipped> | ReturnType<typeof glassEffect> | ReturnType<typeof glassEffectId> | ReturnType<typeof animation> | ReturnType<typeof containerShape> | ReturnType<typeof contentShape> | ReturnType<typeof containerRelativeFrame> | ReturnType<typeof scrollContentBackground> | ReturnType<typeof scrollDisabled> | ReturnType<typeof scrollIndicators> | ReturnType<typeof defaultScrollAnchor> | ReturnType<typeof defaultScrollAnchorForRole> | ReturnType<typeof scrollTargetBehavior> | ReturnType<typeof scrollTargetLayout> | ReturnType<typeof id> | ReturnType<typeof scrollPosition> | ReturnType<typeof onScrollPhaseChange> | NonNullable<ReturnType<typeof useScrollGeometryChange>> | ReturnType<typeof moveDisabled> | ReturnType<typeof deleteDisabled> | ReturnType<typeof environment> | ReturnType<typeof listRowBackground> | ReturnType<typeof listRowSeparator> | ReturnType<typeof listRowSpacing> | ReturnType<typeof truncationMode> | ReturnType<typeof allowsTightening> | ReturnType<typeof kerning> | ReturnType<typeof textCase> | ReturnType<typeof underline> | ReturnType<typeof strikethrough> | ReturnType<typeof multilineTextAlignment> | ReturnType<typeof textSelection> | ReturnType<typeof lineSpacing> | ReturnType<typeof lineHeight> | ReturnType<typeof lineLimit> | ReturnType<typeof headerProminence> | ReturnType<typeof listRowInsets> | ReturnType<typeof badgeProminence> | ReturnType<typeof badge> | ReturnType<typeof listSectionMargins> | ReturnType<typeof font> | ReturnType<typeof dynamicTypeSize> | ReturnType<typeof gridCellUnsizedAxes> | ReturnType<typeof gridCellColumns> | ReturnType<typeof gridColumnAlignment> | ReturnType<typeof gridCellAnchor> | ReturnType<typeof submitLabel> | ReturnType<typeof keyboardType> | ReturnType<typeof autocorrectionDisabled> | ReturnType<typeof onSubmit> | ReturnType<typeof textInputAutocapitalization> | ReturnType<typeof textContentType> | ReturnType<typeof datePickerStyle> | ReturnType<typeof progressViewStyle> | ReturnType<typeof gaugeStyle> | ReturnType<typeof listStyle> | ReturnType<typeof contentTransition> | ReturnType<typeof resizable> | ReturnType<typeof symbolEffect> | ReturnType<typeof widgetAccentedRenderingMode> | ReturnType<typeof widgetURL> | ReturnType<typeof activityBackgroundTint> | ReturnType<typeof containerBackground>;
+ /**
+  * Main ViewModifier type that supports both built-in and 3rd party modifiers.
+  * 3rd party modifiers should return ModifierConfig objects with their own type strings.
+diff --git a/ios/Modifiers/ViewModifierRegistry.swift b/ios/Modifiers/ViewModifierRegistry.swift
+index c39adfd..8288ae2 100644
+--- a/ios/Modifiers/ViewModifierRegistry.swift
++++ b/ios/Modifiers/ViewModifierRegistry.swift
+@@ -598,6 +598,97 @@ internal struct AccessibilityElementModifier: ViewModifier, Record {
+   }
+ }
+ 
++internal enum AccessibilityTraitType: String, Enumerable {
++  case isButton
++  case isHeader
++  case isImage
++  case isSelected
++  case isLink
++  case isModal
++  case isSummaryElement
++  case updatesFrequently
++  case startsMediaSession
++  case allowsDirectInteraction
++  case causesPageTurn
++  case isToggle
++  case playsSound
++  case isStaticText
++  case isSearchField
++  case isKeyboardKey
++  case isTabBar
++
++  func toNative() -> AccessibilityTraits? {
++    switch self {
++    case .isButton:
++      return .isButton
++    case .isHeader:
++      return .isHeader
++    case .isImage:
++      return .isImage
++    case .isSelected:
++      return .isSelected
++    case .isLink:
++      return .isLink
++    case .isModal:
++      return .isModal
++    case .isSummaryElement:
++      return .isSummaryElement
++    case .updatesFrequently:
++      return .updatesFrequently
++    case .startsMediaSession:
++      return .startsMediaSession
++    case .allowsDirectInteraction:
++      return .allowsDirectInteraction
++    case .causesPageTurn:
++      return .causesPageTurn
++    case .isToggle:
++      if #available(iOS 17.0, tvOS 17.0, macOS 14.0, *) {
++        return .isToggle
++      }
++      return nil
++    case .playsSound:
++      return .playsSound
++    case .isStaticText:
++      return .isStaticText
++    case .isSearchField:
++      return .isSearchField
++    case .isKeyboardKey:
++      return .isKeyboardKey
++    case .isTabBar:
++      if #available(iOS 17.0, tvOS 17.0, macOS 14.0, *) {
++        return .isTabBar
++      }
++      return nil
++    }
++  }
++}
++
++internal func combineAccessibilityTraits(_ traits: [AccessibilityTraitType]) -> AccessibilityTraits {
++  var combined: AccessibilityTraits = []
++  for trait in traits {
++    if let native = trait.toNative() {
++      combined.formUnion(native)
++    }
++  }
++  return combined
++}
++
++internal struct AccessibilityAddTraitsModifier: ViewModifier, Record {
++  @Field var traits: [AccessibilityTraitType] = []
++
++  func body(content: Content) -> some View {
++    content.accessibilityAddTraits(combineAccessibilityTraits(traits))
++  }
++}
++
++internal struct AccessibilityRemoveTraitsModifier: ViewModifier, Record {
++  @Field var traits: [AccessibilityTraitType] = []
++
++  func body(content: Content) -> some View {
++    content.accessibilityRemoveTraits(combineAccessibilityTraits(traits))
++  }
++}
++
+ internal struct LayoutPriorityModifier: ViewModifier, Record {
+   @Field var priority: Double = 0
+ 
+@@ -1696,6 +1787,14 @@ extension ViewModifierRegistry {
+       return try AccessibilityElementModifier(from: params, appContext: appContext)
+     }
+ 
++    register("accessibilityAddTraits") { params, appContext, _ in
++      return try AccessibilityAddTraitsModifier(from: params, appContext: appContext)
++    }
++
++    register("accessibilityRemoveTraits") { params, appContext, _ in
++      return try AccessibilityRemoveTraitsModifier(from: params, appContext: appContext)
++    }
++
+     register("layoutPriority") { params, appContext, _ in
+       return try LayoutPriorityModifier(from: params, appContext: appContext)
+     }
+diff --git a/src/swift-ui/modifiers/index.ts b/src/swift-ui/modifiers/index.ts
+index 223c51d..37ccb63 100644
+--- a/src/swift-ui/modifiers/index.ts
++++ b/src/swift-ui/modifiers/index.ts
+@@ -851,6 +851,46 @@ export const accessibilityHidden = (hidden: boolean = true) =>
+ export const accessibilityElement = (children: 'ignore' | 'combine' | 'contain' = 'ignore') =>
+   createModifier('accessibilityElement', { children });
+ 
++/**
++ * The set of accessibility traits that can be added to or removed from a view
++ * with `accessibilityAddTraits` and `accessibilityRemoveTraits`.
++ * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/accessibilitytraits).
++ */
++export type AccessibilityTrait =
++  | 'isButton'
++  | 'isHeader'
++  | 'isImage'
++  | 'isSelected'
++  | 'isLink'
++  | 'isModal'
++  | 'isSummaryElement'
++  | 'updatesFrequently'
++  | 'startsMediaSession'
++  | 'allowsDirectInteraction'
++  | 'causesPageTurn'
++  | 'isToggle'
++  | 'playsSound'
++  | 'isStaticText'
++  | 'isSearchField'
++  | 'isKeyboardKey'
++  | 'isTabBar';
++
++/**
++ * Adds the given accessibility traits to the view.
++ * @param traits - The accessibility traits to add. `isToggle` and `isTabBar` require iOS 17+ and are ignored on older systems.
++ * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/view/accessibilityaddtraits(_:)).
++ */
++export const accessibilityAddTraits = (traits: AccessibilityTrait[]) =>
++  createModifier('accessibilityAddTraits', { traits });
++
++/**
++ * Removes the given accessibility traits from the view.
++ * @param traits - The accessibility traits to remove. `isToggle` and `isTabBar` require iOS 17+ and are ignored on older systems.
++ * @see Official [SwiftUI documentation](https://developer.apple.com/documentation/swiftui/view/accessibilityremovetraits(_:)).
++ */
++export const accessibilityRemoveTraits = (traits: AccessibilityTrait[]) =>
++  createModifier('accessibilityRemoveTraits', { traits });
++
+ /**
+  * Sets layout priority for the view.
+  * @param priority - Layout priority value.
+@@ -1554,6 +1594,8 @@ export type BuiltInModifier =
+   | ReturnType<typeof accessibilityIdentifier>
+   | ReturnType<typeof accessibilityHidden>
+   | ReturnType<typeof accessibilityElement>
++  | ReturnType<typeof accessibilityAddTraits>
++  | ReturnType<typeof accessibilityRemoveTraits>
+   | ReturnType<typeof layoutPriority>
+   | ReturnType<typeof mask>
+   | ReturnType<typeof overlay>
