@@ -14,7 +14,7 @@ This is me sending patches.
 
 ## Open
 
-PRs still in flight. Every row has a patch in `packages/` you can drop into your project.
+Not in a released version yet, so the patch is still live. Some PRs are still in review, some merged and waiting on the next release. Every row has a patch in `packages/` you can drop into your project.
 
 | Package | Version | Fix | PR |
 | :--- | :--- | :--- | :--- |
