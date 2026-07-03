@@ -31,6 +31,9 @@ jobs:
       # create and approve pull requests". Or pass a PAT/App token via `token:`.
       - uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
         with:
+          # Author the reconcile commit as Ray so the actions bot never lands in the contributor graph.
+          author: Ray <hello@ramonclaudio.com>
+          committer: Ray <hello@ramonclaudio.com>
           add-paths: README.md
           branch: chore/reconcile-ledger
           title: "chore: reconcile patches ledger"
