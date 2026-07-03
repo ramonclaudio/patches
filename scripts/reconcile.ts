@@ -1,12 +1,6 @@
 #!/usr/bin/env bun
-// reconcile.ts — keep the README ledger in sync with GitHub + npm.
-//
-//   bun scripts/reconcile.ts        audit: report drift, exit 1 when any
-//   bun scripts/reconcile.ts --fix  apply: move merged PRs, stamp shipped versions
-//
-// GitHub is the truth for merge state. npm plus the package CHANGELOG are the truth for which
-// release a merged fix shipped in. The README ledger is the data file. All I/O lives here; the
-// row transforms in readme.ts stay pure.
+// Keep the README ledger in sync with GitHub (merge state) and npm (release versions).
+// Audit by default (exit 1 on drift), --fix applies. The row transforms in readme.ts stay pure.
 
 import { $ } from "bun";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -33,8 +27,7 @@ const actions: string[] = [];
 const warnings: string[] = [];
 const err = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
-// Highest semver wins. Prerelease tokens (canary) parse to NaN and get skipped, so this only
-// orders stable versions cleanly, which is all we sort.
+// Prerelease tokens (canary) parse to NaN and get skipped, so this orders stable versions only.
 function cmpVer(a: string, b: string): number {
   const pa = a.split(/[.+-]/).map(Number);
   const pb = b.split(/[.+-]/).map(Number);
@@ -47,7 +40,7 @@ function cmpVer(a: string, b: string): number {
   return 0;
 }
 
-// ---------- merge pass: an Open PR merged on GitHub moves to the Merged table ----------
+// ---------- merge pass ----------
 
 const merges: { owner: string; repo: string; number: number; url: string; pkg: string }[] = [];
 for (const row of parseOpenRows(next)) {
@@ -71,7 +64,7 @@ for (const m of merges) {
   }
 }
 
-// ---------- release pass: an unreleased merged fix that shipped in an npm version ----------
+// ---------- release pass ----------
 
 for (const row of parseMergedRows(next)) {
   const pr = row.pr;

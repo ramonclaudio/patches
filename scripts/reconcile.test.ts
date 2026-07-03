@@ -9,8 +9,6 @@ import {
   updateMergedRowVersion,
 } from "./readme.ts";
 
-// One Open PR with a link, one with an issue link in the Fix cell plus its own pull link, one
-// with no link yet. One unreleased Merged row, one versioned, one version-less "merged".
 const README = `# patches
 
 ## Open
@@ -125,7 +123,6 @@ test("firstReleasedVersionForPr returns null when nothing cites the PR", () => {
 });
 
 test("firstReleasedVersionForPr matches whole PR numbers only", () => {
-  // 4742 is a prefix of 47426 in the changelog, must not match
   expect(firstReleasedVersionForPr(CHANGELOG, 4742)).toBeNull();
 });
 
@@ -164,8 +161,6 @@ test("updateMergedRowVersion needs force to change a real version", () => {
   expect(parseMergedRows(forced).find(r => r.pr?.number === 9087)?.marker).toBe("1.6.6");
 });
 
-// A PR cited again in a NEWER section (follow-up, revert, cross-reference) must not win: the
-// changelog is newest-first, so the fix shipped in the oldest citing section.
 const FOLLOWUP_CHANGELOG = `# Changelog
 
 ## 57.0.5
@@ -181,7 +176,6 @@ test("firstReleasedVersionForPr returns the ship version, not a newer follow-up"
   expect(firstReleasedVersionForPr(FOLLOWUP_CHANGELOG, 47426)).toBe("57.0.3");
 });
 
-// One interleaved changelog carrying two release lines: a backport puts the same PR on both.
 const INTERLEAVED_CHANGELOG = `# Changelog
 
 ## 56.0.0
@@ -204,7 +198,6 @@ test("firstReleasedVersionForPr scopes to the row's release line when major is g
   expect(firstReleasedVersionForPr(INTERLEAVED_CHANGELOG, 43954)).toBe("55.0.3");
 });
 
-// keep-a-changelog bracketed headers with a leading [Unreleased] block.
 const BRACKETED_CHANGELOG = `# Changelog
 
 ## [Unreleased]
@@ -279,7 +272,7 @@ test("moveOpenRowToMerged no-ops instead of duplicating when the PR is already m
 ## Usage
 `;
   const out = moveOpenRowToMerged(doc, 7, "unreleased", "o", "r");
-  expect(out).toBe(doc); // no-op, not a second Merged row
+  expect(out).toBe(doc);
   expect(parseMergedRows(out!).filter(r => r.pr?.number === 7).length).toBe(1);
 });
 
@@ -297,6 +290,6 @@ test("updateMergedRowVersion scopes by repo so a cross-repo PR twin is not stamp
 `;
   const out = updateMergedRowVersion(doc, 218, "2.5.0", false, "get-convex", "bar");
   const rows = parseMergedRows(out);
-  expect(rows.find(r => r.pkg === "foo")?.marker).toBe("unreleased"); // untouched
-  expect(rows.find(r => r.pkg === "bar")?.marker).toBe("2.5.0"); // the right repo's row
+  expect(rows.find(r => r.pkg === "foo")?.marker).toBe("unreleased");
+  expect(rows.find(r => r.pkg === "bar")?.marker).toBe("2.5.0");
 });
