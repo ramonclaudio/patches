@@ -1,0 +1,16 @@
+{
+  "name": "patches",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "reconcile": "bun scripts/reconcile.ts",
+    "reconcile:fix": "bun scripts/reconcile.ts --fix",
+    "test": "bun test",
+    "lint": "oxlint scripts",
+    "format": "oxfmt --write scripts"
+  },
+  "devDependencies": {
+    "oxlint": "^1.14.0",
+    "@types/bun": "^1.3.14"
+  }
+}
