@@ -1,0 +1,78 @@
+diff --git a/node_modules/expo-router/build/native-tabs/NativeTabTrigger.js b/node_modules/expo-router/build/native-tabs/NativeTabTrigger.js
+index 2dbe8eb..33bda7a 100644
+--- a/node_modules/expo-router/build/native-tabs/NativeTabTrigger.js
++++ b/node_modules/expo-router/build/native-tabs/NativeTabTrigger.js
+@@ -72,7 +72,7 @@ exports.NativeTabTrigger = Object.assign(NativeTabTriggerImpl, {
+     Badge: elements_1.NativeTabsTriggerBadge,
+     VectorIcon: elements_1.NativeTabsTriggerVectorIcon,
+ });
+-function convertTabPropsToOptions({ hidden, children, role, disablePopToTop, disableScrollToTop, unstable_nativeProps, disableAutomaticContentInsets, contentStyle, disableTransparentOnScrollEdge, disabled, rippleColor, indicatorColor, disableIndicator, labelVisibilityMode, }, isDynamic = false) {
++function convertTabPropsToOptions({ hidden, children, role, disablePopToTop, disableScrollToTop, unstable_nativeProps, disableAutomaticContentInsets, contentStyle, disableTransparentOnScrollEdge, disabled, rippleColor, indicatorColor, disableIndicator, labelVisibilityMode, testID, accessibilityLabel, }, isDynamic = false) {
+     const initialOptions = isDynamic
+         ? {
+             ...(unstable_nativeProps ? { nativeProps: unstable_nativeProps } : {}),
+@@ -82,6 +82,8 @@ function convertTabPropsToOptions({ hidden, children, role, disablePopToTop, dis
+             ...(indicatorColor !== undefined ? { indicatorColor } : {}),
+             ...(disableIndicator !== undefined ? { disableIndicator } : {}),
+             ...(labelVisibilityMode !== undefined ? { labelVisibilityMode } : {}),
++            ...(testID !== undefined ? { tabBarItemTestID: testID } : {}),
++            ...(accessibilityLabel !== undefined ? { tabBarItemAccessibilityLabel: accessibilityLabel } : {}),
+         }
+         : {
+             hidden: !!hidden,
+@@ -101,6 +103,8 @@ function convertTabPropsToOptions({ hidden, children, role, disablePopToTop, dis
+             ...(indicatorColor !== undefined ? { indicatorColor } : {}),
+             ...(disableIndicator !== undefined ? { disableIndicator } : {}),
+             ...(labelVisibilityMode !== undefined ? { labelVisibilityMode } : {}),
++            ...(testID !== undefined ? { tabBarItemTestID: testID } : {}),
++            ...(accessibilityLabel !== undefined ? { tabBarItemAccessibilityLabel: accessibilityLabel } : {}),
+         };
+     const allowedChildren = (0, children_1.filterAllowedChildrenElements)(children, [
+         elements_1.NativeTabsTriggerBadge,
+diff --git a/node_modules/expo-router/build/native-tabs/types.d.ts b/node_modules/expo-router/build/native-tabs/types.d.ts
+index 8156f82..29b1508 100644
+--- a/node_modules/expo-router/build/native-tabs/types.d.ts
++++ b/node_modules/expo-router/build/native-tabs/types.d.ts
+@@ -155,6 +155,16 @@ export interface NativeTabOptions extends DefaultRouterOptions {
+      * @platform iOS
+      */
+     disabled?: boolean;
++    /**
++     * @platform android
++     * @platform iOS
++     */
++    tabBarItemTestID?: string;
++    /**
++     * @platform android
++     * @platform iOS
++     */
++    tabBarItemAccessibilityLabel?: string;
+     /**
+      * @platform iOS
+      */
+@@ -499,6 +509,25 @@ export interface NativeTabTriggerProps {
+      * @platform ios
+      */
+     disabled?: boolean;
++    /**
++     * The test ID used to locate this tab bar item in end-to-end tests.
++     *
++     * Maps to the tab bar item's accessibility identifier on iOS and its view tag on Android.
++     *
++     * @platform android
++     * @platform iOS
++     */
++    testID?: string;
++    /**
++     * The accessibility label of the tab bar item, announced by screen readers.
++     * Defaults to the visible tab label.
++     *
++     * On Android, maps to the item's `contentDescription` and requires API 26 or above.
++     *
++     * @platform android
++     * @platform iOS
++     */
++    accessibilityLabel?: string;
+     /**
+      * The children of the trigger.
+      *
