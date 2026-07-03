@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import {
   firstReleasedVersionForPr,
+  fmtVersion,
   moveOpenRowToMerged,
   parseMergedRows,
   parseOpenRows,
@@ -67,7 +68,12 @@ test("parseOpenRows extracts pkg, version, and pr", () => {
   expect(rows[0]).toEqual({
     pkg: "expo-router",
     version: "57.0.3",
-    pr: { owner: "expo", repo: "expo", number: 47472, url: "https://github.com/expo/expo/pull/47472" },
+    pr: {
+      owner: "expo",
+      repo: "expo",
+      number: 47472,
+      url: "https://github.com/expo/expo/pull/47472",
+    },
   });
 });
 
@@ -137,13 +143,13 @@ test("moveOpenRowToMerged moves an open PR to merged as unreleased", () => {
   const out = moveOpenRowToMerged(README, 47472, "unreleased")!;
   expect(out).not.toBe(README);
   expect(parseOpenRows(out).length).toBe(2);
-  const moved = parseMergedRows(out).find(r => r.pr?.number === 47472);
+  const moved = parseMergedRows(out).find((r) => r.pr?.number === 47472);
   expect(moved?.marker).toBe("unreleased");
 });
 
 test("moveOpenRowToMerged renders a version-less n/a row as merged", () => {
   const out = moveOpenRowToMerged(README, 2046, "unreleased")!;
-  const moved = parseMergedRows(out).find(r => r.pr?.number === 2046);
+  const moved = parseMergedRows(out).find((r) => r.pr?.number === 2046);
   expect(moved?.was).toBe("n/a");
   expect(moved?.marker).toBe("merged");
 });
@@ -151,14 +157,47 @@ test("moveOpenRowToMerged renders a version-less n/a row as merged", () => {
 test("updateMergedRowVersion stamps an unreleased row with a version", () => {
   const out = updateMergedRowVersion(README, 47426, "57.0.3", false);
   expect(out).not.toBe(README);
-  expect(parseMergedRows(out).find(r => r.pr?.number === 47426)?.marker).toBe("57.0.3");
+  expect(parseMergedRows(out).find((r) => r.pr?.number === 47426)?.marker).toBe("57.0.3");
 });
 
 test("updateMergedRowVersion needs force to change a real version", () => {
   const noop = updateMergedRowVersion(README, 9087, "1.6.6", false);
   expect(noop).toBe(README);
   const forced = updateMergedRowVersion(README, 9087, "1.6.6", true);
-  expect(parseMergedRows(forced).find(r => r.pr?.number === 9087)?.marker).toBe("1.6.6");
+  expect(parseMergedRows(forced).find((r) => r.pr?.number === 9087)?.marker).toBe("1.6.6");
+});
+
+test("fmtVersion formats version lists per entry, markers stay bare", () => {
+  expect(fmtVersion("56.0.19, 57.0.1")).toBe("`56.0.19`, `57.0.1`");
+  expect(fmtVersion("unreleased")).toBe("unreleased");
+  expect(fmtVersion("1.6.5")).toBe("`1.6.5`");
+});
+
+test("updateMergedRowVersion grows a version list additively without force", () => {
+  // 1.6.5 already recorded; a later line ships the same fix
+  const grown = updateMergedRowVersion(README, 9087, "1.6.5, 2.0.1", false);
+  expect(grown).not.toBe(README);
+  expect(parseMergedRows(grown).find((r) => r.pr?.number === 9087)?.marker).toBe("1.6.5, 2.0.1");
+  // growing further is also additive
+  const more = updateMergedRowVersion(grown, 9087, "1.6.5, 2.0.1, 3.0.0", false);
+  expect(parseMergedRows(more).find((r) => r.pr?.number === 9087)?.marker).toBe(
+    "1.6.5, 2.0.1, 3.0.0",
+  );
+});
+
+test("updateMergedRowVersion refuses a non-superset swap without force", () => {
+  // 1.6.5 recorded; a list that drops it is a correction, not growth
+  expect(updateMergedRowVersion(README, 9087, "1.6.6, 2.0.1", false)).toBe(README);
+  const forced = updateMergedRowVersion(README, 9087, "1.6.6, 2.0.1", true);
+  expect(parseMergedRows(forced).find((r) => r.pr?.number === 9087)?.marker).toBe("1.6.6, 2.0.1");
+});
+
+test("parseMergedRows reads a multi-version marker", () => {
+  const doc = README.replace(
+    "`1.6.5` ([better-auth/better-auth#9087]",
+    "`1.6.5`, `2.0.1` ([better-auth/better-auth#9087]",
+  );
+  expect(parseMergedRows(doc).find((r) => r.pr?.number === 9087)?.marker).toBe("1.6.5, 2.0.1");
 });
 
 const FOLLOWUP_CHANGELOG = `# Changelog
@@ -222,7 +261,8 @@ test("pickWasMajor strips a leading v", () => {
 });
 
 test("parseTableRow keeps a pipe inside a code span in one cell", () => {
-  const row = "| [`pkg`](packages/pkg/) | `1.0.0` | Narrow `string | number` union. | [o/r#1234](https://github.com/o/r/pull/1234) |";
+  const row =
+    "| [`pkg`](packages/pkg/) | `1.0.0` | Narrow `string | number` union. | [o/r#1234](https://github.com/o/r/pull/1234) |";
   const cells = parseTableRow(row);
   expect(cells.length).toBe(4);
   expect(cells[2].trim()).toBe("Narrow `string | number` union.");
@@ -254,7 +294,7 @@ test("parseOpenRows keeps a row whose Fix cell has a pipe in a code span", () =>
   });
 });
 
-test("moveOpenRowToMerged no-ops instead of duplicating when the PR is already merged", () => {
+test("moveOpenRowToMerged removes a stale Open row instead of duplicating an already-merged PR", () => {
   const doc = `# patches
 
 ## Open
@@ -271,9 +311,14 @@ test("moveOpenRowToMerged no-ops instead of duplicating when the PR is already m
 
 ## Usage
 `;
-  const out = moveOpenRowToMerged(doc, 7, "unreleased", "o", "r");
-  expect(out).toBe(doc);
-  expect(parseMergedRows(out!).filter(r => r.pr?.number === 7).length).toBe(1);
+  const out = moveOpenRowToMerged(doc, 7, "unreleased", "o", "r")!;
+  expect(out).not.toBe(doc);
+  expect(parseOpenRows(out).length).toBe(0);
+  expect(parseMergedRows(out).filter((r) => r.pr?.number === 7).length).toBe(1);
+});
+
+test("moveOpenRowToMerged no-ops when the PR is merged and no Open row lingers", () => {
+  expect(moveOpenRowToMerged(README, 47426, "unreleased", "expo", "expo")).toBe(README);
 });
 
 test("updateMergedRowVersion scopes by repo so a cross-repo PR twin is not stamped", () => {
@@ -290,6 +335,6 @@ test("updateMergedRowVersion scopes by repo so a cross-repo PR twin is not stamp
 `;
   const out = updateMergedRowVersion(doc, 218, "2.5.0", false, "get-convex", "bar");
   const rows = parseMergedRows(out);
-  expect(rows.find(r => r.pkg === "foo")?.marker).toBe("unreleased");
-  expect(rows.find(r => r.pkg === "bar")?.marker).toBe("2.5.0");
+  expect(rows.find((r) => r.pkg === "foo")?.marker).toBe("unreleased");
+  expect(rows.find((r) => r.pkg === "bar")?.marker).toBe("2.5.0");
 });

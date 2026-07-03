@@ -1,0 +1,27 @@
+name: Tests
+
+# The only automation in this repo, and it only verifies. The ledger has exactly
+# one writer: reconcile.ts run locally via `prw pulse`, which updates pipeline,
+# ledger, and site in one motion. Freshness is event-driven, not scheduled.
+
+on:
+  pull_request:
+    paths:
+      - "scripts/**"
+      - "package.json"
+      - "bun.lock"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+      - run: bun install --frozen-lockfile
+      - run: bun test
+      - run: bun run lint
