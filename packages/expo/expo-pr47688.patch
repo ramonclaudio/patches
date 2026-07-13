@@ -1,0 +1,40 @@
+diff --git a/packages/expo-dev-launcher/CHANGELOG.md b/packages/expo-dev-launcher/CHANGELOG.md
+index 76f464f9e00f5a..529cfcbd53e4bd 100644
+--- a/packages/expo-dev-launcher/CHANGELOG.md
++++ b/packages/expo-dev-launcher/CHANGELOG.md
+@@ -24,6 +24,7 @@
+ - [iOS] Fix tvOS compile error in DevServersView. ([#47082](https://github.com/expo/expo/pull/47082) by [@douglowder](https://github.com/douglowder))
+ - [Android] Fix auto-launching into the most recently opened project on startup. ([#47131](https://github.com/expo/expo/pull/47131) by [@alanjhughes](https://github.com/alanjhughes))
+ - [Android] Forward the launching intent's extras when cold-launching the most recently opened bundle, so launch arguments (e.g. from Maestro/Detox or `adb am start -e`) reach the app and `react-native-launch-arguments` can read them. ([#47352](https://github.com/expo/expo/pull/47352) by [@kanzelm3](https://github.com/kanzelm3))
++- [iOS] Fix Release build failure from an unguarded call to `RCTBundleURLProviderAllowPackagerServerAccess`. ([#47688](https://github.com/expo/expo/pull/47688) by [@ramonclaudio](https://github.com/ramonclaudio))
+ 
+ ### 💡 Others
+ 
+diff --git a/packages/expo-dev-launcher/ios/EXDevLauncherController.m b/packages/expo-dev-launcher/ios/EXDevLauncherController.m
+index f9df7d5a881714..ee6d726c48f64f 100644
+--- a/packages/expo-dev-launcher/ios/EXDevLauncherController.m
++++ b/packages/expo-dev-launcher/ios/EXDevLauncherController.m
+@@ -182,7 +182,11 @@ - (UIWindow *)currentWindow
+ 
+ - (void)start:(id<EXDevLauncherControllerDelegate>)delegate launchOptions:(NSDictionary * _Nullable)launchOptions
+ {
++#if RCT_DEV_MENU | RCT_PACKAGER_LOADING_FUNCTIONALITY
++  // Matches the guard on the declaration in React/Base/RCTBundleURLProvider.h.
++  // The function isn't declared in builds without packager support.
+   RCTBundleURLProviderAllowPackagerServerAccess(NO);
++#endif
+ 
+   _delegate = delegate;
+   _launchOptions = launchOptions;
+@@ -389,9 +393,11 @@ - (void)loadApp:(NSURL *)url
+       onSuccess:(void (^ _Nullable)(void))onSuccess
+         onError:(void (^ _Nullable)(NSError *error))onError
+ {
++#if RCT_DEV_MENU | RCT_PACKAGER_LOADING_FUNCTIONALITY
+   // A dev server has been chosen — re-allow packager access (denied at launcher boot in
+   // `start:launchOptions:`). Replaces the RCTBundleURLProvider.guessPackagerHost swizzle.
+   RCTBundleURLProviderAllowPackagerServerAccess(YES);
++#endif
+ 
+   EXDevLauncherUrl *devLauncherUrl = [[EXDevLauncherUrl alloc] init:url];
+   NSURL *expoUrl = devLauncherUrl.url;
