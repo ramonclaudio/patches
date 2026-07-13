@@ -1,0 +1,49 @@
+diff --git a/packages/expo-dev-menu/CHANGELOG.md b/packages/expo-dev-menu/CHANGELOG.md
+index 61e9ec5bf96ed7..62b7f40436647d 100644
+--- a/packages/expo-dev-menu/CHANGELOG.md
++++ b/packages/expo-dev-menu/CHANGELOG.md
+@@ -15,6 +15,7 @@
+ - [Android] Restore the "Open React Native dev menu" entry in the dev menu's Tools section (regressed in [#38759](https://github.com/expo/expo/pull/38759)). ([#47047](https://github.com/expo/expo/pull/47047) by [@lindboe](https://github.com/lindboe))
+ - [Android] Re-enable the Fast Refresh toggle in the dev menu's Tools section. ([#47136](https://github.com/expo/expo/pull/47136) by [@lukmccall](https://github.com/lukmccall))
+ - [iOS] Show the floating Tools button at its final position instead of animating in from the top-left corner. ([#46762](https://github.com/expo/expo/pull/46762) by [@alanjhughes](https://github.com/alanjhughes))
++- [macOS] Fix build failure from `RCTDevMenu.devMenuEnabled` / `keyboardShortcutsEnabled` access, which react-native-macos does not have. ([#47693](https://github.com/expo/expo/pull/47693) by [@ramonclaudio](https://github.com/ramonclaudio))
+ 
+ ### 💡 Others
+ 
+diff --git a/packages/expo-dev-menu/ios/DevMenuPackagerConnectionHandler.swift b/packages/expo-dev-menu/ios/DevMenuPackagerConnectionHandler.swift
+index dfa6220d5d6a2c..4905dab4f8816d 100644
+--- a/packages/expo-dev-menu/ios/DevMenuPackagerConnectionHandler.swift
++++ b/packages/expo-dev-menu/ios/DevMenuPackagerConnectionHandler.swift
+@@ -50,9 +50,12 @@ class DevMenuPackagerConnectionHandler {
+   }
+ 
+   private func disableRnDevMenu(_ manager: DevMenuManager) {
++// TODO(gabrieldonadel): Remove this once we bump react-native-macos to 0.84
++#if !os(macOS)
+     let rctDevMenu: RCTDevMenu? = manager.currentAppContext?.nativeModule(named: "RCTDevMenu")
+     rctDevMenu?.devMenuEnabled = false
+     rctDevMenu?.keyboardShortcutsEnabled = false
++#endif
+     DevMenuKeyCommandsInterceptor.reinstall()
+   }
+ 
+diff --git a/packages/expo-dev-menu/ios/SwiftUI/DevMenuViewModel.swift b/packages/expo-dev-menu/ios/SwiftUI/DevMenuViewModel.swift
+index d533644d2a915d..fde4efb791d2c1 100644
+--- a/packages/expo-dev-menu/ios/SwiftUI/DevMenuViewModel.swift
++++ b/packages/expo-dev-menu/ios/SwiftUI/DevMenuViewModel.swift
+@@ -132,9 +132,15 @@ class DevMenuViewModel: ObservableObject {
+     }
+ 
+     devMenuManager.closeMenu {
++// TODO(gabrieldonadel): Remove this once we bump react-native-macos to 0.84
++#if !os(macOS)
+       rctDevMenu.devMenuEnabled = true
+       rctDevMenu.show()
+       rctDevMenu.devMenuEnabled = false
++#else
++      // react-native-macos's RCTDevMenu has no devMenuEnabled property, so show it directly.
++      rctDevMenu.show()
++#endif
+     }
+   }
+ 
