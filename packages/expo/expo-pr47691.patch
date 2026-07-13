@@ -1,0 +1,23 @@
+diff --git a/.github/workflows/expotools.yml b/.github/workflows/expotools.yml
+index 917ce89da9b3a4..d73012df070a65 100644
+--- a/.github/workflows/expotools.yml
++++ b/.github/workflows/expotools.yml
+@@ -47,3 +47,6 @@ jobs:
+       - name: 🚨 Lint TypeScript sources
+         run: pnpm lint --max-warnings 0
+         working-directory: tools
++      - name: 🧪 Test sources
++        run: pnpm test
++        working-directory: tools
+diff --git a/tools/src/commands/GenerateDocsAPIData.ts b/tools/src/commands/GenerateDocsAPIData.ts
+index f3998a1e807ad7..0003f1ba23ae98 100644
+--- a/tools/src/commands/GenerateDocsAPIData.ts
++++ b/tools/src/commands/GenerateDocsAPIData.ts
+@@ -454,6 +454,7 @@ async function action({ packageName, sdk }: ActionOptions) {
+     for (const { key, reason } of failures) {
+       logger.error(`💥 Failed to generate docs API data for '${key}':`, reason);
+     }
++    process.exitCode = 1;
+     return;
+   }
+   logger.log(
