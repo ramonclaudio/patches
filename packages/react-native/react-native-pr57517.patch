@@ -1,0 +1,44 @@
+diff --git a/packages/react-native/React/Base/RCTBundleURLProvider.h b/packages/react-native/React/Base/RCTBundleURLProvider.h
+index 2d7dc5065374..3b33f9d215f2 100644
+--- a/packages/react-native/React/Base/RCTBundleURLProvider.h
++++ b/packages/react-native/React/Base/RCTBundleURLProvider.h
+@@ -14,15 +14,15 @@
+ RCT_EXTERN NSString *_Nonnull const RCTBundleURLProviderUpdatedNotification;
+ RCT_EXTERN const NSUInteger kRCTBundleURLProviderDefaultPort;
+ 
+-#if RCT_DEV_MENU | RCT_PACKAGER_LOADING_FUNCTIONALITY
+ /**
+  * Allow/disallow accessing the packager server for various runtime scenario.
+  * For instance, if a test run should never access the packager, disable it
+  * by calling this function before initializing React Native (RCTBridge etc).
+- * By default the access is enabled.
++ * By default the access is enabled. When packager support is compiled out
++ * (neither RCT_DEV_MENU nor RCT_PACKAGER_LOADING_FUNCTIONALITY is set),
++ * calling this function is a no-op.
+  */
+ RCT_EXTERN void RCTBundleURLProviderAllowPackagerServerAccess(BOOL allowed);
+-#endif
+ 
+ NS_ASSUME_NONNULL_BEGIN
+ 
+diff --git a/packages/react-native/React/Base/RCTBundleURLProvider.mm b/packages/react-native/React/Base/RCTBundleURLProvider.mm
+index 808925dd08c5..906012b06b26 100644
+--- a/packages/react-native/React/Base/RCTBundleURLProvider.mm
++++ b/packages/react-native/React/Base/RCTBundleURLProvider.mm
+@@ -19,13 +19,14 @@
+ 
+ const NSUInteger kRCTBundleURLProviderDefaultPort = RCT_METRO_PORT;
+ 
+-#if RCT_DEV_MENU | RCT_PACKAGER_LOADING_FUNCTIONALITY
++// Declared unconditionally so out-of-tree callers link in every configuration,
++// same shape as RCTDevLoadingViewSetEnabled. Reads stay gated below, so this is
++// a no-op when packager support is compiled out.
+ static BOOL kRCTAllowPackagerAccess = YES;
+ void RCTBundleURLProviderAllowPackagerServerAccess(BOOL allowed)
+ {
+   kRCTAllowPackagerAccess = allowed;
+ }
+-#endif
+ static NSString *const kRCTPackagerSchemeKey = @"RCT_packager_scheme";
+ static NSString *const kRCTJsLocationKey = @"RCT_jsLocation";
+ static NSString *const kRCTEnableDevKey = @"RCT_enableDev";
