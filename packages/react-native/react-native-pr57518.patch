@@ -1,0 +1,12 @@
+diff --git a/packages/rn-tester/RNTesterUnitTests/RCTTurboModuleArrayBufferTests.mm b/packages/rn-tester/RNTesterUnitTests/RCTTurboModuleArrayBufferTests.mm
+index f890da052714..fd242c2de83d 100644
+--- a/packages/rn-tester/RNTesterUnitTests/RCTTurboModuleArrayBufferTests.mm
++++ b/packages/rn-tester/RNTesterUnitTests/RCTTurboModuleArrayBufferTests.mm
+@@ -11,6 +11,7 @@
+ #import <ReactCommon/RCTTurboModule.h>
+ #import <ReactCommon/TestCallInvoker.h>
+ #import <hermes/hermes.h>
++#import <react/bridging/ArrayBuffer.h>
+ 
+ #import <list>
+ #import <vector>
